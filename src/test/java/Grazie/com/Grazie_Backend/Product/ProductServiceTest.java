@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
+
 @SpringBootTest
 @Transactional
 class ProductServiceTest {
@@ -26,17 +28,32 @@ class ProductServiceTest {
     }
 
     @Test
-    public void saveProductTest() {
+    public void getAllProductTest() {
+        List<ProductDTO> products = productService.getAllProduct();
+        for (ProductDTO dto : products) {
+            System.out.print(dto.getName() + " " + dto.getImage() + " " + dto.getPrice() + " " + dto.getExplanation()
+            + " " + dto.getSize() + " " + " " + dto.getTemperature());
+
+            System.out.print(" 영양정보 = " + dto.getInformation().getCalories() + " " + dto.getInformation().getSaturatedFat() + " "
+            + dto.getInformation().getProtein() + " " + dto.getInformation().getSodium() + " " + dto.getInformation().getSugar() + " "
+            + dto.getInformation().getCaffeine());
+
+            System.out.println();
+        }
+    }
+
+    @Test
+    public void createProductTest() {
 
         ProductInformation productInformation = new ProductInformation();
         productInformation.setCalories(10);
         productInformation.setSaturatedFat(0);
-        productInformation.setProtein(1);
+        productInformation.setProtein(0);
         productInformation.setSodium(5);
         productInformation.setSugar(0);
         productInformation.setCaffeine(150);
 
-        ProductDTO americano = new ProductDTO("아메리카노", "Americano", 4500,
+        ProductDTO americano = new ProductDTO("아메리카노1", "Americano", 0,
                 "진한 에스프레소와 뜨거운 물을 섞어 스타벅스의 깔끔하고 강렬한 에스프레소를 가장 부드럽게 잘 느낄 수 있는 커피", "tall",
                 productInformation, "both");
 
@@ -88,11 +105,11 @@ class ProductServiceTest {
                 "풍부하고 진한 에스프레소에 따뜻한 우유와 벨벳 같은 우유 거품이 1:1 비율로 어우러져 마무리된 커피 음료", "tall",
                 productInformation4, "both");
 
-        productService.saveProduct(americano);
-        productService.saveProduct(caffe_latte);
-        productService.saveProduct(caffe_mocha);
-        productService.saveProduct(espresso);
-        productService.saveProduct(cappuccino);
+        productService.createProduct(americano);
+        productService.createProduct(caffe_latte);
+        productService.createProduct(caffe_mocha);
+        productService.createProduct(espresso);
+        productService.createProduct(cappuccino);
 
     }
 

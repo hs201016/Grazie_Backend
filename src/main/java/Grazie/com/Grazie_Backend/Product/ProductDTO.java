@@ -1,12 +1,12 @@
 package Grazie.com.Grazie_Backend.Product;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductDTO {
     private String name;
     private String image;
