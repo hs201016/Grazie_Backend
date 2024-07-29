@@ -8,6 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductDTO {
+    private Long product_id;
     private String name;
     private String image;
     private Integer price;
@@ -15,4 +16,19 @@ public class ProductDTO {
     private String size;
     private ProductInformation information;
     private String temperature;
+
+
+    @Override
+    public String toString() {
+        return "ProductDTO{" +
+                "product_id=" + product_id +
+                ", name='" + name + '\'' +
+                ", image='" + image + '\'' +
+                ", price=" + price +
+                ", explanation='" + explanation + '\'' +
+                ", size='" + size + '\'' +
+                ", information=" + information +
+                ", temperature='" + temperature + '\'' +
+                '}';
+    }
 }

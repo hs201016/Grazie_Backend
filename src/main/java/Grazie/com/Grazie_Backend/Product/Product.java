@@ -33,4 +33,18 @@ public class Product {
     private String temperature; // 음료온도
 
     public Product() {}
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "product_id=" + product_id +
+                ", name='" + name + '\'' +
+                ", image='" + image + '\'' +
+                ", price=" + price +
+                ", explanation='" + explanation + '\'' +
+                ", size='" + size + '\'' +
+                ", information=" + information +
+                ", temperature='" + temperature + '\'' +
+                '}';
+    }
 }

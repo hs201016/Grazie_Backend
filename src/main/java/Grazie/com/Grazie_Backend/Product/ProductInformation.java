@@ -12,4 +12,16 @@ public class ProductInformation {
     private Integer sodium;
     private Integer sugar;
     private Integer caffeine;
+
+    @Override
+    public String toString() {
+        return "ProductInformation{" +
+                "calories=" + calories +
+                ", saturatedFat=" + saturatedFat +
+                ", protein=" + protein +
+                ", sodium=" + sodium +
+                ", sugar=" + sugar +
+                ", caffeine=" + caffeine +
+                '}';
+    }
 }

@@ -29,7 +29,7 @@ public class ProductController {
         }
     }
 
-    // 상품 목록 전부 가져오는 API
+    // 모든 상품 조회 API
     @GetMapping("/get/all")
     public ResponseEntity<List<ProductDTO>> getAllProduct() {
         try {
@@ -41,11 +41,31 @@ public class ProductController {
 
     // 특정 상품의 상세보기 API
     @GetMapping("/get/{id}")
-    public ResponseEntity<ProductDTO> getProdcutById(@PathVariable Long id) {
+    public ResponseEntity<ProductDTO> getProductById(@PathVariable(value = "id") Long id) {
         try {
             return ResponseEntity.ok(productService.getProductById(id));
         } catch (Exception exception) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ProductDTO());
+        }
+    }
+
+    // product_id를 이용한 상품 수정 API
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Product> updateProductById(@PathVariable(value = "id") Long id, @RequestBody ProductDTO productDTO) {
+        try {
+            return ResponseEntity.ok(productService.updateProductById(id, productDTO));
+        } catch (Exception exception) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Product());
+        }
+    }
+
+    // product_id를 이용한 상품 삭제 API
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Boolean> deleteProductById(@PathVariable(value = "id") Long id) {
+        try {
+            return ResponseEntity.ok(productService.deleteProductById(id));
+        } catch (Exception exception) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
         }
     }
 }
