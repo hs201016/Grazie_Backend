@@ -20,12 +20,22 @@ public class ProductController {
 
     // 상품 저장 API
     @PostMapping("/create")
-    public ResponseEntity<Product> createProduct(@RequestBody ProductDTO productDTO) {
+    public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO productDTO) {
         try {
             Product product = productService.createProduct(productDTO);
-            return ResponseEntity.ok(product);
+
+            return ResponseEntity.ok(ProductDTO.builder()
+                    .product_id(product.getProduct_id())
+                    .name(product.getName())
+                    .image(product.getImage())
+                    .price(product.getPrice())
+                    .explanation(product.getExplanation())
+                    .size(product.getSize())
+                    .information(product.getInformation())
+                    .temperature(product.getTemperature())
+                    .build());
         } catch (Exception exception) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Product());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ProductDTO());
         }
     }
 
@@ -51,11 +61,21 @@ public class ProductController {
 
     // product_id를 이용한 상품 수정 API
     @PutMapping("/update/{id}")
-    public ResponseEntity<Product> updateProductById(@PathVariable(value = "id") Long id, @RequestBody ProductDTO productDTO) {
+    public ResponseEntity<ProductDTO> updateProductById(@PathVariable(value = "id") Long id, @RequestBody ProductDTO productDTO) {
         try {
-            return ResponseEntity.ok(productService.updateProductById(id, productDTO));
+            Product product = productService.updateProductById(id, productDTO);
+            return ResponseEntity.ok(ProductDTO.builder()
+                            .product_id(product.getProduct_id())
+                            .name(product.getName())
+                            .image(product.getImage())
+                            .price(product.getPrice())
+                            .explanation(product.getExplanation())
+                            .size(product.getSize())
+                            .information(product.getInformation())
+                            .temperature(product.getTemperature())
+                            .build());
         } catch (Exception exception) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Product());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ProductDTO());
         }
     }
 

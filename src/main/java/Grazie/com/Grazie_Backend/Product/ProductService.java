@@ -161,6 +161,6 @@ public class ProductService {
 
     // 상품의 온도가 정해진 문자열이 아닌 경우 True
     private boolean validationSize(String size) {
-        return !size.equals("tall") && !size.equals("grande") && !size.equals("venti");
+        return !size.equals("tall") && !size.equals("grande") && !size.equals("venti") && !size.equals("non");
     }
 }
