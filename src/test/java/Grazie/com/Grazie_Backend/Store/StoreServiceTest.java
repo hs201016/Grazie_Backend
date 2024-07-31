@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
+
 @SpringBootTest
 @Transactional
 class StoreServiceTest {
@@ -65,5 +67,41 @@ class StoreServiceTest {
         System.out.println(store2.toString());
         System.out.println(store3.toString());
         System.out.println(store4.toString());
+    }
+
+    @Test
+    public void getAllStoreTest() {
+        List<StoreDTO> list = storeService.getAllStore();
+
+        for (StoreDTO dto : list) {
+            System.out.println(dto.toString());
+        }
+    }
+
+    @Test
+    public void getStoreByIdTest() {
+        StoreDTO storeDTO = storeService.getStoreById(1L);
+
+        System.out.println(storeDTO.toString());
+    }
+
+    @Test
+    public void updateStoreByIdTest() {
+        StoreDTO storeDTO = new StoreDTO();
+        storeDTO.setName("업데이트 테스트1");
+        storeDTO.setTel_num("업데이트 테스트2");
+        storeDTO.setState(false);
+        storeDTO.setLocation("업데이트 테스트3");
+        storeDTO.setRoad_way("업데이트 테스트4");
+        storeDTO.setParking(false);
+
+        Store store = storeService.updateStoreById(1L, storeDTO);
+
+        System.out.println(store.toString());
+    }
+
+    @Test
+    public void deleteStoreByIdTest() {
+        System.out.println(storeService.deleteStoreById(1L));
     }
 }

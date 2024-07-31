@@ -2,6 +2,11 @@ package Grazie.com.Grazie_Backend.Store;
 
 import lombok.*;
 
+
+/*
+    Chaean00
+    매장 데이터 DTO
+ */
 @Getter
 @Setter
 @Builder
