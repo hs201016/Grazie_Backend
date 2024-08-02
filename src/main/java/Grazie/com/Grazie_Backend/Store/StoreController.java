@@ -61,7 +61,27 @@ public class StoreController {
         }
     }
 
-    // store_id를 이용항 매장 업데이트 API
+    // 오픈된 매장 조회 API
+    @GetMapping("/get/open")
+    public ResponseEntity<List<StoreDTO>> getOpenStore() {
+        try {
+            return ResponseEntity.ok(storeService.getOpenStore());
+        } catch (Exception exception) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ArrayList<>());
+        }
+    }
+
+    // 주차 가능한 매장 조회 API
+    @GetMapping("/get/parking")
+    public ResponseEntity<List<StoreDTO>> getParkingStore() {
+        try {
+            return ResponseEntity.ok(storeService.getParkingStore());
+        } catch (Exception exception) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ArrayList<>());
+        }
+    }
+
+    // store_id를 이용한 매장 업데이트 API
     @PutMapping("/update/{id}")
     public ResponseEntity<StoreDTO> updateStoreById(@PathVariable(value = "id") Long id, @RequestBody StoreDTO storeDTO) {
         try {

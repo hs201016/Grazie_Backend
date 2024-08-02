@@ -1,5 +1,6 @@
 package Grazie.com.Grazie_Backend.Store;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,7 @@ import java.util.List;
     매장 관리 기능
  */
 @Service
+@Slf4j
 public class StoreService {
 
     private final StoreRepository storeRepository;
@@ -72,6 +74,52 @@ public class StoreService {
                 .road_way(store.getRoad_way())
                 .parking(store.getParking())
                 .build();
+    }
+
+    // 오픈 되어 있는 매장 검색
+    public List<StoreDTO> getOpenStore() {
+        List<Store> stores = storeRepository.findOpenStore();
+        List<StoreDTO> storeDTOs = new ArrayList<>();
+
+        for (Store store : stores) {
+            StoreDTO dto = new StoreDTO();
+
+            dto.setStore_id(store.getStore_id());
+            dto.setName(store.getName());
+            dto.setState(store.getState());
+            dto.setTel_num(store.getTel_num());
+            dto.setLocation(store.getLocation());
+            dto.setRoad_way(store.getRoad_way());
+            dto.setParking(store.getParking());
+
+            storeDTOs.add(dto);
+        }
+
+        return storeDTOs;
+    }
+
+    // 주차 가능한 매장 검색
+    public List<StoreDTO> getParkingStore() {
+        List<Store> stores = storeRepository.findParkingStore();
+        List<StoreDTO> storeDTOs = new ArrayList<>();
+
+        for (Store store : stores) {
+            StoreDTO dto = new StoreDTO();
+
+            dto.setStore_id(store.getStore_id());
+            dto.setName(store.getName());
+            dto.setState(store.getState());
+            dto.setTel_num(store.getTel_num());
+            dto.setLocation(store.getLocation());
+            dto.setRoad_way(store.getRoad_way());
+            dto.setParking(store.getParking());
+
+            storeDTOs.add(dto);
+            log.debug(dto.toString());
+        }
+
+
+        return storeDTOs;
     }
 
     // 매장 수정

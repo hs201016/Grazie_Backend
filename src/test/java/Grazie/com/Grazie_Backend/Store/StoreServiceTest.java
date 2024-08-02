@@ -1,16 +1,18 @@
 package Grazie.com.Grazie_Backend.Store;
 
 import jakarta.transaction.Transactional;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 
 import java.util.List;
 
 @SpringBootTest
 @Transactional
+@DisplayName("매장 관련 서비스 테스트")
 class StoreServiceTest {
 
     @Autowired
@@ -27,6 +29,7 @@ class StoreServiceTest {
     }
 
     @Test
+    @DisplayName("매장 생성 테스트")
     public void createStoreTest() {
         Store store1 = storeService.createStore(StoreDTO.builder()
                 .name("GRAZIE 대진대학교 1호점")
@@ -70,6 +73,7 @@ class StoreServiceTest {
     }
 
     @Test
+    @DisplayName("모든 매장 조회 테스트")
     public void getAllStoreTest() {
         List<StoreDTO> list = storeService.getAllStore();
 
@@ -79,6 +83,7 @@ class StoreServiceTest {
     }
 
     @Test
+    @DisplayName("매장 상세보기 테스트")
     public void getStoreByIdTest() {
         StoreDTO storeDTO = storeService.getStoreById(1L);
 
@@ -86,6 +91,7 @@ class StoreServiceTest {
     }
 
     @Test
+    @DisplayName("매장 수정 테스트")
     public void updateStoreByIdTest() {
         StoreDTO storeDTO = new StoreDTO();
         storeDTO.setName("업데이트 테스트1");
@@ -101,7 +107,28 @@ class StoreServiceTest {
     }
 
     @Test
+    @DisplayName("매장 삭제 테스트")
     public void deleteStoreByIdTest() {
         System.out.println(storeService.deleteStoreById(1L));
+    }
+
+    @Test
+    @DisplayName("오픈한 매장 조회 테스트")
+    public void getOpenStoreTest() {
+        List<StoreDTO> storeDTOs = storeService.getOpenStore();
+
+        for (StoreDTO storeDTO : storeDTOs) {
+            System.out.println(storeDTO.toString());
+        }
+    }
+
+    @Test
+    @DisplayName("주차 가능한 매장 조회 테스트")
+    public void getParkingStore() {
+        List<StoreDTO> storeDTOs = storeService.getParkingStore();
+
+        for (StoreDTO storeDTO : storeDTOs) {
+            System.out.println(storeDTO.toString());
+        }
     }
 }
