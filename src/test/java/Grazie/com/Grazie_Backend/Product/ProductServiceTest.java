@@ -3,6 +3,7 @@ package Grazie.com.Grazie_Backend.Product;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @SpringBootTest
 @Transactional
+@DisplayName("상품 관련 서비스 테스트")
 class ProductServiceTest {
 
     @Autowired
@@ -28,6 +30,7 @@ class ProductServiceTest {
     }
 
     @Test
+    @DisplayName("모든 상품 조회 테스트")
     public void getAllProductTest() {
         List<ProductDTO> products = productService.getAllProduct();
         for (ProductDTO dto : products) {
@@ -43,6 +46,7 @@ class ProductServiceTest {
     }
 
     @Test
+    @DisplayName("상품 생성 테스트")
     public void createProductTest() {
 
         ProductInformation productInformation = new ProductInformation();
@@ -139,13 +143,15 @@ class ProductServiceTest {
     }
 
     @Test
+    @DisplayName("상품 상세보기 테스트")
     public void getProductByIdTest() {
-        ProductDTO dto = productService.getProductById(20L);
+        ProductDTO dto = productService.getProductById(21L);
 
         System.out.println(dto.toString());
     }
 
     @Test
+    @DisplayName("상품 수정 테스트")
     public void updateProductTest() {
         ProductInformation productInformation = new ProductInformation();
         productInformation.setCalories(0);
@@ -164,12 +170,13 @@ class ProductServiceTest {
         updateAmericano.setInformation(productInformation);
         updateAmericano.setTemperature("both");
 
-        Product product = productService.updateProductById(20L, updateAmericano);
+        Product product = productService.updateProductById(21L, updateAmericano);
 
         System.out.println(product.toString());
     }
 
     @Test
+    @DisplayName("상품 삭제 테스트")
     public void deleteProductByIdTest() {
         boolean flag = productService.deleteProductById(190L);
 

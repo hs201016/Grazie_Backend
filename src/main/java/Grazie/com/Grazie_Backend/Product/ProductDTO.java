@@ -27,7 +27,7 @@ public class ProductDTO {
                 ", price=" + price +
                 ", explanation='" + explanation + '\'' +
                 ", size='" + size + '\'' +
-                ", information=" + information +
+                ", information=" + information.toString() +
                 ", temperature='" + temperature + '\'' +
                 '}';
     }
