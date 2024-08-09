@@ -5,7 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 
 
@@ -22,7 +24,9 @@ public class TokenManagementService {
     public String refreshAccessToken(String refreshToken) {
         Claims claims = jwtUtil.extractAllClaims(refreshToken);
         String userId = claims.getSubject(); // (Long) id 인 pk 값을  -> String 으로 치환
-        LocalDateTime expiresAt = LocalDateTime.parse(claims.get("expiresAt", String.class));
+
+        Instant expiresAtInstant = Instant.parse(claims.get("expiresAt", String.class));
+        LocalDateTime expiresAt = LocalDateTime.ofInstant(expiresAtInstant, ZoneOffset.UTC);
 
         if (expiresAt.isBefore(LocalDateTime.now())) {
             throw new RuntimeException("Refresh Token이 만료되었습니다!");

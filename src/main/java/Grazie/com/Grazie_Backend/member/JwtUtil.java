@@ -50,7 +50,6 @@ public class JwtUtil {
 
     public String generateRefreshToken(long userId) {
         Map<String, Object> claims = new HashMap<>();
-        log.info("SecretKey: {}", secretKey);
         return createToken(claims, userId, refreshExpiration);
     }
 
