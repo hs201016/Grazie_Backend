@@ -1,5 +1,6 @@
 package Grazie.com.Grazie_Backend.Product;
 
+import Grazie.com.Grazie_Backend.StoreProduct.StoreProductRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,10 +17,12 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final StoreProductRepository storeProductRepository;
 
     @Autowired
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, StoreProductRepository storeProductRepository) {
         this.productRepository = productRepository;
+        this.storeProductRepository = storeProductRepository;
     }
 
     @Value("${file.upload-dir}")
@@ -138,6 +141,7 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
 
+        storeProductRepository.deleteByProduct(product);
         productRepository.delete(product);
         return true;
     }

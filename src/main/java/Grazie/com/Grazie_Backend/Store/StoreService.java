@@ -1,5 +1,6 @@
 package Grazie.com.Grazie_Backend.Store;
 
+import Grazie.com.Grazie_Backend.StoreProduct.StoreProductRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,10 +17,12 @@ import java.util.List;
 public class StoreService {
 
     private final StoreRepository storeRepository;
+    private final StoreProductRepository storeProductRepository;
 
     @Autowired
-    public StoreService(StoreRepository storeRepository) {
+    public StoreService(StoreRepository storeRepository, StoreProductRepository storeProductRepository) {
         this.storeRepository = storeRepository;
+        this.storeProductRepository = storeProductRepository;
     }
 
     // 매장 생성
@@ -143,8 +146,10 @@ public class StoreService {
 
     // 매장 삭제
     public Boolean deleteStoreById(Long id) {
-        Store store = storeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("매장을 찾을 수 없습니다."));
+        Store store = storeRepository.findById(id).orElseThrow(() ->
+                new IllegalArgumentException("매장을 찾을 수 없습니다."));
 
+        storeProductRepository.deleteByStore(store);
         storeRepository.delete(store);
         return true;
     }

@@ -18,4 +18,8 @@ public interface StoreProductRepository extends JpaRepository<StoreProduct, Long
 
     // 중복 확인을 위한 메서드
     boolean existsByStoreAndProduct(Store store, Product product);
+
+    void deleteByStore(Store store);
+
+    void deleteByProduct(Product product);
 }
