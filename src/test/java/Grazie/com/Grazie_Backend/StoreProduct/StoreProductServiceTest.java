@@ -11,10 +11,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest
-@Transactional
+//@Transactional
 @DisplayName("StoreProduct 서비스 테스트")
 class StoreProductServiceTest {
 
@@ -32,12 +30,25 @@ class StoreProductServiceTest {
     }
 
     @Test
+    @DisplayName("StoreId를 이용해 해당 매장에 모든 상품 조회")
     public void getAllProductsByStoreIdTest() {
-        List<Product> list =storeProductService.getAllProductsByStoreId(1L);
+        List<Product> list = storeProductService.getAllProductsByStoreId(2L);
 
         for (Product product : list) {
             System.out.println(product.toString());
         }
+    }
+
+    @Test
+    @DisplayName("매장에서 판매하는 상품 등록")
+    public void createStoreProductTest() {
+        StoreProductDTO storeProductDTO = new StoreProductDTO();
+        storeProductDTO.setStoreId(1L);
+        storeProductDTO.setProductId(24L);
+        storeProductDTO.setState(true);
+
+        StoreProduct storeProduct = storeProductService.createStoreProduct(storeProductDTO);
+        System.out.println(storeProduct.toString());
     }
 
 }

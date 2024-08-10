@@ -2,7 +2,10 @@ package Grazie.com.Grazie_Backend.Product;
 
 import lombok.Getter;
 import lombok.Setter;
-
+/*
+    Chaean
+    상품 영양정보 class
+ */
 @Getter
 @Setter
 public class ProductInformation {

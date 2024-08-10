@@ -2,15 +2,20 @@ package Grazie.com.Grazie_Backend.Product;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
 import org.hibernate.type.SqlTypes;
-
+/*
+    Chaean
+    상품 Entity
+ */
 @Entity
 @Table(name = "product")
 @Getter
 @Setter
+@NoArgsConstructor
 public class Product {
 
     @Id
@@ -31,8 +36,6 @@ public class Product {
     private ProductInformation information; // 상품 영양정보
     @Column(name = "temperature")
     private String temperature; // 음료온도
-
-    public Product() {}
 
     @Override
     public String toString() {

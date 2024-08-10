@@ -27,9 +27,9 @@ public class ProductService {
 
     // 상품 생성
     public Product createProduct(ProductDTO productDTO) {
-        if (validationProduct(productDTO.getName())) {
-            throw new IllegalArgumentException("이미 존재하는 상품 이름입니다: " + productDTO.getName());
-        }
+//        if (validationProduct(productDTO.getName())) {
+//            throw new IllegalArgumentException("이미 존재하는 상품 이름입니다: " + productDTO.getName());
+//        }
         if (productDTO.getPrice() < 0 ) {
             throw new IllegalArgumentException("상품의 가격은 0보다 작을 수 없습니다: " + productDTO.getPrice());
         }
@@ -42,10 +42,11 @@ public class ProductService {
         if (validationSize(productDTO.getSize())) {
             throw new IllegalArgumentException("상품의 사이즈가 정해진 문자열이 아닙니다: " + productDTO.getSize());
         }
-        // 이미지 파일 저장
+
         Product product = new Product();
 
         product.setName(productDTO.getName());
+        // 이미지 파일 저장
         product.setImage(uploadDir + "/" + productDTO.getImage() +".jpg");
         product.setPrice(productDTO.getPrice());
         product.setExplanation(productDTO.getExplanation());

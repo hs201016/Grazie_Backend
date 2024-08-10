@@ -1,7 +1,10 @@
 package Grazie.com.Grazie_Backend.Product;
 
 import lombok.*;
-
+/*
+    Chaean
+    상품 DTO
+ */
 @Getter
 @Setter
 @Builder
