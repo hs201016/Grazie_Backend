@@ -4,6 +4,7 @@ import Grazie.com.Grazie_Backend.Product.Product;
 import Grazie.com.Grazie_Backend.Product.ProductRepository;
 import Grazie.com.Grazie_Backend.Store.Store;
 import Grazie.com.Grazie_Backend.Store.StoreRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,5 +57,16 @@ public class StoreProductService {
         storeProduct.setState(storeProductDTO.getState());
 
         return storeProductRepository.save(storeProduct);
+    }
+
+    public Boolean deleteStoreProduct(Long storeId, Long productId) {
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new EntityNotFoundException("매장을 찾을 수 없습니다."));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
+
+        storeProductRepository.deleteByStoreAndProduct(store, product);
+        return true;
     }
 }

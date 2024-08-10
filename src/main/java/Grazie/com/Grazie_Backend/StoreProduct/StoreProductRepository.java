@@ -22,4 +22,6 @@ public interface StoreProductRepository extends JpaRepository<StoreProduct, Long
     void deleteByStore(Store store);
 
     void deleteByProduct(Product product);
+
+    void deleteByStoreAndProduct(Store store, Product product);
 }

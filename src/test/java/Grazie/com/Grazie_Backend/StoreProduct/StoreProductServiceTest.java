@@ -12,7 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.List;
 
 @SpringBootTest
-//@Transactional
+@Transactional
 @DisplayName("StoreProduct 서비스 테스트")
 class StoreProductServiceTest {
 
@@ -51,4 +51,13 @@ class StoreProductServiceTest {
         System.out.println(storeProduct.toString());
     }
 
+    @Test
+    @DisplayName("매장 판매 상품 삭제")
+    public void deleteStoreProductTest() {
+        if (storeProductService.deleteStoreProduct(1L, 21L)) {
+            System.out.println("성공");
+        } else {
+            System.out.println("실패");
+        }
+    }
 }
