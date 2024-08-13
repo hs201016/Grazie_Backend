@@ -1,14 +1,14 @@
 package Grazie.com.Grazie_Backend.member;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -22,6 +22,8 @@ public class AuthController {
     private final AuthService authService;
     private final TokenManagementService tokenManagementService;
     private final JwtUtil jwtUtil;
+    private final UserAdditionalInfoService userAdditionalInfoService;
+    private final ObjectMapper objectMapper;
 
     private final UserJoinService userJoinService;
 
@@ -35,12 +37,26 @@ public class AuthController {
         }
     }
 
-
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login (@RequestBody LoginRequestDTO request) {
-        log.info("Login attempt with userId: {}", request.getUserid());
         return ResponseEntity.ok(authService.login(request.getUserid(), request.getPassword()));
     }
+
+    @PostMapping("/{userId}/additionalInfoJoin")
+    public ResponseEntity<UserAdditionalInfo> additionalInfoJoin(
+            @PathVariable("userId") Long userId,
+            @RequestParam("additionalInfo") String additionalInfoJson,
+            @RequestPart("profileImage") MultipartFile profileImageFile) {
+
+        try {
+            UserAdditionalInfo userAdditionalInfo = objectMapper.readValue(additionalInfoJson, UserAdditionalInfo.class);
+            UserAdditionalInfo saveAdditionalInfo = userAdditionalInfoService.saveAdditionalInfo(userId, userAdditionalInfo, profileImageFile);
+            return ResponseEntity.ok(saveAdditionalInfo);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
 
     @PostMapping("/refresh")
     public ResponseEntity<String> refresh(@RequestBody String refreshToken) {
@@ -75,7 +91,7 @@ public class AuthController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(400).body("유효하지 않은 토큰입니다 여기인가?.");
+            return ResponseEntity.status(400).body("유효하지 않은 토큰입니다.");
         }
     }
 }

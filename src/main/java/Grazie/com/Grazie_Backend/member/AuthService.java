@@ -27,11 +27,9 @@ public class AuthService {
             throw new RuntimeException("비밀번호가 일치 하지 않습니다.");
         }
 
-        // 토큰 발급
         String accessToken = jwtUtil.generateAccessToken(user.getId());
         String refreshToken = jwtUtil.generateRefreshToken(user.getId());
 
-        // 리프레시 토큰
         refreshTokenService.saveRefreshToken(user);
 
         return new LoginResponseDTO(accessToken, refreshToken);
@@ -46,7 +44,6 @@ public class AuthService {
             refreshTokenRepository.save(refreshToken1);
         } else
             throw new RuntimeException("리프레시 토큰을 찾을 수 없습니다!");
-
     }
 
 
