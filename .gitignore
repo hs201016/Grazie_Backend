@@ -18,6 +18,12 @@ bin/
 !**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
+<<<<<<< HEAD
+=======
+application.properties
+build.gradle
+
+>>>>>>> storeProduct_branch
 .idea
 *.iws
 *.iml
@@ -35,8 +41,11 @@ out/
 
 ### VS Code ###
 .vscode/
+<<<<<<< HEAD
 
 # ignore file
 application.properties
 build.gradle
 
+=======
+>>>>>>> storeProduct_branch
