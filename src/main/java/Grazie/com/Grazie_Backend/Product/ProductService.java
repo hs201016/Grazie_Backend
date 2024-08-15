@@ -30,9 +30,9 @@ public class ProductService {
 
     // 상품 생성
     public Product createProduct(ProductDTO productDTO) {
-//        if (validationProduct(productDTO.getName())) {
-//            throw new IllegalArgumentException("이미 존재하는 상품 이름입니다: " + productDTO.getName());
-//        }
+        if (validationProduct(productDTO.getName())) {
+            throw new IllegalArgumentException("이미 존재하는 상품 이름입니다: " + productDTO.getName());
+        }
         if (productDTO.getPrice() < 0 ) {
             throw new IllegalArgumentException("상품의 가격은 0보다 작을 수 없습니다: " + productDTO.getPrice());
         }

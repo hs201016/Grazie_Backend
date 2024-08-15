@@ -6,16 +6,18 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.GeneratorType;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+/*
+    Chaean00
+    주문 Entity
+ */
 @Entity
 @Table(name = "orders")
 @Getter
 @Setter
-@ToString
 public class Order {
 
     @Id
@@ -24,7 +26,7 @@ public class Order {
 
 //    @ManyToOne
 //    @JoinColumn(name = "id", nullable = false)
-//    privae User user_id;
+//    private User user_id;
     @Column(name = "id")
     private Long id;
 
@@ -55,4 +57,21 @@ public class Order {
     private String accept;
     @Column(name = "requirement")
     private String requirement;
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "order_id=" + order_id +
+                ", id=" + id +
+                ", store=" + store +
+                ", coupon_id=" + coupon_id +
+                ", total_price=" + total_price +
+                ", discount_price=" + discount_price +
+                ", final_price=" + final_price +
+                ", order_date=" + order_date +
+                ", order_mode='" + order_mode + '\'' +
+                ", accept='" + accept + '\'' +
+                ", requirement='" + requirement + '\'' +
+                '}';
+    }
 }

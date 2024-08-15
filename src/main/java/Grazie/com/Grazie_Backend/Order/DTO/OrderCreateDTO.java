@@ -1,16 +1,20 @@
-package Grazie.com.Grazie_Backend.Order;
+package Grazie.com.Grazie_Backend.Order.DTO;
 
 import lombok.*;
 
 import java.time.LocalDateTime;
 
+/*
+    Chaean00
+    주문 DTO
+ */
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class OrderDTO {
+public class OrderCreateDTO {
     private LocalDateTime order_date;
     private String order_mode;
     private Long store_id;

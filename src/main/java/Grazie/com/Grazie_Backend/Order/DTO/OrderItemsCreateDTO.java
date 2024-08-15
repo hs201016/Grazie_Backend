@@ -1,4 +1,4 @@
-package Grazie.com.Grazie_Backend.Order.OrderItems;
+package Grazie.com.Grazie_Backend.Order.DTO;
 
 import lombok.*;
 /*
@@ -12,7 +12,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderItemsDTO {
+public class OrderItemsCreateDTO {
     private Long product_id;
     private int quantity;
     private int product_price;
