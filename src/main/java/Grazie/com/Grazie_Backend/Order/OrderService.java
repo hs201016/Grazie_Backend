@@ -20,7 +20,7 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class OrderServcie {
+public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderItemsRepository orderItemsRepository;
@@ -28,7 +28,7 @@ public class OrderServcie {
     private final StoreRepository storeRepository;
 
     @Autowired
-    public OrderServcie(OrderRepository orderRepository, OrderItemsRepository orderItemsRepository, ProductRepository productRepository, StoreRepository storeRepository) {
+    public OrderService(OrderRepository orderRepository, OrderItemsRepository orderItemsRepository, ProductRepository productRepository, StoreRepository storeRepository) {
         this.orderRepository = orderRepository;
         this.orderItemsRepository = orderItemsRepository;
         this.productRepository = productRepository;
@@ -101,6 +101,31 @@ public class OrderServcie {
         List<OrderGetResponseDTO> orderGetResponseDTOs = new ArrayList<>();
 
         List<Order> orders = orderRepository.findAll();
+
+        for (Order o : orders) {
+            OrderGetDTO orderGetDTO = OrderToOrderGetDTO(o);
+
+            List<OrderItemsGetDTO> orderItemsGetDTOs =
+                    OrderItemsToOrderItemsGetDTO(orderItemsRepository.findByOrder(o));
+
+            orderGetResponseDTOs.add(OrderGetResponseDTO
+                    .builder()
+                    .orderGetDTO(orderGetDTO)
+                    .orderItemsGetDTOs(orderItemsGetDTOs)
+                    .build());
+        }
+
+        return orderGetResponseDTOs;
+    }
+
+    // 특정 매장의 모든 주문 가져오기
+    public List<OrderGetResponseDTO> getOrderByStoreId(Long store_id) {
+        Store store = storeRepository.findById(store_id)
+                .orElseThrow(() -> new EntityNotFoundException("매장을 찾을 수 없습니다."));
+
+        List<Order> orders = orderRepository.findByStore(store);
+
+        List<OrderGetResponseDTO> orderGetResponseDTOs = new ArrayList<>();
 
         for (Order o : orders) {
             OrderGetDTO orderGetDTO = OrderToOrderGetDTO(o);

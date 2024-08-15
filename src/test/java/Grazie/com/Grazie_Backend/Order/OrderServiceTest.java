@@ -19,10 +19,10 @@ import java.util.List;
 //@Transactional
 @DisplayName("주문 서비스 테스트")
 @Transactional
-class OrderServcieTest {
+class OrderServiceTest {
 
     @Autowired
-    private OrderServcie orderServcie;
+    private OrderService orderService;
 
     @BeforeEach
     public void before() {
@@ -65,7 +65,7 @@ class OrderServcieTest {
                         .product_price(6000)
                 .build());
 
-        Order order = orderServcie.createOrder(orderCreateDTO, list);
+        Order order = orderService.createOrder(orderCreateDTO, list);
 
         System.out.println(order.toString());
         System.out.println(order.getOrderItems());
@@ -74,7 +74,7 @@ class OrderServcieTest {
     @Test
     @DisplayName("주문 가져오기")
     public void getOrderByIdTest() {
-        OrderGetResponseDTO DTO = orderServcie.getOrderById(3L);
+        OrderGetResponseDTO DTO = orderService.getOrderById(3L);
 
         System.out.println(DTO.getOrderGetDTO().toString());
         System.out.println(DTO.getOrderItemsGetDTOs().toString());
@@ -83,7 +83,19 @@ class OrderServcieTest {
     @Test
     @DisplayName("모든 주문 가져오기")
     public void getAllOrderTest() {
-        List<OrderGetResponseDTO> orderGetResponseDTOs = orderServcie.getAllOrder();
+        List<OrderGetResponseDTO> orderGetResponseDTOs = orderService.getAllOrder();
+
+        for (OrderGetResponseDTO dto : orderGetResponseDTOs) {
+            System.out.println(dto.getOrderGetDTO().toString());
+            System.out.println(dto.getOrderItemsGetDTOs().toString());
+            System.out.println();
+        }
+    }
+
+    @Test
+    @DisplayName("특정 매장의 모든 주문 가져오기")
+    public void getOrderByStoreTest() {
+        List<OrderGetResponseDTO> orderGetResponseDTOs = orderService.getOrderByStoreId(1L);
 
         for (OrderGetResponseDTO dto : orderGetResponseDTOs) {
             System.out.println(dto.getOrderGetDTO().toString());

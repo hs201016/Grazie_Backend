@@ -20,11 +20,11 @@ import java.util.List;
 @RequestMapping("/api/order")
 public class OrderController {
 
-    private final OrderServcie orderServcie;
+    private final OrderService orderService;
 
     @Autowired
-    public OrderController(OrderServcie orderServcie) {
-        this.orderServcie = orderServcie;
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
     }
 
     @PostMapping("/create")
@@ -33,7 +33,7 @@ public class OrderController {
             OrderCreateDTO orderCreateDTO = orderCreateRequestDTO.getOrderCreateDTO();
             List<OrderItemsCreateDTO> orderItemsCreateDTOS = orderCreateRequestDTO.getOrderItemsCreateDTOS();
 
-            Order order = orderServcie.createOrder(orderCreateDTO, orderItemsCreateDTOS);
+            Order order = orderService.createOrder(orderCreateDTO, orderItemsCreateDTOS);
             return ResponseEntity.ok(order);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Order());
@@ -43,9 +43,9 @@ public class OrderController {
     }
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<OrderGetResponseDTO> getOrderById(@PathVariable(value = "id") Long id) {
+    public ResponseEntity<OrderGetResponseDTO> getOrderById(@PathVariable(value = "id") Long order_id) {
         try {
-            OrderGetResponseDTO orderGetResponseDTO = orderServcie.getOrderById(id);
+            OrderGetResponseDTO orderGetResponseDTO = orderService.getOrderById(order_id);
             return ResponseEntity.ok(orderGetResponseDTO);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new OrderGetResponseDTO());
@@ -57,7 +57,18 @@ public class OrderController {
     @GetMapping("/get/all")
     public ResponseEntity<List<OrderGetResponseDTO>> getAllOrder() {
         try {
-            return ResponseEntity.ok(orderServcie.getAllOrder());
+            return ResponseEntity.ok(orderService.getAllOrder());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<>());
+        }
+    }
+
+    @GetMapping("/get/store/{id}")
+    public ResponseEntity<List<OrderGetResponseDTO>> getOrderByStore(@PathVariable(value = "id") Long store_id) {
+        try {
+            return ResponseEntity.ok(orderService.getOrderByStoreId(store_id));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ArrayList<>());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<>());
         }
