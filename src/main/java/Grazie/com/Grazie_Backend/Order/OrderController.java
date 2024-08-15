@@ -6,6 +6,7 @@ import Grazie.com.Grazie_Backend.Order.DTO.OrderGetResponseDTO;
 import Grazie.com.Grazie_Backend.Order.DTO.OrderItemsCreateDTO;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -72,5 +73,15 @@ public class OrderController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<>());
         }
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Boolean> deleteOrderById(@PathVariable(value = "id") Long order_id) {        try {
+        return ResponseEntity.ok(orderService.deleteOrderById(order_id));
+    } catch (EntityNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
+    }
     }
 }

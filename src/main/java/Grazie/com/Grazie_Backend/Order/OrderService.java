@@ -143,6 +143,14 @@ public class OrderService {
         return orderGetResponseDTOs;
     }
 
+    // 주문 삭제
+    public boolean deleteOrderById(Long order_id) {
+        Order order = orderRepository.findById(order_id)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지않는 OrderId입니다."));
+        orderRepository.deleteById(order_id);
+        return true;
+    }
+
     private OrderGetDTO OrderToOrderGetDTO(Order order) {
         OrderGetDTO orderGetDTO = new OrderGetDTO();
         orderGetDTO.setOrder_id(order.getOrder_id());

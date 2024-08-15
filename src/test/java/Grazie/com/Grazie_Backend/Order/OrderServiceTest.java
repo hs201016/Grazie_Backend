@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootTest
-//@Transactional
 @DisplayName("주문 서비스 테스트")
 @Transactional
 class OrderServiceTest {
@@ -102,6 +101,14 @@ class OrderServiceTest {
             System.out.println(dto.getOrderItemsGetDTOs().toString());
             System.out.println();
         }
+    }
+
+    @Test
+    @DisplayName("OrderId를 통한 주문 삭제")
+    public void deleteOrderById() {
+        Boolean flag = orderService.deleteOrderById(3L);
+
+        System.out.println(flag);
     }
 
 }
