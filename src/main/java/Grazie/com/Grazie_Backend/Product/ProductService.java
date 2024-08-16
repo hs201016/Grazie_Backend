@@ -70,7 +70,7 @@ public class ProductService {
 
         for (Product product : products) {
             ProductDTO dto = new ProductDTO();
-            dto.setProduct_id(product.getProduct_id());
+            dto.setProduct_id(product.getProductId());
             dto.setName(product.getName());
             dto.setImage(product.getImage());
             dto.setPrice(product.getPrice());
@@ -91,7 +91,7 @@ public class ProductService {
                 .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
 
         return ProductDTO.builder()
-                .product_id(product.getProduct_id())
+                .product_id(product.getProductId())
                 .name(product.getName())
                 .image(product.getImage())
                 .price(product.getPrice())

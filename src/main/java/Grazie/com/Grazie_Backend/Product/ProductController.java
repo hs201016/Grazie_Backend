@@ -28,7 +28,7 @@ public class ProductController {
             Product product = productService.createProduct(productDTO);
 
             return ResponseEntity.ok(ProductDTO.builder()
-                    .product_id(product.getProduct_id())
+                    .product_id(product.getProductId())
                     .name(product.getName())
                     .image(product.getImage())
                     .price(product.getPrice())
@@ -68,7 +68,7 @@ public class ProductController {
         try {
             Product product = productService.updateProductById(id, productDTO);
             return ResponseEntity.ok(ProductDTO.builder()
-                            .product_id(product.getProduct_id())
+                            .product_id(product.getProductId())
                             .name(product.getName())
                             .image(product.getImage())
                             .price(product.getPrice())

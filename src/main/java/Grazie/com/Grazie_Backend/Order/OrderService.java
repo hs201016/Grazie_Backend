@@ -7,13 +7,20 @@ import Grazie.com.Grazie_Backend.Product.Product;
 import Grazie.com.Grazie_Backend.Product.ProductRepository;
 import Grazie.com.Grazie_Backend.Store.Store;
 import Grazie.com.Grazie_Backend.Store.StoreRepository;
+import Grazie.com.Grazie_Backend.StoreProduct.StoreProduct;
+import Grazie.com.Grazie_Backend.StoreProduct.StoreProductRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 /*
     Chaean00
     주문 관련 Service
@@ -26,30 +33,56 @@ public class OrderService {
     private final OrderItemsRepository orderItemsRepository;
     private final ProductRepository productRepository;
     private final StoreRepository storeRepository;
+    private final StoreProductRepository storeProductRepository;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository, OrderItemsRepository orderItemsRepository, ProductRepository productRepository, StoreRepository storeRepository) {
+    public OrderService(OrderRepository orderRepository, OrderItemsRepository orderItemsRepository, ProductRepository productRepository, StoreRepository storeRepository, StoreProductRepository storeProductRepository) {
         this.orderRepository = orderRepository;
         this.orderItemsRepository = orderItemsRepository;
         this.productRepository = productRepository;
         this.storeRepository = storeRepository;
+        this.storeProductRepository = storeProductRepository;
     }
 
     // 주문 생성
+    @Transactional
     public Order createOrder(OrderCreateDTO orderCreateDTO, List<OrderItemsCreateDTO> orderItemsCreateDTOS) {
         int total = 0;
-        Order order = new Order();
-        List<OrderItems> orderItemsList = new ArrayList<>();
 
         Store store = storeRepository.findById(orderCreateDTO.getStore_id())
                 .orElseThrow(() -> new EntityNotFoundException("매장을 찾을 수 없습니다."));
 
-        for (OrderItemsCreateDTO orderItemsCreateDTO : orderItemsCreateDTOS) {
-            OrderItems orderItems = new OrderItems();
-            int price = orderItemsCreateDTO.getQuantity() * orderItemsCreateDTO.getProduct_price();
-            Product product = productRepository.findById(orderItemsCreateDTO.getProduct_id())
-                    .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
+        Order order = new Order();
 
+        List<Long> productIds = orderItemsCreateDTOS.stream()
+                .map(OrderItemsCreateDTO::getProduct_id)
+                .toList();
+
+        List<Product> products = productRepository.findByProductIdIn(productIds);
+        Map<Long, Product> productMap = products.stream()
+                .collect(Collectors.toMap(Product::getProductId, product -> product));
+
+        List<StoreProduct> storeProducts = storeProductRepository.findByStoreAndProductIn(store, productIds);
+        Map<Long, StoreProduct> storeProductMap = storeProducts.stream()
+                .collect(Collectors.toMap(sp -> sp.getProduct().getProductId(), sp -> sp));
+
+        List<OrderItems> orderItemsList = new ArrayList<>();
+
+        for (OrderItemsCreateDTO orderItemsCreateDTO : orderItemsCreateDTOS) {
+            Product product = productMap.get(orderItemsCreateDTO.getProduct_id());
+            if (product == null) {
+                throw new EntityNotFoundException("상품을 찾을 수 없습니다.");
+            }
+
+            StoreProduct storeProduct = storeProductMap.get(product.getProductId());
+            if (storeProduct == null || !storeProduct.getState()) {
+                log.debug("storeProduct = {}", storeProduct);
+                throw new IllegalArgumentException("현재 판매할 수 없는 상품입니다.");
+            }
+
+            int price = orderItemsCreateDTO.getQuantity() * orderItemsCreateDTO.getProduct_price();
+
+            OrderItems orderItems = new OrderItems();
             orderItems.setProduct(product);
             orderItems.setQuantity(orderItemsCreateDTO.getQuantity());
             orderItems.setProduct_price(orderItemsCreateDTO.getProduct_price());
@@ -60,23 +93,29 @@ public class OrderService {
             orderItemsList.add(orderItems);
         }
 
+        // Order 생성 및 저장
+
         order.setStore(store);
         order.setId(orderCreateDTO.getUser_id());
         order.setCoupon_id(orderCreateDTO.getCoupon_id());
         order.setOrderItems(orderItemsList);
         order.setTotal_price(total);
-        order.setDiscount_price(1000); // 추후에 수정해야함
+        order.setDiscount_price(1000); // 추후 수정 필요
         order.setFinal_price(total - 1000);
         order.setOrder_date(orderCreateDTO.getOrder_date());
         order.setOrder_mode(orderCreateDTO.getOrder_mode());
         order.setAccept("대기");
         order.setRequirement(orderCreateDTO.getRequirement());
 
-        orderRepository.save(order);
-        orderItemsRepository.saveAll(orderItemsList);
+        // Order와 OrderItems를 함께 저장
+        try {
+            orderRepository.save(order);
+            orderItemsRepository.saveAll(orderItemsList);
+        } catch (DataIntegrityViolationException e) {
+            throw new RuntimeException("데이터 무결성 위반 오류 발생 ", e);
+        }
 
         return order;
-//        User user = userRepository.findById(orderDTO.getUser_id());
     }
 
     // 주문 ID로 조회
@@ -143,7 +182,7 @@ public class OrderService {
         return orderGetResponseDTOs;
     }
 
-    // 주문 삭제
+    // 주문 취소(삭제)
     public boolean deleteOrderById(Long order_id) {
         Order order = orderRepository.findById(order_id)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지않는 OrderId입니다."));

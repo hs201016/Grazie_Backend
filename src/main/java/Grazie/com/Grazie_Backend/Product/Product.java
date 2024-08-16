@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.Type;
 import org.hibernate.type.SqlTypes;
 /*
     Chaean
@@ -20,7 +19,7 @@ public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long product_id; // 고유번호
+    private Long productId; // 고유번호
     @Column(name = "name")
     private String name; // 상품 이름
     @Column(name = "image")
@@ -40,7 +39,7 @@ public class Product {
     @Override
     public String toString() {
         return "Product{" +
-                "product_id=" + product_id +
+                "product_id=" + productId +
                 ", name='" + name + '\'' +
                 ", image='" + image + '\'' +
                 ", price=" + price +

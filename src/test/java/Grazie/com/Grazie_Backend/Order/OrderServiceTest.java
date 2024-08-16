@@ -17,7 +17,7 @@ import java.util.List;
 
 @SpringBootTest
 @DisplayName("주문 서비스 테스트")
-@Transactional
+//@Transactional
 class OrderServiceTest {
 
     @Autowired

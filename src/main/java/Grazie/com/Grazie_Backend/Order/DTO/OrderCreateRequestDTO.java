@@ -1,8 +1,6 @@
 package Grazie.com.Grazie_Backend.Order.DTO;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -13,6 +11,8 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class OrderCreateRequestDTO {
     private OrderCreateDTO orderCreateDTO;
     private List<OrderItemsCreateDTO> orderItemsCreateDTOS;

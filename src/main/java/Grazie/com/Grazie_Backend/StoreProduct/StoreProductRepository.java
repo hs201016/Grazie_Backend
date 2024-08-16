@@ -19,6 +19,9 @@ public interface StoreProductRepository extends JpaRepository<StoreProduct, Long
     // 중복 확인을 위한 메서드
     boolean existsByStoreAndProduct(Store store, Product product);
 
+    @Query("SELECT sp FROM StoreProduct sp WHERE sp.store = :store AND sp.product.productId IN :productIds")
+    List<StoreProduct> findByStoreAndProductIn(@Param("store") Store store, @Param("productIds") List<Long> productIds);
+
     void deleteByStore(Store store);
 
     void deleteByProduct(Product product);
