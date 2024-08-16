@@ -1,5 +1,6 @@
 package Grazie.com.Grazie_Backend.member;
 
+import io.jsonwebtoken.Claims;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,10 +16,15 @@ public class UserAdditionalInfoService {
     private UserAdditionalInfoRepository userAdditionalInfoRepository;
     private UserRepository userRepository;
 
+    private JwtUtil jwtUtil;
+
+
     public UserAdditionalInfoService(UserAdditionalInfoRepository userAdditionalInfoRepository,
-                                     UserRepository userRepository) {
+                                     UserRepository userRepository, JwtUtil jwtUtil) {
         this.userAdditionalInfoRepository = userAdditionalInfoRepository;
         this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
+
 
         File directory = new File(imageStorage);
         if (!directory.exists()) {
@@ -51,6 +57,25 @@ public class UserAdditionalInfoService {
             return uniqueFileName;
         } catch (IOException e) {
             throw new RuntimeException(e + "저장에 실패하였습니다.");
+        }
+    }
+
+    public UserAdditionalInfo updateImage(String token, MultipartFile profileImageFile){
+        try {
+            Claims claims = jwtUtil.extractAllClaims(token);
+            String userId = claims.getSubject();
+
+            UserAdditionalInfo additionalInfo = userAdditionalInfoRepository.findByUserId(Long.valueOf(userId))
+                    .orElseThrow(() -> new RuntimeException("user 추가정보를 찾을 수가 없습니다."));
+
+
+            if (profileImageFile != null && !profileImageFile.isEmpty()) {
+                String imageFile = saveImage(profileImageFile);
+                additionalInfo.setProfileImage(imageFile);
+            }
+            return userAdditionalInfoRepository.save(additionalInfo);
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
         }
     }
 }

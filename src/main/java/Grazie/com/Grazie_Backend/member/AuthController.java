@@ -24,6 +24,7 @@ public class AuthController {
     private final JwtUtil jwtUtil;
     private final UserAdditionalInfoService userAdditionalInfoService;
     private final ObjectMapper objectMapper;
+    private final UserProfileService userProfileService;
 
     private final UserJoinService userJoinService;
 
@@ -37,10 +38,52 @@ public class AuthController {
         }
     }
 
+    @GetMapping("/profile")
+    public ResponseEntity<?> readUserProfile(@RequestHeader("Authorization") String token) {
+        try {
+            // 토큰에서 bearer 부분 제거
+            String jwtToken = token.substring(7);
+
+            UserProfileDTO userProfileDTO = userProfileService.readUserProfile(jwtToken);
+
+            return ResponseEntity.ok(userProfileDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body("프로필 조회 중 오류 발생");
+        }
+    }
+
+    @PostMapping("/update")
+    public ResponseEntity<?> updateProfile(@RequestBody UserProfileUpdateDTO userProfileDTO, @RequestHeader("Authorization") String token) {
+        try {
+            String jwtToken = token.substring(7);
+
+            UserProfileDTO userUpdateDto = userProfileService.updateProfile(jwtToken, userProfileDTO);
+
+            return ResponseEntity.ok(userUpdateDto);
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body("프로필 업데이트 중 오류 발생");
+        }
+    }
+
+    @PostMapping("/updateProfileImage")
+        public ResponseEntity<?> updateProfileImage(@RequestPart("profileImage") MultipartFile profileImageFile, @RequestHeader("Authorization") String token) {
+        try {
+            String jwtToken = token.substring(7);
+            UserAdditionalInfo additionalInfo = userAdditionalInfoService.updateImage(jwtToken, profileImageFile);
+            return ResponseEntity.ok(additionalInfo);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("프로필 이미지 업데이트 중 오류 발생");
+        }
+    }
+
+
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login (@RequestBody LoginRequestDTO request) {
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
+
         return ResponseEntity.ok(authService.login(request.getUserid(), request.getPassword()));
     }
+
 
     @PostMapping("/{userId}/additionalInfoJoin")
     public ResponseEntity<UserAdditionalInfo> additionalInfoJoin(
