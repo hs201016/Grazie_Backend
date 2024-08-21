@@ -60,4 +60,14 @@ class StoreProductServiceTest {
             System.out.println("실패");
         }
     }
+
+    @Test
+    @DisplayName("특정 매장에서 판매하는 상품 조회")
+    public void getProductByStoreIdTest() {
+        List<StoreProduct> storeProducts = storeProductService.getProductByStoreId(1L);
+
+        for (StoreProduct sp : storeProducts) {
+            System.out.println(sp.toString());
+        }
+    }
 }

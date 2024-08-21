@@ -22,6 +22,8 @@ public interface StoreProductRepository extends JpaRepository<StoreProduct, Long
     @Query("SELECT sp FROM StoreProduct sp WHERE sp.store = :store AND sp.product.productId IN :productIds")
     List<StoreProduct> findByStoreAndProductIn(@Param("store") Store store, @Param("productIds") List<Long> productIds);
 
+    List<StoreProduct> findAllByStore(Store store);
+
     void deleteByStore(Store store);
 
     void deleteByProduct(Product product);

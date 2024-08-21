@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -68,5 +69,19 @@ public class StoreProductService {
 
         storeProductRepository.deleteByStoreAndProduct(store, product);
         return true;
+    }
+
+    public List<StoreProduct> getProductByStoreId(Long storeId) {
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new EntityNotFoundException("매장을 찾을 수 없습니다."));
+
+        List<StoreProduct> storeProducts = new ArrayList<>();
+        List<StoreProduct> list = storeProductRepository.findAllByStore(store);
+        for (StoreProduct sp : list) {
+            sp.setStore(null);
+            storeProducts.add(sp);
+        }
+
+        return storeProducts;
     }
 }

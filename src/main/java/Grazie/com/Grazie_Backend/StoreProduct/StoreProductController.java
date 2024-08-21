@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 /*
     Chaean
     매장 상품 Controller
@@ -46,6 +49,17 @@ public class StoreProductController {
             log.debug("storeId = " + storeId);
             log.debug("productId = " + productId);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
+        }
+    }
+
+    @GetMapping("/get/{storeId}")
+    public ResponseEntity<List<StoreProduct>> getProductByStoreId(@PathVariable(value = "storeId") Long storeId) {
+        try {
+            return ResponseEntity.ok(storeProductService.getProductByStoreId(storeId));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ArrayList<>());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<>());
         }
     }
 }

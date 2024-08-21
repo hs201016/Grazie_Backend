@@ -64,10 +64,12 @@ class OrderServiceTest {
                         .product_price(6000)
                 .build());
 
-        Order order = orderService.createOrder(orderCreateDTO, list);
 
-        System.out.println(order.toString());
-        System.out.println(order.getOrderItems());
+
+        OrderGetResponseDTO order = orderService.createOrder(orderCreateDTO, list);
+
+        System.out.println(order.getOrderGetDTO().toString());
+        System.out.println(order.getOrderItemsGetDTOs().toString());
     }
 
     @Test
