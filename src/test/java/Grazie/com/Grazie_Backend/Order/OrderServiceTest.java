@@ -105,10 +105,15 @@ class OrderServiceTest {
 
     @Test
     @DisplayName("OrderId를 통한 주문 삭제")
-    public void deleteOrderById() {
+    public void deleteOrderByIdTest() {
         Boolean flag = orderService.deleteOrderById(3L);
 
         System.out.println(flag);
     }
 
+    @Test
+    @DisplayName("OrderId를 통한 주문 상태 변경")
+    public void updateOrderAcceptTest() {
+        System.out.println(orderService.updateOrderAcceptById(16L, "완료"));
+    }
 }

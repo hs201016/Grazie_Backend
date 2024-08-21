@@ -29,6 +29,7 @@ public class StoreController {
             Store store = storeService.createStore(storeDTO);
 
             return ResponseEntity.ok(StoreDTO.builder()
+                    .store_id(store.getStore_id())
                     .name(store.getName())
                     .tel_num(store.getTel_num())
                     .state(store.getState())

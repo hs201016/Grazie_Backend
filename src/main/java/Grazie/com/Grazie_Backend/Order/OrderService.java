@@ -46,7 +46,7 @@ public class OrderService {
 
     // 주문 생성
     @Transactional
-    public Order createOrder(OrderCreateDTO orderCreateDTO, List<OrderItemsCreateDTO> orderItemsCreateDTOS) {
+    public OrderGetResponseDTO createOrder(OrderCreateDTO orderCreateDTO, List<OrderItemsCreateDTO> orderItemsCreateDTOS) {
         int total = 0;
 
         Store store = storeRepository.findById(orderCreateDTO.getStore_id())
@@ -115,7 +115,14 @@ public class OrderService {
             throw new RuntimeException("데이터 무결성 위반 오류 발생 ", e);
         }
 
-        return order;
+        OrderGetDTO orderGetDTO = OrderToOrderGetDTO(order);
+        List<OrderItemsGetDTO> orderItemsGetDTO = OrderItemsToOrderItemsGetDTO(orderItemsList);
+
+        return OrderGetResponseDTO
+                .builder()
+                .orderGetDTO(orderGetDTO)
+                .orderItemsGetDTOs(orderItemsGetDTO)
+                .build();
     }
 
     // 주문 ID로 조회
@@ -185,9 +192,26 @@ public class OrderService {
     // 주문 취소(삭제)
     public boolean deleteOrderById(Long order_id) {
         Order order = orderRepository.findById(order_id)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지않는 OrderId입니다."));
+                .orElseThrow(() -> new EntityNotFoundException("존재하지않는 주문 번호입니다."));
         orderRepository.deleteById(order_id);
         return true;
+    }
+
+    // 주문 상태 변경하기
+    public String updateOrderAcceptById(Long order_id, String state) {
+
+        if (state.equals("대기") || state.equals("준비중") || state.equals("완료") || state.equals("픽업완료") || state.equals("배달완료")) {
+            Order order = orderRepository.findById(order_id)
+                    .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 주문입니다."));
+
+            order.setAccept(state);
+
+            orderRepository.save(order);
+
+            return order.getAccept();
+        } else {
+            throw new IllegalArgumentException("잘못된 문자열입니다.");
+        }
     }
 
     private OrderGetDTO OrderToOrderGetDTO(Order order) {

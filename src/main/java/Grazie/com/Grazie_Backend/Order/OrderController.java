@@ -29,17 +29,17 @@ public class OrderController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Order> createOrder(@RequestBody OrderCreateRequestDTO orderCreateRequestDTO) {
+    public ResponseEntity<OrderGetResponseDTO> createOrder(@RequestBody OrderCreateRequestDTO orderCreateRequestDTO) {
         try {
             OrderCreateDTO orderCreateDTO = orderCreateRequestDTO.getOrderCreateDTO();
             List<OrderItemsCreateDTO> orderItemsCreateDTOS = orderCreateRequestDTO.getOrderItemsCreateDTOS();
 
-            Order order = orderService.createOrder(orderCreateDTO, orderItemsCreateDTOS);
-            return ResponseEntity.ok(order);
+            OrderGetResponseDTO orderGetResponseDTO = orderService.createOrder(orderCreateDTO, orderItemsCreateDTOS);
+            return ResponseEntity.ok(orderGetResponseDTO);
         } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Order());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new OrderGetResponseDTO());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Order());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new OrderGetResponseDTO());
         }
     }
 
@@ -65,7 +65,7 @@ public class OrderController {
     }
 
     @GetMapping("/get/store/{id}")
-    public ResponseEntity<List<OrderGetResponseDTO>> getOrderByStore(@PathVariable(value = "id") Long store_id) {
+    public ResponseEntity<List<OrderGetResponseDTO>> getOrderByStoreId(@PathVariable(value = "id") Long store_id) {
         try {
             return ResponseEntity.ok(orderService.getOrderByStoreId(store_id));
         } catch (EntityNotFoundException e) {
@@ -83,5 +83,18 @@ public class OrderController {
     } catch (Exception e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
     }
+    }
+
+    @PutMapping("/update/state/{id}")
+    public ResponseEntity<String> updateOrderAcceptById(@PathVariable(value = "id") Long order_id, @RequestParam(value = "state") String state) {
+        try {
+            return ResponseEntity.ok(orderService.updateOrderAcceptById(order_id, state));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("실패");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("실패");
+        }
+
     }
 }
