@@ -1,5 +1,8 @@
-package Grazie.com.Grazie_Backend.member;
+package Grazie.com.Grazie_Backend.member.service;
 
+import Grazie.com.Grazie_Backend.Config.JwtUtil;
+import Grazie.com.Grazie_Backend.member.entity.RefreshToken;
+import Grazie.com.Grazie_Backend.member.repository.RefreshTokenRepository;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,17 +41,5 @@ public class TokenManagementService {
         }
 
         return jwtUtil.generateRefreshToken(Long.parseLong(userId));
-    }
-
-    // 로그아웃 할때 토큰 철회
-    public void revokeRefreshToken(String refreshToken) {
-        Optional<RefreshToken> token = refreshTokenRepository.findByToken(refreshToken);
-        if (token.isPresent()) {
-            RefreshToken refreshToken1 = token.get();
-            refreshToken1.setRevoked(true);
-            refreshTokenRepository.save(refreshToken1);
-        } else {
-            throw new RuntimeException("리프레시 토큰을 찾을 수 없습니다.");
-        }
     }
 }

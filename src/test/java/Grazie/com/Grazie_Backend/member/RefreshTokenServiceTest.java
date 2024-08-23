@@ -3,6 +3,7 @@ package Grazie.com.Grazie_Backend.member;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import Grazie.com.Grazie_Backend.member.service.RefreshTokenService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

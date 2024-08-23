@@ -1,4 +1,4 @@
-package Grazie.com.Grazie_Backend.member;
+package Grazie.com.Grazie_Backend.member.dto;
 
 import lombok.Getter;
 import lombok.Setter;

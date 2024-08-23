@@ -1,5 +1,6 @@
-package Grazie.com.Grazie_Backend.member;
+package Grazie.com.Grazie_Backend.member.repository;
 
+import Grazie.com.Grazie_Backend.member.entity.RefreshToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
