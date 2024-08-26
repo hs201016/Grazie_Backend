@@ -11,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -34,21 +32,18 @@ public class AuthService {
         }
 
         String accessToken = jwtUtil.generateAccessToken(user.getId());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getId());
-
-        refreshTokenService.saveRefreshToken(user);
+        String refreshToken = refreshTokenService.validateAndRenewRefreshToken(user);
 
         return new LoginResponseDTO(accessToken, refreshToken);
     }
 
-    // RefreshToken -> BlackList
     public void logOut(String refreshToken) {
-        Optional<RefreshToken> token = refreshTokenRepository.findByToken(refreshToken);
-        if (token.isPresent()) {
-            RefreshToken refreshToken1 = new RefreshToken();
-            refreshToken1.setRevoked(true);
-            refreshTokenRepository.save(refreshToken1);
-        } else
-            throw new RuntimeException("리프레시 토큰을 찾을 수 없습니다!");
+        try {
+            RefreshToken existToken = refreshTokenService.findRefreshToken(refreshToken);
+            refreshTokenService.checkRevokedToken(existToken);
+            refreshTokenService.setRevokeToken(existToken);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        }
     }
 }

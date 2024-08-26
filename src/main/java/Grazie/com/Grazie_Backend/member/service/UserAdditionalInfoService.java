@@ -53,6 +53,7 @@ public class UserAdditionalInfoService {
                 .orElseThrow(() -> new RuntimeException("유저 추가정보를 찾을 수 없습니다."));
     }
 
+
     public UserAdditionalInfoDTO readAdditionalInfo(String token) {
         UserAdditionalInfo userAdditionalInfo = getUserAdditionalToken(token);
 
