@@ -31,6 +31,19 @@ public class StoreService {
             throw new IllegalArgumentException("이미 존재하는 매장 이름입니다: " + storeDTO.getName());
         }
 
+        if (storeDTO.getName() == null) {
+            throw new IllegalArgumentException("매장 이름이 누락되었습니다.");
+        }
+
+        if (storeDTO.getLocation() == null) {
+            throw new IllegalArgumentException("주소가 누락되었습니다.");
+        }
+
+        if (storeDTO.getOperatingHours() == null) {
+            throw new IllegalArgumentException("운영 시간이 누락되었습니다.");
+        }
+
+
         Store store = new Store();
 
         store.setName(storeDTO.getName());
@@ -39,6 +52,7 @@ public class StoreService {
         store.setLocation(storeDTO.getLocation());
         store.setRoad_way(storeDTO.getRoad_way());
         store.setParking(storeDTO.getParking());
+        store.setOperatingHours(storeDTO.getOperatingHours());
 
         return storeRepository.save(store);
     }
@@ -57,6 +71,7 @@ public class StoreService {
             dto.setLocation(store.getLocation());
             dto.setRoad_way(store.getRoad_way());
             dto.setParking(store.getParking());
+            dto.setOperatingHours(store.getOperatingHours());
 
             storeDTOs.add(dto);
         }
@@ -76,6 +91,7 @@ public class StoreService {
                 .location(store.getLocation())
                 .road_way(store.getRoad_way())
                 .parking(store.getParking())
+                .operatingHours(store.getOperatingHours())
                 .build();
     }
 
@@ -94,6 +110,7 @@ public class StoreService {
             dto.setLocation(store.getLocation());
             dto.setRoad_way(store.getRoad_way());
             dto.setParking(store.getParking());
+            dto.setOperatingHours(store.getOperatingHours());
 
             storeDTOs.add(dto);
         }
@@ -116,6 +133,7 @@ public class StoreService {
             dto.setLocation(store.getLocation());
             dto.setRoad_way(store.getRoad_way());
             dto.setParking(store.getParking());
+            dto.setOperatingHours(store.getOperatingHours());
 
             storeDTOs.add(dto);
             log.debug(dto.toString());
@@ -140,6 +158,7 @@ public class StoreService {
         store.setLocation(storeDTO.getLocation());
         store.setRoad_way(storeDTO.getRoad_way());
         store.setParking(storeDTO.getParking());
+        store.setOperatingHours(storeDTO.getOperatingHours());
 
         return storeRepository.save(store);
     }

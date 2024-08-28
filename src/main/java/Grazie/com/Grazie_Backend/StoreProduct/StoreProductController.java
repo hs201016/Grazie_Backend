@@ -53,13 +53,13 @@ public class StoreProductController {
     }
 
     @GetMapping("/get/{storeId}")
-    public ResponseEntity<List<StoreProduct>> getProductByStoreId(@PathVariable(value = "storeId") Long storeId) {
+    public ResponseEntity<StoreProductResponseDTO> getProductByStoreId(@PathVariable(value = "storeId") Long storeId) {
         try {
             return ResponseEntity.ok(storeProductService.getProductByStoreId(storeId));
         } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ArrayList<>());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new StoreProductResponseDTO());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<>());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new StoreProductResponseDTO());
         }
     }
 }

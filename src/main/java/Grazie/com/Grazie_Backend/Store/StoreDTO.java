@@ -20,17 +20,19 @@ public class StoreDTO {
     private String location;
     private String road_way;
     private Boolean parking;
+    private StoreOperatingHours operatingHours;
 
     @Override
     public String toString() {
         return "StoreDTO{" +
-                "storeId=" + store_id +
+                "store_id=" + store_id +
                 ", name='" + name + '\'' +
-                ", telNum='" + tel_num + '\'' +
+                ", tel_num='" + tel_num + '\'' +
                 ", state=" + state +
                 ", location='" + location + '\'' +
-                ", roadWay='" + road_way + '\'' +
+                ", road_way='" + road_way + '\'' +
                 ", parking=" + parking +
+                ", operatingHours=" + operatingHours +
                 '}';
     }
 }

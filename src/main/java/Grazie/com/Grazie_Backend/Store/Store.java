@@ -3,6 +3,8 @@ package Grazie.com.Grazie_Backend.Store;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /*
     Chaean00
@@ -29,6 +31,9 @@ public class Store {
     private String road_way;
     @Column(name = "parking", nullable = false)
     private Boolean parking;
+    @Column(name = "operating_hours", nullable = false)
+    @JdbcTypeCode(SqlTypes.JSON)
+    private StoreOperatingHours operatingHours;
 
     @Override
     public String toString() {

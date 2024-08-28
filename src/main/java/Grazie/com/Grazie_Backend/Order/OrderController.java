@@ -39,6 +39,7 @@ public class OrderController {
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new OrderGetResponseDTO());
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new OrderGetResponseDTO());
         }
     }

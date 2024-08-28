@@ -38,6 +38,7 @@ public class ProductController {
                     .temperature(product.getTemperature())
                     .build());
         } catch (Exception exception) {
+            exception.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ProductDTO());
         }
     }

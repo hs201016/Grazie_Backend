@@ -12,6 +12,7 @@ import Grazie.com.Grazie_Backend.StoreProduct.StoreProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -75,9 +76,12 @@ public class OrderService {
             }
 
             StoreProduct storeProduct = storeProductMap.get(product.getProductId());
-            if (storeProduct == null || !storeProduct.getState()) {
-                log.debug("storeProduct = {}", storeProduct);
-                throw new IllegalArgumentException("현재 판매할 수 없는 상품입니다.");
+            if (storeProduct == null) {
+                throw new IllegalArgumentException("매장에서 판매하지 않는 상품입니다.");
+            }
+
+            if (!storeProduct.getState()) {
+                throw new IllegalArgumentException("판매 중지 된 상품입니다.");
             }
 
             int price = orderItemsCreateDTO.getQuantity() * orderItemsCreateDTO.getProduct_price();
@@ -175,6 +179,7 @@ public class OrderService {
 
         for (Order o : orders) {
             OrderGetDTO orderGetDTO = OrderToOrderGetDTO(o);
+            orderGetDTO.setStore(null);
 
             List<OrderItemsGetDTO> orderItemsGetDTOs =
                     OrderItemsToOrderItemsGetDTO(orderItemsRepository.findByOrder(o));

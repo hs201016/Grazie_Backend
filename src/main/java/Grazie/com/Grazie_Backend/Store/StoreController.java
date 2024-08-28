@@ -36,8 +36,10 @@ public class StoreController {
                     .location(store.getLocation())
                     .road_way(store.getRoad_way())
                     .parking(store.getParking())
+                    .operatingHours(store.getOperatingHours())
                     .build());
         } catch (Exception exception) {
+            exception.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new StoreDTO());
         }
     }
@@ -95,6 +97,7 @@ public class StoreController {
                     .location(store.getLocation())
                     .road_way(store.getRoad_way())
                     .parking(store.getParking())
+                    .operatingHours(store.getOperatingHours())
                     .build());
         } catch (Exception exception) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new StoreDTO());

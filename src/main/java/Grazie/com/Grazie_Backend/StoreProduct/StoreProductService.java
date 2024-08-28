@@ -71,17 +71,19 @@ public class StoreProductService {
         return true;
     }
 
-    public List<StoreProduct> getProductByStoreId(Long storeId) {
+    public StoreProductResponseDTO getProductByStoreId(Long storeId) {
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new EntityNotFoundException("매장을 찾을 수 없습니다."));
 
-        List<StoreProduct> storeProducts = new ArrayList<>();
         List<StoreProduct> list = storeProductRepository.findAllByStore(store);
         for (StoreProduct sp : list) {
             sp.setStore(null);
-            storeProducts.add(sp);
         }
 
-        return storeProducts;
+        return StoreProductResponseDTO
+                .builder()
+                .store(store)
+                .storeProducts(list)
+                .build();
     }
 }
