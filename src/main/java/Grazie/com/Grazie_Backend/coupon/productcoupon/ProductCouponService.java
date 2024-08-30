@@ -43,7 +43,7 @@ public class ProductCouponService {
 
     private ProductCoupon checkCouponId(Long id) {
         return productCouponRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("쿠폰이 없어요 쿠폰 id 확인해주세요"));
+                .orElseThrow(() -> new EntityNotFoundException("상품 쿠폰이 없어요 상품 쿠폰 id 확인해주세요"));
     }
 
 }
