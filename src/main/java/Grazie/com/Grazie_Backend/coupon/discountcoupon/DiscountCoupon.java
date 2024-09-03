@@ -1,6 +1,7 @@
 package Grazie.com.Grazie_Backend.coupon.discountcoupon;
 
 import Grazie.com.Grazie_Backend.Product.Product;
+import Grazie.com.Grazie_Backend.coupon.Coupon;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,28 +10,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "discount_coupon")
+@DiscriminatorValue("DISCOUNT")  // 서브클래스 구별 값 표시
 @Getter
 @Setter
-public class DiscountCoupon {
+public class DiscountCoupon extends Coupon {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "coupon_name", nullable = false)
-    private String couponName;
-
-    @Column(name = "description")
-    private String description;
-
-    @Column(name = "expiration_date", nullable = false)
-    private LocalDate expirationDate;
-
-    @Column(name = "issue_date", nullable = false)
-    private LocalDate issueDate;
-
-    @Column(name = "discount_rate", nullable = false)
+    @Column(nullable = false)
     private java.math.BigDecimal discountRate;
 
     @ManyToOne
@@ -41,11 +26,7 @@ public class DiscountCoupon {
     }
 
     public DiscountCoupon(Long id, String couponName, String description, LocalDate expirationDate, LocalDate issueDate, BigDecimal discountRate, Product product) {
-        this.id = id;
-        this.couponName = couponName;
-        this.description = description;
-        this.expirationDate = expirationDate;
-        this.issueDate = issueDate;
+        super(id, couponName, description, expirationDate, issueDate);  // 부모 클래스의 생성자 호출
         this.discountRate = discountRate;
         this.product = product;
     }
