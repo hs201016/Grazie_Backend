@@ -4,6 +4,7 @@ import Grazie.com.Grazie_Backend.StoreProduct.StoreProductRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,7 @@ public class StoreService {
 
     // 매장 생성
     public Store createStore(StoreDTO storeDTO) {
+
         if (validationStoreName(storeDTO.getName())) {
             throw new IllegalArgumentException("이미 존재하는 매장 이름입니다: " + storeDTO.getName());
         }

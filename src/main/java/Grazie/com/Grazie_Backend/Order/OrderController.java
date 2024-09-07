@@ -37,6 +37,7 @@ public class OrderController {
             OrderGetResponseDTO orderGetResponseDTO = orderService.createOrder(orderCreateDTO, orderItemsCreateDTOS);
             return ResponseEntity.ok(orderGetResponseDTO);
         } catch (EntityNotFoundException e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new OrderGetResponseDTO());
         } catch (Exception e) {
             e.printStackTrace();

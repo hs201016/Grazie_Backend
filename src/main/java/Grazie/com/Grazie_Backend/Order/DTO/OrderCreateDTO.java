@@ -20,5 +20,6 @@ public class OrderCreateDTO {
     private Long store_id;
     private Long user_id;
     private Long coupon_id;
+    private String cup_type;
     private String requirement;
 }

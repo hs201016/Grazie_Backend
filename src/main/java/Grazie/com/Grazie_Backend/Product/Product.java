@@ -1,6 +1,9 @@
 package Grazie.com.Grazie_Backend.Product;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,20 +23,40 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long productId; // 고유번호
-    @Column(name = "name")
+
+    @Column(name = "name", nullable = false)
+    @Size(max = 25)
+    @NotNull
     private String name; // 상품 이름
-    @Column(name = "image")
+
+    @Column(name = "image", nullable = false)
+    @Size(max = 100)
+    @NotNull
     private String image; // 상품 이미지 url
-    @Column(name = "price")
+
+    @Column(name = "price", nullable = false)
+    @Min(0)
+    @NotNull
     private Integer price; // 상품 가격
-    @Column(name = "explanation")
+
+    @Column(name = "explanation", nullable = false)
+    @Size(max = 100)
+    @NotNull
     private String explanation; // 상품 설명
-    @Column(name = "size")
+
+    @Column(name = "size", nullable = false)
+    @Size(max = 10)
+    @NotNull
     private String size; // 상품 사이즈
-    @Column(name = "information")
+
+    @Column(name = "information", nullable = false)
     @JdbcTypeCode(SqlTypes.JSON)
+    @NotNull
     private ProductInformation information; // 상품 영양정보
-    @Column(name = "temperature")
+
+    @Column(name = "temperature", nullable = false)
+    @Size(max = 5)
+    @NotNull
     private String temperature; // 음료온도
 
     @Override
