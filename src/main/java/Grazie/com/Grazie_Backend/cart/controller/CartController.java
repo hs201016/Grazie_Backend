@@ -1,5 +1,9 @@
-package Grazie.com.Grazie_Backend.cart;
+package Grazie.com.Grazie_Backend.cart.controller;
 
+import Grazie.com.Grazie_Backend.cart.dto.CartDTO;
+import Grazie.com.Grazie_Backend.cart.dto.CartDeleteDTO;
+import Grazie.com.Grazie_Backend.cart.dto.CartItemResponseDTO;
+import Grazie.com.Grazie_Backend.cart.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,8 +33,8 @@ public class CartController {
     }
 
     @DeleteMapping("/deleteProduct")
-    public ResponseEntity<?> deleteProduct(@RequestBody CartDeleteDTO cartDeleteDTO) {
-        cartService.deleteCartItem(cartDeleteDTO);
+    public ResponseEntity<?> deleteProduct(@RequestParam("id") long userId, @RequestBody CartDeleteDTO cartDeleteDTO) {
+        cartService.deleteCartItem(userId, cartDeleteDTO);
         return ResponseEntity.ok("성공적으로 삭제되었습니다.");
     }
 

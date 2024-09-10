@@ -2,20 +2,28 @@ package Grazie.com.Grazie_Backend.cart;
 
 import Grazie.com.Grazie_Backend.Product.Product;
 import Grazie.com.Grazie_Backend.Product.ProductRepository;
+import Grazie.com.Grazie_Backend.cart.dto.CartDeleteDTO;
+import Grazie.com.Grazie_Backend.cart.dto.CartItemResponseDTO;
+import Grazie.com.Grazie_Backend.cart.entity.Cart;
+import Grazie.com.Grazie_Backend.cart.entity.CartItem;
+import Grazie.com.Grazie_Backend.cart.repository.CartItemRepository;
+import Grazie.com.Grazie_Backend.cart.repository.CartRepository;
+import Grazie.com.Grazie_Backend.cart.service.CartService;
 import Grazie.com.Grazie_Backend.member.entity.User;
 import Grazie.com.Grazie_Backend.member.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -92,8 +100,9 @@ public class CartServiceTest {
         CartItemResponseDTO expectedResponse = new CartItemResponseDTO(
                 cartItem.getProduct().getProductId(),
                 cartItem.getQuantity(),
-                cartItem.getProduct_price()
-        );
+                cartItem.getProduct().getPrice() * cartItem.getQuantity(),
+                cartItem.getProduct().getSize(),
+                cartItem.getProduct().getTemperature());
 
         assertEquals(1, responseItems.size()); // 장바구니에 1개 상품이 있으니
         System.out.println("Expected Response: " + expectedResponse);
@@ -101,90 +110,80 @@ public class CartServiceTest {
     }
 
     @Test
-    @DisplayName("특정 상품 삭제하기(정상적으로 삭제할때)")
     @Transactional
-    void testDeleteCartItem_QuantityMoreThanRequested() {
+    @DisplayName("지정 삭제 테스트")
+    public void testDeleteCartItem() {
+        // 준비
+        long userId = 1L;
+        Long cartId = 2L;
+        Long productId = 3L;
+        int quantityToDelete = 1;
 
         User user = new User();
         Cart cart = new Cart();
         CartItem cartItem = new CartItem();
+        cartItem.setProduct(new Product());
+        cartItem.getProduct().setProductId(productId);
         cartItem.setQuantity(5);
+        cartItem.setProduct_price(10000);
 
         cart.getCartItems().add(cartItem);
-        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
-        when(cartRepository.findByUser(any(User.class))).thenReturn(Optional.of(cart));
-        when(cartItemRepository.findById(anyLong())).thenReturn(Optional.of(cartItem));
 
         CartDeleteDTO cartDeleteDTO = new CartDeleteDTO();
-        cartDeleteDTO.setUserId(1L);
-        cartDeleteDTO.setItemId(1L);
-        cartDeleteDTO.setQuantity(2);
+        cartDeleteDTO.setCartId(cartId);
+        cartDeleteDTO.setProductId(productId);
+        cartDeleteDTO.setQuantity(quantityToDelete);
 
+        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        Mockito.when(cartRepository.findByUser(user)).thenReturn(Optional.of(cart));
+        Mockito.when(cartItemRepository.findByCartId(cartId)).thenReturn(List.of(cartItem));
 
-        cartService.deleteCartItem(cartDeleteDTO);
+        // 삭제
+        cartService.deleteCartItem(userId, cartDeleteDTO);
 
-        // 검증
-        assertEquals(3, cartItem.getQuantity());
-        verify(cartItemRepository, times(1)).save(cartItem);
-        verify(cartItemRepository, never()).delete(cartItem);
-    }
-
-
-    @Test
-    @DisplayName("장바구니 비어 있을 때 삭제 요청할 때 ")
-    void testDeleteCartItem_ItemNotInCart() {
-
-        User user = new User();
-        Cart cart = new Cart();
-        CartItem cartItem = new CartItem();
-        cartItem.setQuantity(5);
-
-        // 장바구니 비어 있음
-        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
-        when(cartRepository.findByUser(any(User.class))).thenReturn(Optional.of(cart));
-        when(cartItemRepository.findById(anyLong())).thenReturn(Optional.of(cartItem));
-
-        CartDeleteDTO cartDeleteDTO = new CartDeleteDTO();
-        cartDeleteDTO.setUserId(1L);
-        cartDeleteDTO.setItemId(1L);
-        cartDeleteDTO.setQuantity(2);
-
-        cartService.deleteCartItem(cartDeleteDTO);
-
-        // 검증
-        assertTrue(cart.getCartItems().isEmpty());
-        verify(cartItemRepository, never()).save(any(CartItem.class));
-        verify(cartItemRepository, never()).delete(any(CartItem.class));
+        Mockito.verify(cartItemRepository, Mockito.times(1)).save(cartItem);
+        Mockito.verify(cartItemRepository, Mockito.never()).delete(cartItem); // delete 메소드 호출 안됬는지 확인
+        Assertions.assertEquals(4, cartItem.getQuantity()); // 수량 4 남았는 지 확인
     }
 
     @Test
-    @DisplayName("장바구니 지워서 수량이 0이 될떄")
     @Transactional
-    void testDeleteCartItem_QuantityEqualToRequested() {
+    @DisplayName("딱맞게 지웠을 떄")
+    public void testDeleteCartItem_deletion() {
+        // 준비
+        long userId = 1L;
+        Long cartId = 2L;
+        Long productId = 3L;
+        int quantityToDelete = 10;
 
         User user = new User();
         Cart cart = new Cart();
         CartItem cartItem = new CartItem();
-        cartItem.setQuantity(2);
+        cartItem.setProduct(new Product());
+        cartItem.getProduct().setProductId(productId);
+        cartItem.setQuantity(5);
+        cartItem.setProduct_price(10000);
 
         cart.getCartItems().add(cartItem);
-        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
-        when(cartRepository.findByUser(any(User.class))).thenReturn(Optional.of(cart));
-        when(cartItemRepository.findById(anyLong())).thenReturn(Optional.of(cartItem));
 
         CartDeleteDTO cartDeleteDTO = new CartDeleteDTO();
-        cartDeleteDTO.setUserId(1L);
-        cartDeleteDTO.setItemId(1L);
-        cartDeleteDTO.setQuantity(2);
+        cartDeleteDTO.setCartId(cartId);
+        cartDeleteDTO.setProductId(productId);
+        cartDeleteDTO.setQuantity(quantityToDelete);
 
+        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        Mockito.when(cartRepository.findByUser(user)).thenReturn(Optional.of(cart));
+        Mockito.when(cartItemRepository.findByCartId(cartId)).thenReturn(List.of(cartItem));
 
-        cartService.deleteCartItem(cartDeleteDTO);
+        // 실행
+        cartService.deleteCartItem(userId, cartDeleteDTO);
 
         // 검증
-        assertFalse(cart.getCartItems().contains(cartItem));
-        verify(cartItemRepository, times(1)).delete(cartItem);
-        verify(cartItemRepository, never()).save(cartItem);
-    }
+        Mockito.verify(cartItemRepository, Mockito.never()).save(cartItem);
+        Mockito.verify(cartItemRepository, Mockito.times(1)).delete(cartItem); // delete 실행됨?
+        Assertions.assertTrue(cart.getCartItems().isEmpty()); // 비워져 있음?
+
+}
 
     @Test
     @DisplayName("사용자 못 찾았을 때")

@@ -1,7 +1,13 @@
-package Grazie.com.Grazie_Backend.cart;
+package Grazie.com.Grazie_Backend.cart.service;
 
 import Grazie.com.Grazie_Backend.Product.Product;
 import Grazie.com.Grazie_Backend.Product.ProductRepository;
+import Grazie.com.Grazie_Backend.cart.dto.CartDeleteDTO;
+import Grazie.com.Grazie_Backend.cart.dto.CartItemResponseDTO;
+import Grazie.com.Grazie_Backend.cart.entity.Cart;
+import Grazie.com.Grazie_Backend.cart.entity.CartItem;
+import Grazie.com.Grazie_Backend.cart.repository.CartItemRepository;
+import Grazie.com.Grazie_Backend.cart.repository.CartRepository;
 import Grazie.com.Grazie_Backend.member.entity.User;
 import Grazie.com.Grazie_Backend.member.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -14,6 +20,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
+/**
+ * 희수 : 지금은 findByUser 로 유저를 찾지만 곧 security 설정 후 jwt 로 찾을 예정
+ */
+
 @Service
 @RequiredArgsConstructor
 public class CartService {
@@ -21,6 +32,7 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
+
 
     @Transactional
     public void addProductToCart(Long userId, Long productId, int quantity) {
@@ -37,6 +49,7 @@ public class CartService {
         cartRepository.save(cart);
     }
 
+
     @Transactional(readOnly = true)
     public List<CartItemResponseDTO> readCartItem(Long userId) {
         User user = findUser(userId);
@@ -47,29 +60,34 @@ public class CartService {
                 .map(cartItem -> new CartItemResponseDTO(
                         cartItem.getProduct().getProductId(),
                         cartItem.getQuantity(),
-                        cartItem.getProduct().getPrice()))
+                        cartItem.getProduct().getPrice() * cartItem.getQuantity(),
+                        cartItem.getProduct().getSize(),
+                        cartItem.getProduct().getTemperature()))
                 .collect(Collectors.toList());
-
     }
 
     @Transactional
-    public void deleteCartItem(CartDeleteDTO cartDeleteDTO) {
-        User user = findUser(cartDeleteDTO.getUserId());
+    public void deleteCartItem(long userId, CartDeleteDTO cartDeleteDTO) {
+        User user = findUser(userId);
         Cart cart = findCartByUser(user).orElseThrow(
                 () -> new EntityNotFoundException("해당 사용자의 장바구니가 없습니다."));
-        CartItem cartItem = findCartItemByItem(cartDeleteDTO.getItemId());
+        List<CartItem> cartItem = findCartItemByCartId(cartDeleteDTO.getCartId());
 
-        if (cart.getCartItems().contains(cartItem)) {
-            // 수량 더 많으면 지우고 저장
-            if (cartItem.getQuantity() > cartDeleteDTO.getQuantity()) {
-                cartItem.setQuantity(cartItem.getQuantity() - cartDeleteDTO.getQuantity());
-                cartItemRepository.save(cartItem);
-            } else {
-                // 수량이 0이 되면 아예 장바구니에서 삭제
-                cart.getCartItems().remove(cartItem);
-                cartItemRepository.delete(cartItem);
-            }
+        CartItem cartItemToDelete = cartItem.stream()
+                .filter(item -> item.getProduct().getProductId().equals(cartDeleteDTO.getProductId()))
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("해당 카트에 상품이 존재하지 않습니다."));
+
+        // 수량 감소 또는 삭제 처리 로직
+        if (cartItemToDelete.getQuantity() > cartDeleteDTO.getQuantity()) {
+            cartItemToDelete.setQuantity(cartItemToDelete.getQuantity() - cartDeleteDTO.getQuantity());
+            cartItemRepository.save(cartItemToDelete); // 수정된 CartItem 저장
+        } else {
+            // 수량보다 많이 지울경우
+            cart.getCartItems().remove(cartItemToDelete);
+            cartItemRepository.delete(cartItemToDelete); // CartItem 삭제
         }
+        cartRepository.save(cart);
     }
 
 
@@ -103,10 +121,10 @@ public class CartService {
     }
 
     private Optional<Cart> findCartByUser(User user) {
-        return cartRepository.findByUser(user); // Else 문 삭제
+        return cartRepository.findByUser(user);
     }
 
-    private Cart createCartForUser(User user) { // 사용자에게 장바구니 생성
+    private Cart createCartForUser(User user) {
         Cart cart = new Cart();
         cart.setUser(user);
         return cartRepository.save(cart);
@@ -117,9 +135,9 @@ public class CartService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 상품을 찾을 수 없습니다."));
     }
 
-    private CartItem findCartItemByItem(Long cartItemId) {
-        return cartItemRepository.findById(cartItemId)
-                .orElseThrow(() -> new EntityNotFoundException("장바구니 항목을 찾을 수 없습니다."));
+
+    private List<CartItem> findCartItemByCartId(Long cartId) {
+        return cartItemRepository.findByCartId(cartId);
     }
 
 }

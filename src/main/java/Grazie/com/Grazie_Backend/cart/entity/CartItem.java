@@ -1,4 +1,4 @@
-package Grazie.com.Grazie_Backend.cart;
+package Grazie.com.Grazie_Backend.cart.entity;
 
 import Grazie.com.Grazie_Backend.Product.Product;
 import jakarta.persistence.*;
