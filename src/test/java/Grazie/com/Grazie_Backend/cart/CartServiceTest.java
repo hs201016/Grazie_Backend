@@ -199,6 +199,45 @@ public class CartServiceTest {
 
 
 
+    @Test
+    @DisplayName("카드 비었을 때")
+    void testIsCartEmptyWhenCartHasNoItems() {
+        Long userId = 1L;
+
+        User user = new User();
+        Cart cart = new Cart();
+        cart.setId(1L);
+        cart.setCartItems(new ArrayList<>());
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(cartRepository.findByUser(user)).thenReturn(Optional.of(cart));
+        when(cartItemRepository.findByCartId(cart.getId())).thenReturn(cart.getCartItems());
+
+        boolean isCartEmpty = cartService.isCartEmpty(userId);
+
+        assertTrue(isCartEmpty, "카트 비었어요");
+    }
+
+    @Test
+    @DisplayName("카트 안 비었을 때")
+    void testIsCartEmptyWhenCartHasItems() {
+        Long userId = 1L;
+
+        User user = new User();
+        Cart cart = new Cart();
+        cart.setId(1L);
+        List<CartItem> cartItems = new ArrayList<>();
+        cartItems.add(new CartItem());  // 상품 추가
+        cart.setCartItems(cartItems);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(cartRepository.findByUser(user)).thenReturn(Optional.of(cart));
+        when(cartItemRepository.findByCartId(cart.getId())).thenReturn(cartItems);
+
+        boolean isCartEmpty = cartService.isCartEmpty(userId);
+
+        assertFalse(isCartEmpty, "카트 안 비었어요");
+    }
 
 
     @Test

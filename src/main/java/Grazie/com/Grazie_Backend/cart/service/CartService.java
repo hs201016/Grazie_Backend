@@ -33,12 +33,10 @@ public class CartService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
 
-
     @Transactional
     public void addProductToCart(Long userId, Long productId, int quantity) {
         User user = findUser(userId);
         Cart cart = findCartByUser(user).orElseGet(() -> createCartForUser(user));
-
 
         Product product = findProductById(productId);
 
@@ -48,7 +46,6 @@ public class CartService {
         cartItemRepository.save(cartItem);
         cartRepository.save(cart);
     }
-
 
     @Transactional(readOnly = true)
     public List<CartItemResponseDTO> readCartItem(Long userId) {
@@ -105,6 +102,16 @@ public class CartService {
         cartRepository.save(cart);
     }
 
+    @Transactional(readOnly = true)
+    public boolean isCartEmpty(Long userId) {
+        User user = findUser(userId);
+        Cart cart = findCartByUser(user).orElseThrow(
+                () -> new EntityNotFoundException("해당 사용자의 장바구니가 없습니다."));
+        List<CartItem> cartItem = findCartItemByCartId(cart.getId());
+
+        return cartItem.isEmpty();
+    }
+
 
     private CartItem createCartItem(Cart cart, Product product, int quantity) {
         CartItem cartItem = new CartItem();
@@ -131,7 +138,7 @@ public class CartService {
     }
 
     private Product findProductById(Long productId) {
-        return  productRepository.findById(productId)
+        return productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 상품을 찾을 수 없습니다."));
     }
 
