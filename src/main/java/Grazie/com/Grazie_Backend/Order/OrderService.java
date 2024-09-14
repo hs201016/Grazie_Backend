@@ -25,11 +25,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /*
@@ -185,7 +183,7 @@ public class OrderService {
         order.setAccept("대기");
         order.setRequirement(orderCreateDTO.getRequirement());
         order.setStore(store);
-        order.setUser_id(user);
+        order.setUser(user);
         order.setCoupon_id(coupon);
         order.setOrderItems(orderItemsList);
 
@@ -297,10 +295,34 @@ public class OrderService {
         }
     }
 
+    public List<OrderGetResponseDTO> getOrderByUserId(Long user_id) {
+        User user = userRepository.findById(user_id)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지않는 유저입니다."));
+
+        List<Order> orders = orderRepository.findByUser(user);
+        List<OrderGetResponseDTO> orderGetResponseDTOs = new ArrayList<>();
+
+        for (Order o : orders) {
+            OrderGetDTO orderGetDTO = OrderToOrderGetDTO(o);
+            orderGetDTO.setUser_id(null);
+
+            List<OrderItemsGetDTO> orderItemsGetDTOs =
+                    OrderItemsToOrderItemsGetDTO(orderItemsRepository.findByOrder(o));
+
+            orderGetResponseDTOs.add(OrderGetResponseDTO
+                    .builder()
+                    .orderGetDTO(orderGetDTO)
+                    .orderItemsGetDTOs(orderItemsGetDTOs)
+                    .build());
+        }
+
+        return orderGetResponseDTOs;
+    }
+
     private OrderGetDTO OrderToOrderGetDTO(Order order) {
         OrderGetDTO orderGetDTO = new OrderGetDTO();
         orderGetDTO.setOrder_id(order.getOrder_id());
-        orderGetDTO.setUser_id(order.getUser_id());
+        orderGetDTO.setUser_id(order.getUser());
         orderGetDTO.setStore(order.getStore());
         orderGetDTO.setCoupon_id(order.getCoupon_id());
         orderGetDTO.setTotal_price(order.getTotal_price());

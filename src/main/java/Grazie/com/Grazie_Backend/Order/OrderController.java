@@ -77,6 +77,17 @@ public class OrderController {
         }
     }
 
+    @GetMapping("/get/user/{id}")
+    public ResponseEntity<List<OrderGetResponseDTO>> getOrderByUserId(@PathVariable(value = "id") Long user_id) {
+        try {
+            return ResponseEntity.ok(orderService.getOrderByUserId(user_id));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ArrayList<>());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<>());
+        }
+    }
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Boolean> deleteOrderById(@PathVariable(value = "id") Long order_id) {        try {
         return ResponseEntity.ok(orderService.deleteOrderById(order_id));

@@ -10,7 +10,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -76,7 +75,7 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     @NotNull
-    private User user_id;
+    private User user;
 
     @OneToOne
     @JoinColumn(name = "coupon_id")
@@ -91,7 +90,7 @@ public class Order {
     public String toString() {
         return "Order{" +
                 "order_id=" + order_id +
-                ", user_id=" + user_id +
+                ", user_id=" + user +
                 ", store=" + store +
                 ", coupon_id=" + coupon_id +
                 ", total_price=" + total_price +
