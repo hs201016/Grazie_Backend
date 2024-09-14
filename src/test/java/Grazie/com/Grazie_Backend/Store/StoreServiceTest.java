@@ -1,12 +1,12 @@
 package Grazie.com.Grazie_Backend.Store;
 
+import Grazie.com.Grazie_Backend.Store.dto.StoreDTO;
+import Grazie.com.Grazie_Backend.Store.entity.Store;
+import Grazie.com.Grazie_Backend.Store.service.StoreService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.system.CapturedOutput;
-import org.springframework.boot.test.system.OutputCaptureExtension;
 
 import java.util.List;
 

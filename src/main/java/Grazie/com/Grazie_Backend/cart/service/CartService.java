@@ -1,7 +1,7 @@
 package Grazie.com.Grazie_Backend.cart.service;
 
-import Grazie.com.Grazie_Backend.Product.Product;
-import Grazie.com.Grazie_Backend.Product.ProductRepository;
+import Grazie.com.Grazie_Backend.Product.entity.Product;
+import Grazie.com.Grazie_Backend.Product.repository.ProductRepository;
 import Grazie.com.Grazie_Backend.cart.dto.CartDeleteDTO;
 import Grazie.com.Grazie_Backend.cart.dto.CartItemResponseDTO;
 import Grazie.com.Grazie_Backend.cart.entity.Cart;

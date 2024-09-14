@@ -1,6 +1,6 @@
 package Grazie.com.Grazie_Backend.coupon.discountcoupon;
 
-import Grazie.com.Grazie_Backend.Product.Product;
+import Grazie.com.Grazie_Backend.Product.entity.Product;
 import Grazie.com.Grazie_Backend.coupon.Coupon;
 import jakarta.persistence.*;
 import lombok.Getter;

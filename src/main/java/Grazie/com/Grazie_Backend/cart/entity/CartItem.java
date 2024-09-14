@@ -1,6 +1,6 @@
 package Grazie.com.Grazie_Backend.cart.entity;
 
-import Grazie.com.Grazie_Backend.Product.Product;
+import Grazie.com.Grazie_Backend.Product.entity.Product;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

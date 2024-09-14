@@ -1,7 +1,7 @@
 package Grazie.com.Grazie_Backend.coupon.productcoupon;
 
-import Grazie.com.Grazie_Backend.Product.Product;
-import Grazie.com.Grazie_Backend.Product.ProductRepository;
+import Grazie.com.Grazie_Backend.Product.entity.Product;
+import Grazie.com.Grazie_Backend.Product.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
