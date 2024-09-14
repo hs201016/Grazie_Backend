@@ -4,6 +4,8 @@ import Grazie.com.Grazie_Backend.Product.entity.Product;
 import Grazie.com.Grazie_Backend.Product.repository.ProductRepository;
 import Grazie.com.Grazie_Backend.Store.entity.Store;
 import Grazie.com.Grazie_Backend.Store.repository.StoreRepository;
+import Grazie.com.Grazie_Backend.StoreProduct.Exception.ProductNotFoundException;
+import Grazie.com.Grazie_Backend.StoreProduct.Exception.StoreNotFoundException;
 import Grazie.com.Grazie_Backend.StoreProduct.dto.StoreProductDTO;
 import Grazie.com.Grazie_Backend.StoreProduct.dto.StoreProductResponseDTO;
 import Grazie.com.Grazie_Backend.StoreProduct.entity.StoreProduct;
@@ -45,10 +47,10 @@ public class StoreProductService {
         StoreProduct storeProduct = new StoreProduct();
 
         Store store = storeRepository.findById(storeProductDTO.getStoreId())
-                .orElseThrow(() -> new IllegalArgumentException("매장을 찾을 수 없습니다."));
+                .orElseThrow(() -> new StoreNotFoundException("매장을 찾을 수 없습니다."));
 
         Product product = productRepository.findById(storeProductDTO.getProductId())
-                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
 
         // 중복확인 중복이라면 True
         if (storeProductRepository.existsByStoreAndProduct(store, product)) {
@@ -64,10 +66,10 @@ public class StoreProductService {
 
     public Boolean deleteStoreProduct(Long storeId, Long productId) {
         Store store = storeRepository.findById(storeId)
-                .orElseThrow(() -> new EntityNotFoundException("매장을 찾을 수 없습니다."));
+                .orElseThrow(() -> new StoreNotFoundException("매장을 찾을 수 없습니다."));
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
 
         storeProductRepository.deleteByStoreAndProduct(store, product);
         return true;
@@ -75,7 +77,7 @@ public class StoreProductService {
 
     public StoreProductResponseDTO getProductByStoreId(Long storeId) {
         Store store = storeRepository.findById(storeId)
-                .orElseThrow(() -> new EntityNotFoundException("매장을 찾을 수 없습니다."));
+                .orElseThrow(() -> new StoreNotFoundException("매장을 찾을 수 없습니다."));
 
         List<StoreProduct> list = storeProductRepository.findAllByStore(store);
         for (StoreProduct sp : list) {
