@@ -9,14 +9,22 @@ import Grazie.com.Grazie_Backend.Store.Store;
 import Grazie.com.Grazie_Backend.Store.StoreRepository;
 import Grazie.com.Grazie_Backend.StoreProduct.StoreProduct;
 import Grazie.com.Grazie_Backend.StoreProduct.StoreProductRepository;
+import Grazie.com.Grazie_Backend.coupon.Coupon;
+import Grazie.com.Grazie_Backend.coupon.CouponRepository;
+import Grazie.com.Grazie_Backend.coupon.discountcoupon.DiscountCoupon;
+import Grazie.com.Grazie_Backend.coupon.productcoupon.ProductCoupon;
+import Grazie.com.Grazie_Backend.coupon.usercoupon.UserCouponRepository;
+import Grazie.com.Grazie_Backend.member.entity.User;
+import Grazie.com.Grazie_Backend.member.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,23 +43,34 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final StoreRepository storeRepository;
     private final StoreProductRepository storeProductRepository;
+    private final UserRepository userRepository;
+    private final CouponRepository couponRepository;
+
+    private final UserCouponRepository userCouponRepository;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository, OrderItemsRepository orderItemsRepository, ProductRepository productRepository, StoreRepository storeRepository, StoreProductRepository storeProductRepository) {
+    public OrderService(OrderRepository orderRepository, OrderItemsRepository orderItemsRepository, ProductRepository productRepository, StoreRepository storeRepository, StoreProductRepository storeProductRepository, UserRepository userRepository, CouponRepository couponRepository, UserCouponRepository userCouponRepository) {
         this.orderRepository = orderRepository;
         this.orderItemsRepository = orderItemsRepository;
         this.productRepository = productRepository;
         this.storeRepository = storeRepository;
         this.storeProductRepository = storeProductRepository;
+        this.userRepository = userRepository;
+        this.couponRepository = couponRepository;
+        this.userCouponRepository = userCouponRepository;
     }
 
     // 주문 생성
     @Transactional
     public OrderGetResponseDTO createOrder(OrderCreateDTO orderCreateDTO, List<OrderItemsCreateDTO> orderItemsCreateDTOS) {
-        int total = 0;
+        BigDecimal total = BigDecimal.ZERO;
+        BigDecimal discountPrice = BigDecimal.ZERO;
 
         Store store = storeRepository.findById(orderCreateDTO.getStore_id())
                 .orElseThrow(() -> new EntityNotFoundException("매장을 찾을 수 없습니다."));
+
+        User user = userRepository.findById(orderCreateDTO.getUser_id())
+                .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
 
         Order order = new Order();
 
@@ -60,10 +79,12 @@ public class OrderService {
                 .toList();
 
         List<Product> products = productRepository.findByProductIdIn(productIds);
+
         Map<Long, Product> productMap = products.stream()
                 .collect(Collectors.toMap(Product::getProductId, product -> product));
 
         List<StoreProduct> storeProducts = storeProductRepository.findByStoreAndProductIn(store, productIds);
+
         Map<Long, StoreProduct> storeProductMap = storeProducts.stream()
                 .collect(Collectors.toMap(sp -> sp.getProduct().getProductId(), sp -> sp));
 
@@ -71,6 +92,9 @@ public class OrderService {
 
         for (OrderItemsCreateDTO orderItemsCreateDTO : orderItemsCreateDTOS) {
             Product product = productMap.get(orderItemsCreateDTO.getProduct_id());
+
+            BigDecimal price = BigDecimal.ZERO;
+
             if (product == null) {
                 throw new EntityNotFoundException("상품을 찾을 수 없습니다.");
             }
@@ -84,32 +108,84 @@ public class OrderService {
                 throw new IllegalArgumentException("판매 중지 된 상품입니다.");
             }
 
-            int price = orderItemsCreateDTO.getQuantity() * orderItemsCreateDTO.getProduct_price();
+            // 상품 개수 * 상품 가격
+            price = new BigDecimal(orderItemsCreateDTO.getQuantity()).multiply(new BigDecimal(orderItemsCreateDTO.getProduct_price()));
 
             OrderItems orderItems = new OrderItems();
-            orderItems.setProduct(product);
-            orderItems.setQuantity(orderItemsCreateDTO.getQuantity());
             orderItems.setProduct_price(orderItemsCreateDTO.getProduct_price());
-            orderItems.setTotal_price(price);
+            orderItems.setQuantity(orderItemsCreateDTO.getQuantity());
+            orderItems.setTotal_price(price.intValue());
+            orderItems.setTemperature(orderItemsCreateDTO.getTemperature());
+            orderItems.setSize(orderItemsCreateDTO.getSize());
+            orderItems.setProduct(product);
             orderItems.setOrder(order);
 
-            total += price;
+            total = total.add(price);
             orderItemsList.add(orderItems);
         }
 
-        // Order 생성 및 저장
+        // 쿠폰 처리 로직
+        Coupon coupon = null;
+        if (orderCreateDTO.getCoupon_id() != null) {
+            coupon = couponRepository.findById(orderCreateDTO.getCoupon_id())
+                    .orElseThrow(() -> new EntityNotFoundException("쿠폰을 찾을 수 없습니다."));
 
-        order.setStore(store);
-        order.setId(orderCreateDTO.getUser_id());
-        order.setCoupon_id(orderCreateDTO.getCoupon_id());
-        order.setOrderItems(orderItemsList);
-        order.setTotal_price(total);
-        order.setDiscount_price(1000); // 추후 수정 필요
-        order.setFinal_price(total - 1000);
+            if (coupon instanceof DiscountCoupon) {
+                DiscountCoupon discountCoupon = (DiscountCoupon) coupon;
+                for (OrderItems orderItems : orderItemsList) {
+                    if (orderItems.getProduct().equals(discountCoupon.getProduct())) {
+                        if (discountCoupon.getExpirationDate().isBefore(LocalDate.now())) {
+                            throw new IllegalArgumentException("기한이 만료된 쿠폰입니다.");
+                        } else {
+                            /*
+                                 user가 가지고있는 쿠폰인지 체크 필요
+                             */
+                            if (userCouponRepository.existsByUserAndCoupon(user, discountCoupon)) {
+                                BigDecimal productPrice = new BigDecimal(orderItems.getProduct_price());
+                                BigDecimal discountRate = discountCoupon.getDiscountRate().divide(BigDecimal.valueOf(100));
+                                discountPrice = productPrice.multiply(discountRate);
+                                orderItems.setTotal_price(new BigDecimal(orderItems.getTotal_price()).subtract(discountPrice).intValue());
+                            } else {
+                                throw new IllegalArgumentException("유저가 해당 쿠폰을 가지고 있지 않습니다.");
+                            }
+                        }
+                    }
+                }
+            } else if (coupon instanceof ProductCoupon) {
+                ProductCoupon productCoupon = (ProductCoupon) coupon;
+                for (OrderItems orderItems : orderItemsList) {
+                    if (orderItems.getProduct().equals(productCoupon.getProduct())) {
+                        if (productCoupon.getExpirationDate().isBefore(LocalDate.now())) {
+                            throw new IllegalArgumentException("기한이 만료된 쿠폰입니다.");
+                        } else {
+                            /*
+                                 user가 가지고있는 쿠폰인지 체크 필요
+                             */
+                            if (userCouponRepository.existsByUserAndCoupon(user, productCoupon)) {
+                                discountPrice = discountPrice.add(new BigDecimal(orderItems.getProduct_price()));
+                                orderItems.setTotal_price(new BigDecimal(orderItems.getTotal_price()).subtract(discountPrice).intValue());
+                            } else {
+                                throw new IllegalArgumentException("유저가 해당 쿠폰을 가지고 있지 않습니다.");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Order 생성 및 저장
+        order.setTotal_price(total.intValue());
+        order.setDiscount_price(discountPrice.intValue());
+        order.setFinal_price(total.subtract(discountPrice).intValue());
         order.setOrder_date(orderCreateDTO.getOrder_date());
         order.setOrder_mode(orderCreateDTO.getOrder_mode());
+        order.setCup_type(orderCreateDTO.getCup_type());
         order.setAccept("대기");
         order.setRequirement(orderCreateDTO.getRequirement());
+        order.setStore(store);
+        order.setUser(user);
+        order.setCoupon_id(coupon);
+        order.setOrderItems(orderItemsList);
 
         // Order와 OrderItems를 함께 저장
         try {
@@ -219,10 +295,34 @@ public class OrderService {
         }
     }
 
+    public List<OrderGetResponseDTO> getOrderByUserId(Long user_id) {
+        User user = userRepository.findById(user_id)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지않는 유저입니다."));
+
+        List<Order> orders = orderRepository.findByUser(user);
+        List<OrderGetResponseDTO> orderGetResponseDTOs = new ArrayList<>();
+
+        for (Order o : orders) {
+            OrderGetDTO orderGetDTO = OrderToOrderGetDTO(o);
+            orderGetDTO.setUser_id(null);
+
+            List<OrderItemsGetDTO> orderItemsGetDTOs =
+                    OrderItemsToOrderItemsGetDTO(orderItemsRepository.findByOrder(o));
+
+            orderGetResponseDTOs.add(OrderGetResponseDTO
+                    .builder()
+                    .orderGetDTO(orderGetDTO)
+                    .orderItemsGetDTOs(orderItemsGetDTOs)
+                    .build());
+        }
+
+        return orderGetResponseDTOs;
+    }
+
     private OrderGetDTO OrderToOrderGetDTO(Order order) {
         OrderGetDTO orderGetDTO = new OrderGetDTO();
         orderGetDTO.setOrder_id(order.getOrder_id());
-        orderGetDTO.setId(order.getId());
+        orderGetDTO.setUser_id(order.getUser());
         orderGetDTO.setStore(order.getStore());
         orderGetDTO.setCoupon_id(order.getCoupon_id());
         orderGetDTO.setTotal_price(order.getTotal_price());
@@ -231,6 +331,7 @@ public class OrderService {
         orderGetDTO.setOrder_date(order.getOrder_date());
         orderGetDTO.setOrder_mode(order.getOrder_mode());
         orderGetDTO.setAccept(order.getAccept());
+        orderGetDTO.setCup_type(order.getCup_type());
         orderGetDTO.setRequirement(order.getRequirement());
 
         return orderGetDTO;
@@ -244,6 +345,7 @@ public class OrderService {
             dto.setOrder_item_id(item.getOrder_item_id());
             dto.setProduct(item.getProduct());
             dto.setQuantity(item.getQuantity());
+            dto.setSize(item.getSize());
             dto.setProduct_price(item.getProduct_price());
             dto.setTotal_price(item.getTotal_price());
 
@@ -252,5 +354,4 @@ public class OrderService {
 
         return orderItemsGetDTO;
     }
-
 }

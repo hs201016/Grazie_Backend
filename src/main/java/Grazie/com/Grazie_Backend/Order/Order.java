@@ -2,10 +2,14 @@ package Grazie.com.Grazie_Backend.Order;
 
 import Grazie.com.Grazie_Backend.Order.OrderItems.OrderItems;
 import Grazie.com.Grazie_Backend.Store.Store;
+import Grazie.com.Grazie_Backend.coupon.Coupon;
+import Grazie.com.Grazie_Backend.member.entity.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,45 +28,69 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long order_id;
 
-//    @ManyToOne
-//    @JoinColumn(name = "id", nullable = false)
-//    private User user_id;
-    @Column(name = "id")
-    private Long id;
+    @Column(name = "total_price", nullable = false)
+    @Min(0)
+    @NotNull
+    private int total_price;
+
+    @Column(name = "discount_price", nullable = false)
+    @Min(0)
+    @NotNull
+    private int discount_price;
+
+    @Column(name = "final_price", nullable = false)
+    @Min(0)
+    @NotNull
+    private int final_price;
+
+    @Column(name = "order_date", nullable = false)
+    @NotNull
+    private LocalDateTime order_date;
+
+    @Column(name = "order_mode", nullable = false)
+    @Size(max = 10)
+    @NotNull
+    private String order_mode;
+
+    @Column(name = "cup_type", nullable = false)
+    @Size(max = 5)
+    @NotNull
+    private String cup_type;
+
+    @Column(name = "accept")
+    @Size(max = 5)
+    @NotNull
+    private String accept;
+
+    @Column(name = "requirement")
+    @Size(max = 255)
+    @NotNull
+    private String requirement;
 
     @ManyToOne
     @JoinColumn(name = "store_id", nullable = false)
+    @NotNull
     private Store store;
 
-//    @ManyToOne
-//    @JoinColumn(name = "coupon_id")
-//    private Coupon coupon;
-    @Column(name = "coupon_id")
-    private Long coupon_id;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    @NotNull
+    private User user;
+
+    @OneToOne
+    @JoinColumn(name = "coupon_id")
+    @NotNull
+    private Coupon coupon_id;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @NotNull
     private List<OrderItems> orderItems;
-
-    @Column(name = "total_price")
-    private int total_price;
-    @Column(name = "discount_price")
-    private int discount_price;
-    @Column(name = "final_price")
-    private int final_price;
-    @Column(name = "order_date")
-    private LocalDateTime order_date;
-    @Column(name = "order_mode")
-    private String order_mode;
-    @Column(name = "accept")
-    private String accept;
-    @Column(name = "requirement")
-    private String requirement;
 
     @Override
     public String toString() {
         return "Order{" +
                 "order_id=" + order_id +
-                ", id=" + id +
+                ", user_id=" + user +
                 ", store=" + store +
                 ", coupon_id=" + coupon_id +
                 ", total_price=" + total_price +
@@ -72,6 +100,7 @@ public class Order {
                 ", order_mode='" + order_mode + '\'' +
                 ", accept='" + accept + '\'' +
                 ", requirement='" + requirement + '\'' +
+                ", cup_type='" + cup_type + '\'' +
                 '}';
     }
 }

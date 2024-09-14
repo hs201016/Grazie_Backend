@@ -37,6 +37,7 @@ public class OrderController {
             OrderGetResponseDTO orderGetResponseDTO = orderService.createOrder(orderCreateDTO, orderItemsCreateDTOS);
             return ResponseEntity.ok(orderGetResponseDTO);
         } catch (EntityNotFoundException e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new OrderGetResponseDTO());
         } catch (Exception e) {
             e.printStackTrace();
@@ -69,6 +70,17 @@ public class OrderController {
     public ResponseEntity<List<OrderGetResponseDTO>> getOrderByStoreId(@PathVariable(value = "id") Long store_id) {
         try {
             return ResponseEntity.ok(orderService.getOrderByStoreId(store_id));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ArrayList<>());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ArrayList<>());
+        }
+    }
+
+    @GetMapping("/get/user/{id}")
+    public ResponseEntity<List<OrderGetResponseDTO>> getOrderByUserId(@PathVariable(value = "id") Long user_id) {
+        try {
+            return ResponseEntity.ok(orderService.getOrderByUserId(user_id));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ArrayList<>());
         } catch (Exception e) {

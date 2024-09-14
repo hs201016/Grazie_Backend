@@ -15,5 +15,7 @@ import lombok.*;
 public class OrderItemsCreateDTO {
     private Long product_id;
     private int quantity;
+    private String size;
+    private String temperature;
     private int product_price;
 }
