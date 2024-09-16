@@ -42,25 +42,32 @@ class OrderServiceTest {
         orderCreateDTO.setOrder_date(LocalDateTime.now());
         orderCreateDTO.setOrder_mode("테이크아웃");
         orderCreateDTO.setRequirement("얼음 빼주세요");
+        orderCreateDTO.setCup_type("텀블러");
         orderCreateDTO.setStore_id(1L);
-        orderCreateDTO.setCoupon_id(2L);
-        orderCreateDTO.setUser_id(5L);
+        orderCreateDTO.setCoupon_id(10L);
+        orderCreateDTO.setUser_id(2L);
 
         list.add(OrderItemsCreateDTO.builder()
-                .product_id(21L)
+                .product_id(4L)
                 .quantity(2)
+                .size("grande")
+                .temperature("hot")
                 .product_price(4500)
                 .build());
 
         list.add(OrderItemsCreateDTO.builder()
-                        .product_id(22L)
+                        .product_id(2L)
                         .quantity(3)
+                        .size("tall")
+                        .temperature("ice")
                         .product_price(3000)
                 .build());
 
         list.add(OrderItemsCreateDTO.builder()
-                        .product_id(23L)
+                        .product_id(3L)
                         .quantity(1)
+                        .size("tall")
+                        .temperature("ice")
                         .product_price(6000)
                 .build());
 
