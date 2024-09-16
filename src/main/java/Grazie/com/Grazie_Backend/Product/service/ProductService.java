@@ -3,6 +3,8 @@ package Grazie.com.Grazie_Backend.Product.service;
 import Grazie.com.Grazie_Backend.Product.dto.ProductDTO;
 import Grazie.com.Grazie_Backend.Product.dto.ProductInformation;
 import Grazie.com.Grazie_Backend.Product.entity.Product;
+import Grazie.com.Grazie_Backend.Product.exception.InvalidFieldValueException;
+import Grazie.com.Grazie_Backend.Product.exception.ProductNotFoundException;
 import Grazie.com.Grazie_Backend.Product.repository.ProductRepository;
 import Grazie.com.Grazie_Backend.StoreProduct.repository.StoreProductRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -35,19 +37,19 @@ public class ProductService {
     // 상품 생성
     public Product createProduct(ProductDTO productDTO) {
         if (validationProduct(productDTO.getName())) {
-            throw new IllegalArgumentException("이미 존재하는 상품 이름입니다: " + productDTO.getName());
+            throw new InvalidFieldValueException("이미 존재하는 상품 이름입니다: " + productDTO.getName());
         }
         if (productDTO.getPrice() < 0 ) {
-            throw new IllegalArgumentException("상품의 가격은 0보다 작을 수 없습니다: " + productDTO.getPrice());
+            throw new InvalidFieldValueException("상품의 가격은 0보다 작을 수 없습니다: " + productDTO.getPrice());
         }
         if (validationInformation(productDTO.getInformation())) {
-            throw new IllegalArgumentException("상품의 영양정보는 0보다 작을 수 없습니다: " + productDTO.getInformation().toString());
+            throw new InvalidFieldValueException("상품의 영양정보는 0보다 작을 수 없습니다: " + productDTO.getInformation().toString());
         }
         if (validationTemperature(productDTO.getTemperature())) {
-            throw new IllegalArgumentException("상품의 온도가 정해진 문자열이 아닙니다: " + productDTO.getTemperature());
+            throw new InvalidFieldValueException("상품의 온도가 정해진 문자열이 아닙니다: " + productDTO.getTemperature());
         }
         if (validationSize(productDTO.getSize())) {
-            throw new IllegalArgumentException("상품의 사이즈가 정해진 문자열이 아닙니다: " + productDTO.getSize());
+            throw new InvalidFieldValueException("상품의 사이즈가 정해진 문자열이 아닙니다: " + productDTO.getSize());
         }
 
         Product product = new Product();
@@ -92,7 +94,7 @@ public class ProductService {
     // 상품 상세보기
     public ProductDTO getProductById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
 
         return ProductDTO.builder()
                 .product_id(product.getProductId())
@@ -109,19 +111,19 @@ public class ProductService {
     // product_id를 이용한 상품 수정
     public Product updateProductById(Long id, ProductDTO productDTO) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
 
         if (productDTO.getPrice() < 0 ) {
-            throw new IllegalArgumentException("상품의 가격은 0보다 작을 수 없습니다: " + productDTO.getPrice());
+            throw new InvalidFieldValueException("상품의 가격은 0보다 작을 수 없습니다: " + productDTO.getPrice());
         }
         if (validationInformation(productDTO.getInformation())) {
-            throw new IllegalArgumentException("상품의 영양정보는 0보다 작을 수 없습니다: " + productDTO.getInformation().toString());
+            throw new InvalidFieldValueException("상품의 영양정보는 0보다 작을 수 없습니다: " + productDTO.getInformation().toString());
         }
         if (validationTemperature(productDTO.getTemperature())) {
-            throw new IllegalArgumentException("상품의 온도가 정해진 문자열이 아닙니다: " + productDTO.getTemperature());
+            throw new InvalidFieldValueException("상품의 온도가 정해진 문자열이 아닙니다: " + productDTO.getTemperature());
         }
         if (validationSize(productDTO.getSize())) {
-            throw new IllegalArgumentException("상품의 사이즈가 정해진 문자열이 아닙니다: " + productDTO.getSize());
+            throw new InvalidFieldValueException("상품의 사이즈가 정해진 문자열이 아닙니다: " + productDTO.getSize());
         }
 
         product.setName(productDTO.getName());
@@ -143,7 +145,7 @@ public class ProductService {
      */
     public boolean deleteProductById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+                .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
 
         storeProductRepository.deleteByProduct(product);
         productRepository.delete(product);
