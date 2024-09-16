@@ -1,5 +1,6 @@
 package Grazie.com.Grazie_Backend.Order.service;
 
+import Grazie.com.Grazie_Backend.Order.exception.*;
 import Grazie.com.Grazie_Backend.Order.repository.OrderRepository;
 import Grazie.com.Grazie_Backend.Order.dto.*;
 import Grazie.com.Grazie_Backend.Order.OrderItems.entity.OrderItems;
@@ -11,6 +12,7 @@ import Grazie.com.Grazie_Backend.Store.entity.Store;
 import Grazie.com.Grazie_Backend.Store.repository.StoreRepository;
 import Grazie.com.Grazie_Backend.StoreProduct.entity.StoreProduct;
 import Grazie.com.Grazie_Backend.StoreProduct.repository.StoreProductRepository;
+import Grazie.com.Grazie_Backend.cart.service.CartService;
 import Grazie.com.Grazie_Backend.coupon.Coupon;
 import Grazie.com.Grazie_Backend.coupon.CouponRepository;
 import Grazie.com.Grazie_Backend.coupon.discountcoupon.DiscountCoupon;
@@ -49,9 +51,10 @@ public class OrderService {
     private final CouponRepository couponRepository;
 
     private final UserCouponRepository userCouponRepository;
+    private final CartService cartService;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository, OrderItemsRepository orderItemsRepository, ProductRepository productRepository, StoreRepository storeRepository, StoreProductRepository storeProductRepository, UserRepository userRepository, CouponRepository couponRepository, UserCouponRepository userCouponRepository) {
+    public OrderService(OrderRepository orderRepository, OrderItemsRepository orderItemsRepository, ProductRepository productRepository, StoreRepository storeRepository, StoreProductRepository storeProductRepository, UserRepository userRepository, CouponRepository couponRepository, UserCouponRepository userCouponRepository, CartService cartService) {
         this.orderRepository = orderRepository;
         this.orderItemsRepository = orderItemsRepository;
         this.productRepository = productRepository;
@@ -60,6 +63,7 @@ public class OrderService {
         this.userRepository = userRepository;
         this.couponRepository = couponRepository;
         this.userCouponRepository = userCouponRepository;
+        this.cartService = cartService;
     }
 
     // 주문 생성
@@ -69,10 +73,10 @@ public class OrderService {
         BigDecimal discountPrice = BigDecimal.ZERO;
 
         Store store = storeRepository.findById(orderCreateDTO.getStore_id())
-                .orElseThrow(() -> new EntityNotFoundException("매장을 찾을 수 없습니다."));
+                .orElseThrow(() -> new StoreNotFoundException("매장을 찾을 수 없습니다."));
 
         User user = userRepository.findById(orderCreateDTO.getUser_id())
-                .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new UserNotFoundException("유저를 찾을 수 없습니다."));
 
         Order order = new Order();
 
@@ -98,16 +102,16 @@ public class OrderService {
             BigDecimal price = BigDecimal.ZERO;
 
             if (product == null) {
-                throw new EntityNotFoundException("상품을 찾을 수 없습니다.");
+                throw new ProductNotFoundException("상품을 찾을 수 없습니다.");
             }
 
             StoreProduct storeProduct = storeProductMap.get(product.getProductId());
             if (storeProduct == null) {
-                throw new IllegalArgumentException("매장에서 판매하지 않는 상품입니다.");
+                throw new ProductNotSoldException("매장에서 판매하지 않는 상품입니다.");
             }
 
             if (!storeProduct.getState()) {
-                throw new IllegalArgumentException("판매 중지 된 상품입니다.");
+                throw new ProductDiscontinuedException("판매 중지 된 상품입니다.");
             }
 
             // 상품 개수 * 상품 가격
@@ -130,14 +134,14 @@ public class OrderService {
         Coupon coupon = null;
         if (orderCreateDTO.getCoupon_id() != null) {
             coupon = couponRepository.findById(orderCreateDTO.getCoupon_id())
-                    .orElseThrow(() -> new EntityNotFoundException("쿠폰을 찾을 수 없습니다."));
+                    .orElseThrow(() -> new CouponNotFoundException("쿠폰을 찾을 수 없습니다."));
 
             if (coupon instanceof DiscountCoupon) {
                 DiscountCoupon discountCoupon = (DiscountCoupon) coupon;
                 for (OrderItems orderItems : orderItemsList) {
                     if (orderItems.getProduct().equals(discountCoupon.getProduct())) {
                         if (discountCoupon.getExpirationDate().isBefore(LocalDate.now())) {
-                            throw new IllegalArgumentException("기한이 만료된 쿠폰입니다.");
+                            throw new CouponExpiredException("기한이 만료된 쿠폰입니다.");
                         } else {
                             /*
                                  user가 가지고있는 쿠폰인지 체크 필요
@@ -148,7 +152,7 @@ public class OrderService {
                                 discountPrice = productPrice.multiply(discountRate);
                                 orderItems.setTotal_price(new BigDecimal(orderItems.getTotal_price()).subtract(discountPrice).intValue());
                             } else {
-                                throw new IllegalArgumentException("유저가 해당 쿠폰을 가지고 있지 않습니다.");
+                                throw new CouponNotOwnedException("유저가 해당 쿠폰을 가지고 있지 않습니다.");
                             }
                         }
                     }
@@ -158,7 +162,7 @@ public class OrderService {
                 for (OrderItems orderItems : orderItemsList) {
                     if (orderItems.getProduct().equals(productCoupon.getProduct())) {
                         if (productCoupon.getExpirationDate().isBefore(LocalDate.now())) {
-                            throw new IllegalArgumentException("기한이 만료된 쿠폰입니다.");
+                            throw new CouponExpiredException("기한이 만료된 쿠폰입니다.");
                         } else {
                             /*
                                  user가 가지고있는 쿠폰인지 체크 필요
@@ -167,7 +171,7 @@ public class OrderService {
                                 discountPrice = discountPrice.add(new BigDecimal(orderItems.getProduct_price()));
                                 orderItems.setTotal_price(new BigDecimal(orderItems.getTotal_price()).subtract(discountPrice).intValue());
                             } else {
-                                throw new IllegalArgumentException("유저가 해당 쿠폰을 가지고 있지 않습니다.");
+                                throw new CouponNotOwnedException("유저가 해당 쿠폰을 가지고 있지 않습니다.");
                             }
                         }
                     }
@@ -193,8 +197,10 @@ public class OrderService {
         try {
             orderRepository.save(order);
             orderItemsRepository.saveAll(orderItemsList);
+            // 주문이 성공적으로 끝나면 장바구니 비우기
+            cartService.deleteAllCartItems(orderCreateDTO.getUser_id());
         } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException("데이터 무결성 위반 오류 발생 ", e);
+            throw new DataIntegrityException("데이터 무결성 위반 오류 발생 ", e);
         }
 
         OrderGetDTO orderGetDTO = OrderToOrderGetDTO(order);
@@ -210,7 +216,7 @@ public class OrderService {
     // 주문 ID로 조회
     public OrderGetResponseDTO getOrderById(Long order_id) {
         Order order = orderRepository.findById(order_id).
-                orElseThrow(() -> new EntityNotFoundException("주문번호를 찾을 수 없습니다"));
+                orElseThrow(() -> new OrderNotFoundException("존재하지 않는 주문 번호입니다."));
 
         List<OrderItems> orderItemsList = orderItemsRepository.findByOrder(order);
 
@@ -249,7 +255,7 @@ public class OrderService {
     // 특정 매장의 모든 주문 가져오기
     public List<OrderGetResponseDTO> getOrderByStoreId(Long store_id) {
         Store store = storeRepository.findById(store_id)
-                .orElseThrow(() -> new EntityNotFoundException("매장을 찾을 수 없습니다."));
+                .orElseThrow(() -> new StoreNotFoundException("매장을 찾을 수 없습니다."));
 
         List<Order> orders = orderRepository.findByStore(store);
 
@@ -275,7 +281,7 @@ public class OrderService {
     // 주문 취소(삭제)
     public boolean deleteOrderById(Long order_id) {
         Order order = orderRepository.findById(order_id)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지않는 주문 번호입니다."));
+                .orElseThrow(() -> new OrderNotFoundException("존재하지않는 주문 번호입니다."));
         orderRepository.deleteById(order_id);
         return true;
     }
@@ -285,7 +291,7 @@ public class OrderService {
 
         if (state.equals("대기") || state.equals("준비중") || state.equals("완료") || state.equals("픽업완료") || state.equals("배달완료")) {
             Order order = orderRepository.findById(order_id)
-                    .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 주문입니다."));
+                    .orElseThrow(() -> new OrderNotFoundException("존재하지 않는 주문입니다."));
 
             order.setAccept(state);
 
@@ -299,7 +305,7 @@ public class OrderService {
 
     public List<OrderGetResponseDTO> getOrderByUserId(Long user_id) {
         User user = userRepository.findById(user_id)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지않는 유저입니다."));
+                .orElseThrow(() -> new UserNotFoundException("존재하지않는 유저입니다."));
 
         List<Order> orders = orderRepository.findByUser(user);
         List<OrderGetResponseDTO> orderGetResponseDTOs = new ArrayList<>();
