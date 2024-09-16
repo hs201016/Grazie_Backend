@@ -2,6 +2,9 @@ package Grazie.com.Grazie_Backend.Store.service;
 
 import Grazie.com.Grazie_Backend.Store.dto.StoreDTO;
 import Grazie.com.Grazie_Backend.Store.entity.Store;
+import Grazie.com.Grazie_Backend.Store.exception.MissingRequiredFieldException;
+import Grazie.com.Grazie_Backend.Store.exception.StoreAlreadyRegisteredException;
+import Grazie.com.Grazie_Backend.Store.exception.StoreNotFoundException;
 import Grazie.com.Grazie_Backend.Store.repository.StoreRepository;
 import Grazie.com.Grazie_Backend.StoreProduct.repository.StoreProductRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -32,19 +35,19 @@ public class StoreService {
     public Store createStore(StoreDTO storeDTO) {
 
         if (validationStoreName(storeDTO.getName())) {
-            throw new IllegalArgumentException("이미 존재하는 매장 이름입니다: " + storeDTO.getName());
+            throw new StoreAlreadyRegisteredException("이미 존재하는 매장 이름입니다: " + storeDTO.getName());
         }
 
         if (storeDTO.getName() == null) {
-            throw new IllegalArgumentException("매장 이름이 누락되었습니다.");
+            throw new MissingRequiredFieldException("매장 이름이 누락되었습니다.");
         }
 
         if (storeDTO.getLocation() == null) {
-            throw new IllegalArgumentException("주소가 누락되었습니다.");
+            throw new MissingRequiredFieldException("주소가 누락되었습니다.");
         }
 
         if (storeDTO.getOperatingHours() == null) {
-            throw new IllegalArgumentException("운영 시간이 누락되었습니다.");
+            throw new MissingRequiredFieldException("운영 시간이 누락되었습니다.");
         }
 
 
@@ -85,7 +88,8 @@ public class StoreService {
 
     // 매장 상세보기
     public StoreDTO getStoreById(Long id) {
-        Store store = storeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("매장을 찾을 수 없습니다."));
+        Store store = storeRepository.findById(id)
+                .orElseThrow(() -> new StoreNotFoundException("매장을 찾을 수 없습니다."));
 
         return StoreDTO.builder()
                 .store_id(store.getStore_id())
@@ -150,7 +154,7 @@ public class StoreService {
     // 매장 수정
     public Store updateStoreById(Long id, StoreDTO storeDTO) {
         if (validationStoreName(storeDTO.getName())) {
-            throw new IllegalArgumentException("이미 존재하는 매장 이름입니다: " + storeDTO.getName());
+            throw new StoreAlreadyRegisteredException("이미 존재하는 매장 이름입니다: " + storeDTO.getName());
         }
 
         Store store = storeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("매장을 찾을 수 없습니다."));
@@ -170,7 +174,7 @@ public class StoreService {
     // 매장 삭제
     public Boolean deleteStoreById(Long id) {
         Store store = storeRepository.findById(id).orElseThrow(() ->
-                new IllegalArgumentException("매장을 찾을 수 없습니다."));
+                new StoreNotFoundException("매장을 찾을 수 없습니다."));
 
         storeProductRepository.deleteByStore(store);
         storeRepository.delete(store);

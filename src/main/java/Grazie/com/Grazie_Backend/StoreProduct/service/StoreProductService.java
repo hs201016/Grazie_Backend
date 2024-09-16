@@ -4,13 +4,13 @@ import Grazie.com.Grazie_Backend.Product.entity.Product;
 import Grazie.com.Grazie_Backend.Product.repository.ProductRepository;
 import Grazie.com.Grazie_Backend.Store.entity.Store;
 import Grazie.com.Grazie_Backend.Store.repository.StoreRepository;
-import Grazie.com.Grazie_Backend.StoreProduct.Exception.ProductNotFoundException;
-import Grazie.com.Grazie_Backend.StoreProduct.Exception.StoreNotFoundException;
+import Grazie.com.Grazie_Backend.StoreProduct.exception.ProductAlreadyRegisteredException;
+import Grazie.com.Grazie_Backend.StoreProduct.exception.ProductNotFoundException;
+import Grazie.com.Grazie_Backend.StoreProduct.exception.StoreNotFoundException;
 import Grazie.com.Grazie_Backend.StoreProduct.dto.StoreProductDTO;
 import Grazie.com.Grazie_Backend.StoreProduct.dto.StoreProductResponseDTO;
 import Grazie.com.Grazie_Backend.StoreProduct.entity.StoreProduct;
 import Grazie.com.Grazie_Backend.StoreProduct.repository.StoreProductRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,7 +54,7 @@ public class StoreProductService {
 
         // 중복확인 중복이라면 True
         if (storeProductRepository.existsByStoreAndProduct(store, product)) {
-            throw new IllegalArgumentException("이미 등록된 상품입니다.");
+            throw new ProductAlreadyRegisteredException("이미 등록된 상품입니다.");
         }
 
         storeProduct.setStore(store);

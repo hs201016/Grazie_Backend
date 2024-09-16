@@ -29,12 +29,6 @@ public class StoreProductController {
 
     @PostMapping("/create")
     public ResponseEntity<Boolean> createStoreProduct(@RequestBody StoreProductDTO storeProductDTO) {
-//        try {
-//            storeProductService.createStoreProduct(storeProductDTO);
-//            return ResponseEntity.ok(true);
-//        } catch (Exception exception) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
-//        }
         storeProductService.createStoreProduct(storeProductDTO);
         return ResponseEntity.ok(true);
     }
@@ -44,27 +38,10 @@ public class StoreProductController {
     public ResponseEntity<Boolean> deleteStoreProduct(@PathVariable(value = "storeId") Long storeId, @PathVariable(value = "productId") Long productId) {
         storeProductService.deleteStoreProduct(storeId, productId);
         return ResponseEntity.ok(true);
-//        try {
-//            storeProductService.deleteStoreProduct(storeId, productId);
-//            return ResponseEntity.ok(true);
-//        } catch (EntityNotFoundException e) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
-//        } catch (Exception e) {
-//            log.debug("storeId = " + storeId);
-//            log.debug("productId = " + productId);
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
-//        }
     }
 
     @GetMapping("/get/{storeId}")
     public ResponseEntity<StoreProductResponseDTO> getProductByStoreId(@PathVariable(value = "storeId") Long storeId) {
-//        try {
-//            return ResponseEntity.ok(storeProductService.getProductByStoreId(storeId));
-//        } catch (EntityNotFoundException e) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new StoreProductResponseDTO());
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new StoreProductResponseDTO());
-//        }
         return ResponseEntity.ok(storeProductService.getProductByStoreId(storeId));
     }
 }

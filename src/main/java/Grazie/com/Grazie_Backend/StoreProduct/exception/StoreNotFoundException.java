@@ -1,4 +1,4 @@
-package Grazie.com.Grazie_Backend.StoreProduct.Exception;
+package Grazie.com.Grazie_Backend.StoreProduct.exception;
 
 public class StoreNotFoundException extends RuntimeException {
     public StoreNotFoundException(String message) {
