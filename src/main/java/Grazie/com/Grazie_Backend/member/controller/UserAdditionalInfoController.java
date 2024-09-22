@@ -1,5 +1,6 @@
 package Grazie.com.Grazie_Backend.member.controller;
 
+import Grazie.com.Grazie_Backend.Config.UserAdapter;
 import Grazie.com.Grazie_Backend.member.dto.UserAdditionalInfoDTO;
 import Grazie.com.Grazie_Backend.member.entity.UserAdditionalInfo;
 import Grazie.com.Grazie_Backend.member.service.ImageStorageService;
@@ -7,6 +8,7 @@ import Grazie.com.Grazie_Backend.member.service.UserAdditionalInfoService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,10 +41,9 @@ public class UserAdditionalInfoController {
 
 
     @GetMapping("/readProfile")
-    public ResponseEntity<?> readUserProfile(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> readUserProfile(@AuthenticationPrincipal UserAdapter userAdapter) {
         try {
-            String jwtToken = token.substring(7);
-            UserAdditionalInfoDTO userAdditionalInfo = userAdditionalInfoService.readAdditionalInfo(jwtToken);
+            UserAdditionalInfoDTO userAdditionalInfo = userAdditionalInfoService.readAdditionalInfo(userAdapter.getUser().getUserId());
             return ResponseEntity.ok(userAdditionalInfo);
         } catch (Exception e) {
             e.printStackTrace();
@@ -53,10 +54,9 @@ public class UserAdditionalInfoController {
 
     // 사진을 제외하고 업데이트
     @PutMapping("/update")
-    public ResponseEntity<?> updateProfile(@RequestBody UserAdditionalInfoDTO userAdditionalInfoDTO, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> updateProfile(@RequestBody UserAdditionalInfoDTO userAdditionalInfoDTO, @AuthenticationPrincipal UserAdapter userAdapter) {
         try {
-            String jwtToken = token.substring(7);
-            UserAdditionalInfo userAdditionalInfo = userAdditionalInfoService.updateAdditionalInfo(jwtToken, userAdditionalInfoDTO);
+            UserAdditionalInfo userAdditionalInfo = userAdditionalInfoService.updateAdditionalInfo(userAdapter.getUser().getUserId(), userAdditionalInfoDTO);
             return ResponseEntity.ok(userAdditionalInfo);
         } catch (Exception e) {
             e.printStackTrace();
@@ -65,10 +65,9 @@ public class UserAdditionalInfoController {
     }
 
     @PutMapping("/updateProfileImage")
-    public ResponseEntity<?> updateProfileImage(@RequestPart("profileImage") MultipartFile profileImageFile, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> updateProfileImage(@RequestPart("profileImage") MultipartFile profileImageFile, @AuthenticationPrincipal UserAdapter userAdapter) {
         try {
-            String jwtToken = token.substring(7);
-            UserAdditionalInfo additionalInfo = imageStorageService.updateImage(jwtToken, profileImageFile);
+            UserAdditionalInfo additionalInfo = imageStorageService.updateImage(userAdapter.getUser().getUserId(), profileImageFile);
             return ResponseEntity.ok(additionalInfo);
         } catch (Exception e) {
             e.printStackTrace();
