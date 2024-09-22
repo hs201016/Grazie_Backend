@@ -14,6 +14,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtRequestInterceptor)
-                .addPathPatterns("/cart/**"); // 일단은 장바구니만 설정
+                .addPathPatterns("/cart/**")  // 장바구니 관련 JWT 인증 적용
+                .addPathPatterns("/api/coupons/**"); // 쿠폰 관련
     }
 }

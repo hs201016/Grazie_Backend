@@ -1,6 +1,7 @@
 package Grazie.com.Grazie_Backend.coupon.usercoupon;
 
 import Grazie.com.Grazie_Backend.coupon.Coupon;
+import Grazie.com.Grazie_Backend.coupon.CouponRepository;
 import Grazie.com.Grazie_Backend.coupon.discountcoupon.DiscountCouponRepository;
 import Grazie.com.Grazie_Backend.coupon.productcoupon.ProductCouponRepository;
 import Grazie.com.Grazie_Backend.member.entity.User;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,9 +22,27 @@ public class UserCouponService {
 
     private final UserRepository userRepository;
 
+    private final CouponRepository couponRepository;
+
     private final DiscountCouponRepository discountCouponRepository;
 
     private final ProductCouponRepository productCouponRepository;
+
+    @Transactional
+    public List<Coupon> getAvailableCoupon(Long userId) {
+        User user = getUserById(userId);
+        List<UserCoupon> userCoupons = userCouponRepository.findByUser(user);
+
+        // 사용자가 발급 받은 목록
+        List<Long> issuedCouponsId = userCoupons.stream()
+                .map(userCoupon -> userCoupon.getCoupon().getId())
+                .collect(Collectors.toList());
+
+        // 발급 된 것들 제외하고 가져오기
+        return couponRepository.findAll().stream()
+                .filter(coupon -> !issuedCouponsId.contains(coupon.getId()))
+                .collect(Collectors.toList());
+    }
 
     @Transactional
     public void issueCoupon(Long userId, Long couponId, String couponType) {
