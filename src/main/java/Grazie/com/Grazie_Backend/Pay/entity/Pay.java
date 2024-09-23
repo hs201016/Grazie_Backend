@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 @Getter
 @Setter
 @NoArgsConstructor
-public class pay {
+public class Pay {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

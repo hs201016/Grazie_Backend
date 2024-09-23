@@ -23,7 +23,9 @@
 <script type="text/javascript">
     // 공통 변수
     const storeCode = 'imp23488700';  // 가맹점 식별코드
-    const merchantId = "Grazie_" + new Date().getTime();  // 고유한 주문 번호
+    const kgMerchantId = "Grazie_" + new Date().getTime();  // 고유한 주문 번호
+    const kakaoMerchantId = "Grazie_" + new Date().getTime();  // 고유한 주문 번호
+    const tossMerchantId = "Grazie_" + new Date().getTime();  // 고유한 주문 번호
     const amount = 100;  // 결제 금액
 
     var IMP = window.IMP;  // 아임포트 전역 객체
@@ -35,7 +37,7 @@
             pg: 'html5_inicis.INIpayTest',  // 이니시스 PG사 코드
             pay_method: 'card',  // 결제수단 (카드)
             escrow: false,  // 에스크로 결제 여부
-            merchant_uid: merchantId,  // 고유한 주문 번호
+            merchant_uid: kgMerchantId,  // 고유한 주문 번호
             name: "테스트 주문 (이니시스)",  // 주문명 (상품명)
             amount: amount,  // 결제 금액
             custom_data: {
@@ -62,7 +64,7 @@
             pg: 'kakaopay.TC0ONETIME',  // 카카오페이 PG사 코드
             pay_method: 'card',  // 결제수단 (카드)
             escrow: false,  // 에스크로 결제 여부
-            merchant_uid: merchantId,  // 고유한 주문 번호
+            merchant_uid: kakaoMerchantId,  // 고유한 주문 번호
             name: "테스트 주문 (카카오페이)",  // 주문명 (상품명)
             amount: amount,  // 결제 금액
             custom_data: {
@@ -88,7 +90,7 @@
             pg: 'tosspayments.iamporttest_3',  // 토스페이먼츠 PG사 코드
             pay_method: 'card',  // 결제수단 (카드)
             escrow: false,  // 에스크로 결제 여부
-            merchant_uid: merchantId,  // 고유한 주문 번호
+            merchant_uid: tossMerchantId,  // 고유한 주문 번호
             name: "테스트 주문 (토스페이먼츠)",  // 주문명 (상품명)
             amount: amount,  // 결제 금액
             custom_data: {

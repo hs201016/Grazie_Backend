@@ -39,9 +39,18 @@ class PayServiceTest {
 
     @Test
     public void 주문조회() {
-        String imp = "imp_213207132977";
+        String imp = "imp_042080014968";
 
-        String response = payService.getPayDetails(imp, payService.getAccessToken());
+        String response = payService.getPayDetails(imp);
+
+        System.out.println(response);
+    }
+
+    @Test
+    public void 결제취소() {
+        String imp = "imp_566095829889";
+
+        String response = payService.cancelPay(imp);
 
         System.out.println(response);
     }

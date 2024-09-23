@@ -1,18 +1,20 @@
 package Grazie.com.Grazie_Backend.Pay.service;
 
+import Grazie.com.Grazie_Backend.Pay.entity.Pay;
+import Grazie.com.Grazie_Backend.Pay.repository.PayRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -26,9 +28,14 @@ public class PayService {
     private String impSecretKey;
     @Value("${imp.api.baseUrl}")
     private String impBaseUrl;
+    private final PayRepository payRepository;
 
-    private String testImp = "imp_044678610251";
+    @Autowired
+    public PayService(PayRepository payRepository) {
+        this.payRepository = payRepository;
+    }
 
+    // 아임포트 엑세스토큰 받아오기
     public String getAccessToken() {
 
         String impUrl = impBaseUrl + "/users/getToken";
@@ -57,19 +64,54 @@ public class PayService {
         }
     }
 
-    // imp를 이용한
-    public String getPayDetails(String imp, String accessToken) {
+    // imp를 이용한 결제 단건 조회
+    public String getPayDetails(String imp) {
         String url = impBaseUrl + "/payments/" + imp;
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
+        String accessToken = getAccessToken();
 
-        headers.set("Authorization", "Bearer "+accessToken);
+        headers.set("Authorization", "Bearer " + accessToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+
+        if (response.getStatusCode().is2xxSuccessful()) {
+            log.info(String.valueOf(response));
+            return response.getBody(); // 응답 본문 반환
+        } else {
+            throw new RuntimeException("Failed to get payment details: " + response.getStatusCode());
+        }
+    }
+
+    // 유저의 모든 결제내역 조회
+    public List<Pay> getAllPayByBuyerName(String buyerName) {
+        String url = impBaseUrl + "/payments";
+        List<Pay> pays = payRepository.findAllByBuyerName(buyerName);
+
+        return pays;
+    }
+
+    // imp를 이용한 결제 취소
+    public String cancelPay(String imp) {
+        String url = impBaseUrl + "/payments/cancel";
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        String accessToken = getAccessToken();
+
+        headers.set("Authorization", "Bearer " + accessToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // 요청 본문에 imp_uid 추가
+        String requestBody = "{\"imp_uid\":\"" + imp + "\"}";
+
+        HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
 
         if (response.getStatusCode().is2xxSuccessful()) {
             log.info(String.valueOf(response));
+
             return response.getBody(); // 응답 본문 반환
         } else {
             throw new RuntimeException("Failed to get payment details: " + response.getStatusCode());
