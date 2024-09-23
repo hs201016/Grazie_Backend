@@ -25,14 +25,16 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final StoreProductRepository storeProductRepository;
 
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+
     @Autowired
     public ProductService(ProductRepository productRepository, StoreProductRepository storeProductRepository) {
         this.productRepository = productRepository;
         this.storeProductRepository = storeProductRepository;
     }
 
-    @Value("${file.upload-dir}")
-    private String uploadDir;
+
 
     // 상품 생성
     public Product createProduct(ProductDTO productDTO) {

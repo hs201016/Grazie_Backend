@@ -14,6 +14,6 @@ public class PayController {
         model.addAttribute("amount", 10000);
         model.addAttribute("orderId", "ORDER20230918001");
 
-        return "payment";
+        return "payment.html";
     }
 }
