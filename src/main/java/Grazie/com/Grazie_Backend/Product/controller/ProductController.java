@@ -4,7 +4,6 @@ import Grazie.com.Grazie_Backend.Product.dto.ProductDTO;
 import Grazie.com.Grazie_Backend.Product.service.ProductService;
 import Grazie.com.Grazie_Backend.Product.entity.Product;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

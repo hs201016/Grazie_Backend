@@ -1,17 +1,14 @@
 package Grazie.com.Grazie_Backend.Order.controller;
 
-import Grazie.com.Grazie_Backend.Order.service.OrderService;
 import Grazie.com.Grazie_Backend.Order.dto.OrderCreateDTO;
 import Grazie.com.Grazie_Backend.Order.dto.OrderCreateRequestDTO;
 import Grazie.com.Grazie_Backend.Order.dto.OrderGetResponseDTO;
 import Grazie.com.Grazie_Backend.Order.dto.OrderItemsCreateDTO;
-import jakarta.persistence.EntityNotFoundException;
+import Grazie.com.Grazie_Backend.Order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 /*
     Chaean00
