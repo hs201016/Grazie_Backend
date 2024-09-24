@@ -1,5 +1,6 @@
 package Grazie.com.Grazie_Backend.member.controller;
 
+import Grazie.com.Grazie_Backend.Config.UserAdapter;
 import Grazie.com.Grazie_Backend.member.dto.PasswordDTO;
 import Grazie.com.Grazie_Backend.member.dto.UserDTO;
 import Grazie.com.Grazie_Backend.member.service.UserService;
@@ -10,6 +11,7 @@ import Grazie.com.Grazie_Backend.member.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -37,10 +39,9 @@ public class UserController {
     }
 
     @GetMapping("/readProfile")
-    public ResponseEntity<?> readUserProfile(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> readUserProfile(@AuthenticationPrincipal UserAdapter userAdapter) {
         try {
-            String jwtToken = token.substring(7);
-            UserDTO userDTO = userService.readUser(jwtToken);
+            UserDTO userDTO = userService.readUser(userAdapter.getUser().getUserId());
             return ResponseEntity.ok(userDTO);
         } catch (Exception e) {
             e.printStackTrace();
@@ -50,10 +51,9 @@ public class UserController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateProfile(@RequestBody UserDTO userDTO, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> updateProfile(@RequestBody UserDTO userDTO, @AuthenticationPrincipal UserAdapter userAdapter) {
         try {
-            String jwtToken = token.substring(7);
-            User user = userService.updateUser(jwtToken, userDTO);
+            User user = userService.updateUser(userAdapter.getUser().getUserId(), userDTO);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             e.printStackTrace();
@@ -62,9 +62,8 @@ public class UserController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String token) {
-        String jwtToken = token.substring(7);
-        userService.deleteUser(jwtToken);
+    public ResponseEntity<?> deleteUser(@AuthenticationPrincipal UserAdapter userAdapter) {
+        userService.deleteUser(userAdapter.getUser().getUserId());
         return ResponseEntity.ok().build();
     }
 
@@ -91,10 +90,9 @@ public class UserController {
     }
 
     @PutMapping("changePassword")
-    public ResponseEntity<?> changePassword(@RequestHeader("Authorization") String token, @RequestBody PasswordDTO passwordDTO) {
+    public ResponseEntity<?> changePassword(@RequestBody PasswordDTO passwordDTO, @AuthenticationPrincipal UserAdapter userAdapter) {
         try {
-            String jwtToken = token.substring(7);
-            User user = userService.updatePassword(jwtToken, passwordDTO);
+            userService.updatePassword(userAdapter.getUser().getUserId(), passwordDTO);
             return ResponseEntity.ok("비밀번호가 변경되었습니다.");
         } catch (Exception e) {
             e.printStackTrace();

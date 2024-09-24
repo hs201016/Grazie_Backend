@@ -29,6 +29,5 @@ public class DiscountCouponController {
         discountCouponService.deleteDiscountCoupon(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-
 }
 

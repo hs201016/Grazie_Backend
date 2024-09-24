@@ -4,8 +4,11 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -17,9 +20,10 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Component
-@Slf4j
+@RequiredArgsConstructor
 public class JwtUtil {
 
+    private final CustomUserDetails customUserDetails;
 
     @Value("${jwt.secret}")
     public String secretString;
@@ -31,15 +35,13 @@ public class JwtUtil {
     @Value("${jwt.refreshExpiration}")
     long refreshExpiration;
 
-    public JwtUtil() {
-    }
 
     @PostConstruct
     public void init() {
         try {
             byte[] keyBytes = Base64.getDecoder().decode(secretString);
             this.secretKey = new SecretKeySpec(keyBytes, SignatureAlgorithm.HS256.getJcaName());
-        }   catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
         }
     }
 
@@ -90,11 +92,15 @@ public class JwtUtil {
         return refreshExpiration;
     }
 
+    public Authentication getAuthentication(String accessToken) {
 
+        Claims claims = extractAllClaims(accessToken);
 
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+        String username = claims.getSubject();
+
+        UserDetails userDetails = customUserDetails.loadUserByUsername(username);
+
+        // 인증 객체 생성
+        return new UsernamePasswordAuthenticationToken(userDetails, accessToken, userDetails.getAuthorities());
     }
-
-
 }
