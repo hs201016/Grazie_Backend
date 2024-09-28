@@ -1,6 +1,7 @@
 package Grazie.com.Grazie_Backend.member.service;
 
 import Grazie.com.Grazie_Backend.Config.JwtUtil;
+import Grazie.com.Grazie_Backend.Config.UserAdapter;
 import Grazie.com.Grazie_Backend.member.dto.UserAdditionalInfoDTO;
 import Grazie.com.Grazie_Backend.member.entity.User;
 import Grazie.com.Grazie_Backend.member.entity.UserAdditionalInfo;
@@ -45,17 +46,11 @@ public class UserAdditionalInfoService {
         return userAdditionalInfoRepository.save(userAdditionalInfo);
     }
 
-    private UserAdditionalInfo getUserAdditionalToken(String token) {
-        Claims claims = jwtUtil.extractAllClaims(token);
-        String userId = claims.getSubject();
 
-        return userAdditionalInfoRepository.findByUserId(Long.valueOf(userId))
-                .orElseThrow(() -> new RuntimeException("유저 추가정보를 찾을 수 없습니다."));
-    }
+    public UserAdditionalInfoDTO readAdditionalInfo(UserAdapter userAdapter) {
+        Long userId = userAdapter.getUser().getId();
+        UserAdditionalInfo userAdditionalInfo = getUserAdditionalInfoByUserId(userId);
 
-
-    public UserAdditionalInfoDTO readAdditionalInfo(String token) {
-        UserAdditionalInfo userAdditionalInfo = getUserAdditionalToken(token);
 
         return new UserAdditionalInfoDTO(
                 userAdditionalInfo.getNickname(),
@@ -64,8 +59,9 @@ public class UserAdditionalInfoService {
         );
     }
 
-    public UserAdditionalInfo updateAdditionalInfo(String token, UserAdditionalInfoDTO updateDTO) {
-        UserAdditionalInfo userAdditionalInfo = getUserAdditionalToken(token);
+    public UserAdditionalInfo updateAdditionalInfo(UserAdapter userAdapter, UserAdditionalInfoDTO updateDTO) {
+        UserAdditionalInfo userAdditionalInfo = getUserAdditionalInfoByUserId(userAdapter.getUser().getId());
+
         if (updateDTO.getGender() != null) {
             try {
                 userAdditionalInfo.setGender(Gender.valueOf(String.valueOf(updateDTO.getGender())));
@@ -79,8 +75,14 @@ public class UserAdditionalInfoService {
         return userAdditionalInfoRepository.save(userAdditionalInfo);
     }
 
-    public void deleteAdditionalInfo(String token) {
-        UserAdditionalInfo userAdditionalToken = getUserAdditionalToken(token);
-        userAdditionalInfoRepository.delete(userAdditionalToken);
+    public void deleteAdditionalInfo(UserAdapter userAdapter) {
+        Long userId = userAdapter.getUser().getId();
+        UserAdditionalInfo userAdditionalInfo = getUserAdditionalInfoByUserId(userId);
+        userAdditionalInfoRepository.delete(userAdditionalInfo);
+    }
+
+    private UserAdditionalInfo getUserAdditionalInfoByUserId(Long userId) {
+        return userAdditionalInfoRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("유저 추가정보를 찾을 수 없습니다."));
     }
 }

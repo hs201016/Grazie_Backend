@@ -1,6 +1,7 @@
 package Grazie.com.Grazie_Backend.member.service;
 
 import Grazie.com.Grazie_Backend.Config.JwtUtil;
+import Grazie.com.Grazie_Backend.Config.UserAdapter;
 import Grazie.com.Grazie_Backend.member.dto.PasswordDTO;
 import Grazie.com.Grazie_Backend.member.dto.UserDTO;
 import Grazie.com.Grazie_Backend.member.entity.User;
@@ -27,16 +28,12 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    private User getUserToken(String token) {
-        Claims claims = jwtUtil.extractAllClaims(token);
-        String userId = claims.getSubject();
-
-        return userRepository.findById(Long.valueOf(userId))
-                .orElseThrow(() -> new RuntimeException("user를 찾을 수 없습니다"));
+    private User getUserFromAdapter(UserAdapter userAdapter) {
+        return userAdapter.getUser();
     }
 
-    public User updatePassword(String token, PasswordDTO passwordDTO) {
-        User user = getUserToken(token);
+    public User updatePassword(UserAdapter userAdapter, PasswordDTO passwordDTO) {
+        User user = getUserFromAdapter(userAdapter);
 
         if (passwordDTO.getCurrentPassword() == null || passwordDTO.getNewPassword() == null) {
             System.out.println(passwordDTO.getCurrentPassword());
@@ -50,11 +47,11 @@ public class UserService {
         }
 
         user.setPassword(passwordEncoder.encode(passwordDTO.getNewPassword()));
-            return userRepository.save(user);
+        return userRepository.save(user);
     }
 
-    public User updateUser(String token, UserDTO updateDTO) {
-        User user = getUserToken(token);
+    public User updateUser(UserAdapter userAdapter, UserDTO updateDTO) {
+        User user = getUserFromAdapter(userAdapter);
 
         if (updateDTO.getPhone() != null) {
             user.setPhone(updateDTO.getPhone());
@@ -69,8 +66,8 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public UserDTO readUser(String token) {
-        User user = getUserToken(token);
+    public UserDTO readUser(UserAdapter userAdapter) {
+        User user = getUserFromAdapter(userAdapter);
         return new UserDTO(
                 user.getEmail(),
                 user.getName(),
@@ -78,8 +75,8 @@ public class UserService {
         );
     }
 
-    public void deleteUser(String token) {
-        User user = getUserToken(token);
+    public void deleteUser(UserAdapter userAdapter) {
+        User user = getUserFromAdapter(userAdapter);
         userRepository.delete(user);
     }
 }

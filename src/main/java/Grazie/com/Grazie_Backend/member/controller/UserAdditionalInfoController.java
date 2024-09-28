@@ -1,5 +1,7 @@
 package Grazie.com.Grazie_Backend.member.controller;
 
+import Grazie.com.Grazie_Backend.Config.SecurityUtils;
+import Grazie.com.Grazie_Backend.Config.UnauthorizedException;
 import Grazie.com.Grazie_Backend.Config.UserAdapter;
 import Grazie.com.Grazie_Backend.member.dto.UserAdditionalInfoDTO;
 import Grazie.com.Grazie_Backend.member.entity.UserAdditionalInfo;
@@ -41,37 +43,36 @@ public class UserAdditionalInfoController {
 
 
     @GetMapping("/readProfile")
-    public ResponseEntity<?> readUserProfile(@AuthenticationPrincipal UserAdapter userAdapter) {
-        try {
-            UserAdditionalInfoDTO userAdditionalInfo = userAdditionalInfoService.readAdditionalInfo(userAdapter.getUser().getUserId());
-            return ResponseEntity.ok(userAdditionalInfo);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(400).body("프로필 조회 중 오류 발생");
-
+    public ResponseEntity<?> readUserProfile() {
+        UserAdapter userAdapter = SecurityUtils.getCurrentUser();
+        if (userAdapter == null) {
+            throw new UnauthorizedException(); // 인증되지 않은 사용자 처리
         }
+
+        UserAdditionalInfoDTO userAdditionalInfo = userAdditionalInfoService.readAdditionalInfo(userAdapter);
+        return ResponseEntity.ok(userAdditionalInfo);
     }
 
     // 사진을 제외하고 업데이트
     @PutMapping("/update")
-    public ResponseEntity<?> updateProfile(@RequestBody UserAdditionalInfoDTO userAdditionalInfoDTO, @AuthenticationPrincipal UserAdapter userAdapter) {
-        try {
-            UserAdditionalInfo userAdditionalInfo = userAdditionalInfoService.updateAdditionalInfo(userAdapter.getUser().getUserId(), userAdditionalInfoDTO);
-            return ResponseEntity.ok(userAdditionalInfo);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(400).body("프로필 업데이트 중 오류 발생");
+    public ResponseEntity<?> updateProfile(@RequestBody UserAdditionalInfoDTO userAdditionalInfoDTO) {
+        UserAdapter userAdapter = SecurityUtils.getCurrentUser();
+        if (userAdapter == null) {
+            throw new UnauthorizedException(); // 인증되지 않은 사용자 처리
         }
+
+        UserAdditionalInfo userAdditionalInfo = userAdditionalInfoService.updateAdditionalInfo(userAdapter, userAdditionalInfoDTO);
+        return ResponseEntity.ok(userAdditionalInfo);
     }
 
     @PutMapping("/updateProfileImage")
-    public ResponseEntity<?> updateProfileImage(@RequestPart("profileImage") MultipartFile profileImageFile, @AuthenticationPrincipal UserAdapter userAdapter) {
-        try {
-            UserAdditionalInfo additionalInfo = imageStorageService.updateImage(userAdapter.getUser().getUserId(), profileImageFile);
-            return ResponseEntity.ok(additionalInfo);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body("프로필 이미지 업데이트 중 오류 발생");
+    public ResponseEntity<?> updateProfileImage(@RequestPart("profileImage") MultipartFile profileImageFile) {
+        UserAdapter userAdapter = SecurityUtils.getCurrentUser();
+        if (userAdapter == null) {
+            throw new UnauthorizedException(); // 인증되지 않은 사용자 처리
         }
+
+        UserAdditionalInfo additionalInfo = imageStorageService.updateImage(userAdapter, profileImageFile);
+        return ResponseEntity.ok(additionalInfo);
     }
 }

@@ -1,6 +1,7 @@
 package Grazie.com.Grazie_Backend.member.service;
 
 import Grazie.com.Grazie_Backend.Config.JwtUtil;
+import Grazie.com.Grazie_Backend.Config.UserAdapter;
 import Grazie.com.Grazie_Backend.member.entity.UserAdditionalInfo;
 import Grazie.com.Grazie_Backend.member.repository.UserAdditionalInfoRepository;
 import Grazie.com.Grazie_Backend.member.repository.UserRepository;
@@ -49,22 +50,19 @@ public class ImageStorageService {
         }
     }
 
-    public UserAdditionalInfo updateImage(String token, MultipartFile profileImageFile){
-        try {
-            Claims claims = jwtUtil.extractAllClaims(token);
-            String userId = claims.getSubject();
+    public UserAdditionalInfo updateImage(UserAdapter userAdapter, MultipartFile profileImageFile) {
 
-            UserAdditionalInfo additionalInfo = userAdditionalInfoRepository.findByUserId(Long.valueOf(userId))
-                    .orElseThrow(() -> new RuntimeException("user 추가정보를 찾을 수가 없습니다."));
+        Long userId = userAdapter.getUser().getId();
 
+        UserAdditionalInfo additionalInfo = userAdditionalInfoRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("사용자 추가정보를 찾을 수 없습니다."));
 
-            if (profileImageFile != null && !profileImageFile.isEmpty()) {
-                String imageFile = saveImage(profileImageFile);
-                additionalInfo.setProfileImage(imageFile);
-            }
-            return userAdditionalInfoRepository.save(additionalInfo);
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e);
+        // 프로필 이미지 업데이트
+        if (profileImageFile != null && !profileImageFile.isEmpty()) {
+            String imageFile = saveImage(profileImageFile);
+            additionalInfo.setProfileImage(imageFile);
         }
+
+        return userAdditionalInfoRepository.save(additionalInfo);
     }
-}
+    }
