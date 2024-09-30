@@ -1,5 +1,6 @@
 package Grazie.com.Grazie_Backend.coupon.productcoupon;
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ public class ProductCouponController {
     ProductCouponService productCouponService;
 
     @PostMapping("/create")
+    @Operation(summary = "상품 쿠폰을 생성합니다.", description = "새로운 상품 쿠폰을 생성합니다.")
     public ResponseEntity<ProductCouponDTO> createProductCoupon(@RequestBody ProductCouponDTO productCouponDTO) {
         ProductCouponDTO productCoupon = productCouponService.createProductCoupon(productCouponDTO);
         return ResponseEntity
@@ -22,12 +24,14 @@ public class ProductCouponController {
     }
 
     @GetMapping("/read/{id}")
+    @Operation(summary = "특정 상품 쿠폰을 조회합니다.", description = "id를 통해 특정 상품 쿠폰을 조회합니다.")
     public ResponseEntity<ProductCouponDTO> readProductCouponDTO(@PathVariable("id") Long id) {
         ProductCouponDTO productCoupon = productCouponService.readProductCoupon(id);
         return ResponseEntity.ok(productCoupon);
     }
 
     @DeleteMapping("/delete/{id}")
+    @Operation(summary = "특정 상품 쿠폰을 삭제합니다.", description = "id를 통해 특정 상품 쿠폰을 삭제합니다.")
     public ResponseEntity<ProductCouponDTO> deleteProductCoupon(@PathVariable("id") Long id) {
         productCouponService.deleteProductCoupon(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)

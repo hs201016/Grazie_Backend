@@ -3,6 +3,7 @@ package Grazie.com.Grazie_Backend.coupon.usercoupon;
 import Grazie.com.Grazie_Backend.Config.UserAdapter;
 import Grazie.com.Grazie_Backend.coupon.Coupon;
 import Grazie.com.Grazie_Backend.coupon.CouponRepository;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,6 +21,7 @@ public class UserCouponController {
 
 
     @GetMapping("/list")
+    @Operation(summary = "유저가 발급받지 않은 쿠폰 리스트를 조회합니다.", description = "유저가 발급받지 않은 쿠폰 리스트를 조회합니다.")
     public ResponseEntity<List<Coupon>> getAvailableCoupons(@AuthenticationPrincipal UserAdapter userAdapter) {
         Long userId = getUserIdFromUserDetails(userAdapter);
         List<Coupon> availableCoupon = userCouponService.getAvailableCoupon(userId);
@@ -27,6 +29,7 @@ public class UserCouponController {
     }
 
     @PostMapping("/issue")
+    @Operation(summary = "유저에게 쿠폰을 발급합니다.", description = "유저에게 새로운 쿠폰을 발급합니다.")
     public ResponseEntity<String> issueCoupon(@AuthenticationPrincipal UserAdapter userAdapter, @RequestBody UserCouponDTO couponDTO) {
         Long userId = getUserIdFromUserDetails(userAdapter); // 사용자 ID 추출
 
