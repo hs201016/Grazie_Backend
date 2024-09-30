@@ -58,6 +58,10 @@ public class Product {
     @Size(max = 5)
     private String temperature; // 음료온도
 
+    @Column(name = "allergy")
+    @Size(max = 100)
+    private String allergy;
+
     @Override
     public String toString() {
         return "Product{" +

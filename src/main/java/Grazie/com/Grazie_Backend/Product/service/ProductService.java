@@ -64,7 +64,7 @@ public class ProductService {
         product.setSize(productDTO.getSize());
         product.setInformation(productDTO.getInformation());
         product.setTemperature(productDTO.getTemperature());
-
+        product.setAllergy(productDTO.getAllergy());
 
         productRepository.save(product);
 
@@ -86,6 +86,7 @@ public class ProductService {
             dto.setSize(product.getSize());
             dto.setInformation(product.getInformation());
             dto.setTemperature(product.getTemperature());
+            dto.setAllergy(product.getAllergy());
 
             productDTOs.add(dto);
         }
@@ -107,6 +108,7 @@ public class ProductService {
                 .size(product.getSize())
                 .information(product.getInformation())
                 .temperature(product.getTemperature())
+                .allergy(product.getAllergy())
                 .build();
     }
 
@@ -135,6 +137,7 @@ public class ProductService {
         product.setSize(productDTO.getSize());
         product.setInformation(productDTO.getInformation());
         product.setTemperature(productDTO.getTemperature());
+        product.setAllergy(productDTO.getAllergy());
 
         productRepository.save(product);
 

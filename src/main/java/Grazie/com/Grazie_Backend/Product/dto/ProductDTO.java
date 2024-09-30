@@ -19,6 +19,7 @@ public class ProductDTO {
     private String size;
     private ProductInformation information;
     private String temperature;
+    private String allergy;
 
 
     @Override
