@@ -303,6 +303,7 @@ public class OrderService {
         }
     }
 
+    // 유저의 모든 주문 조회
     public List<OrderGetResponseDTO> getOrderByUserId(Long user_id) {
         User user = userRepository.findById(user_id)
                 .orElseThrow(() -> new UserNotFoundException("존재하지않는 유저입니다."));
