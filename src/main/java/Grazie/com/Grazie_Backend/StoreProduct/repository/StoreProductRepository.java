@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 /*
     Chaean
@@ -24,6 +25,8 @@ public interface StoreProductRepository extends JpaRepository<StoreProduct, Long
     List<StoreProduct> findByStoreAndProductIn(@Param("store") Store store, @Param("productIds") List<Long> productIds);
 
     List<StoreProduct> findAllByStore(Store store);
+    @Query("SELECT sp FROM StoreProduct sp WHERE sp.store.store_id = :storeId AND sp.product.productId = :productId")
+    Optional<StoreProduct> findByStoreIdAndProductId(@Param("storeId") Long storeId, @Param("productId") Long productId);
 
     void deleteByStore(Store store);
 

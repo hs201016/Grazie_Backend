@@ -2,6 +2,7 @@ package Grazie.com.Grazie_Backend.StoreProduct.controller;
 
 import Grazie.com.Grazie_Backend.StoreProduct.dto.StoreProductDTO;
 import Grazie.com.Grazie_Backend.StoreProduct.dto.StoreProductResponseDTO;
+import Grazie.com.Grazie_Backend.StoreProduct.entity.StoreProduct;
 import Grazie.com.Grazie_Backend.StoreProduct.service.StoreProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.persistence.EntityNotFoundException;
@@ -47,5 +48,12 @@ public class StoreProductController {
     @Operation(summary = "특정 매장에서 판매하는 모든 상품을 조회합니다.", description = "storeId를 통해 특정 매장에서 판매하는 모든 상품을 조회합니다.")
     public ResponseEntity<StoreProductResponseDTO> getProductByStoreId(@PathVariable(value = "storeId") Long storeId) {
         return ResponseEntity.ok(storeProductService.getProductByStoreId(storeId));
+    }
+
+    @PutMapping("/update/{storeId}/{productId}")
+    @Operation(summary = "특정 매장에서 상품의 판매 가능 여부를 변경합니다.", description = "storeId, productId 통해 특정 매장에서 상품의 상태를 변경합니다.")
+    public ResponseEntity<StoreProduct> updateState(@PathVariable Long storeId, @PathVariable Long productId) {
+        StoreProduct updatedStoreProduct = storeProductService.updateStoreProductState(storeId, productId);
+        return ResponseEntity.ok(updatedStoreProduct);
     }
 }
