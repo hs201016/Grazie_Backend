@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>결제 페이지</title>
+    <!-- 아임포트 JavaScript SDK 로드 (한 번만 로드) -->
+    <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
+</head>
+<body>
+<h1>결제 페이지</h1>
+<button id="inicis-button">
+    <img src="/icon/ci_KG_JPG.jpg" alt="KgPay" style="width: 150px; height: auto;">
+</button>
+<button id="kakao-button">
+    <img src="/icon/payment_icon_yellow_medium.png" alt="KakaoPay" style="width: 150px; height: auto;">
+</button>
+<button id="toss-button">
+    <img src="/icon/logo-toss-pay.svg" alt="TossPay" style="width: 150px; height: auto;">
+</button>
+
+
+<script type="text/javascript">
+    // 공통 변수
+    const storeCode = 'imp23488700';  // 가맹점 식별코드
+    const kgMerchantId = "Grazie_" + new Date().getTime();  // 고유한 주문 번호
+    const kakaoMerchantId = "Grazie_" + new Date().getTime();  // 고유한 주문 번호
+    const tossMerchantId = "Grazie_" + new Date().getTime();  // 고유한 주문 번호
+    const amount = 100;  // 결제 금액
+
+    var IMP = window.IMP;  // 아임포트 전역 객체
+    IMP.init(storeCode);  // 가맹점 식별코드로 초기화
+
+    // KG 이니시스 결제 버튼 클릭 이벤트
+    document.getElementById('inicis-button').addEventListener('click', function () {
+        IMP.request_pay({
+            pg: 'html5_inicis.INIpayTest',  // 이니시스 PG사 코드
+            pay_method: 'card',  // 결제수단 (카드)
+            escrow: false,  // 에스크로 결제 여부
+            merchant_uid: kgMerchantId,  // 고유한 주문 번호
+            name: "테스트 주문 (이니시스)",  // 주문명 (상품명)
+            amount: amount,  // 결제 금액
+            custom_data: {
+                additional_info: '추가 데이터'  // 사용자 정의 데이터 (필요시)
+            },
+            buyer_name: '홍길동',  // 주문자명
+            buyer_tel: '010-1234-5678',  // 주문자 연락처
+            buyer_email: 'buyer@example.com',  // 주문자 이메일
+            buyer_addr: '서울특별시 강남구 삼성동',  // 주문자 주소
+            buyer_postcode: '123456',  // 주문자 우편번호
+        }, function (rsp) {
+            if (rsp.success) {
+                alert('이니시스 결제가 완료되었습니다. 결제 번호: ' + rsp.imp_uid);
+            } else {
+                alert('이니시스 결제에 실패하였습니다. 에러: ' + rsp.error_msg);
+                console.log('결제 실패 상세: ' + rsp);
+            }
+        });
+    });
+
+    // 카카오페이 결제 버튼 클릭 이벤트
+    document.getElementById('kakao-button').addEventListener('click', function () {
+        IMP.request_pay({
+            pg: 'kakaopay.TC0ONETIME',  // 카카오페이 PG사 코드
+            pay_method: 'card',  // 결제수단 (카드)
+            escrow: false,  // 에스크로 결제 여부
+            merchant_uid: kakaoMerchantId,  // 고유한 주문 번호
+            name: "테스트 주문 (카카오페이)",  // 주문명 (상품명)
+            amount: amount,  // 결제 금액
+            custom_data: {
+                additional_info: '추가 데이터'  // 사용자 정의 데이터 (필요시)
+            },
+            buyer_name: '홍길동',  // 주문자명
+            buyer_tel: '010-1234-5678',  // 주문자 연락처
+            buyer_email: 'buyer@example.com',  // 주문자 이메일
+            buyer_addr: '서울특별시 강남구 삼성동',  // 주문자 주소
+            buyer_postcode: '123456',  // 주문자 우편번호
+        }, function (rsp) {
+            if (rsp.success) {
+                alert('카카오페이 결제가 완료되었습니다. 결제 번호: ' + rsp.imp_uid);
+            } else {
+                alert('카카오페이 결제에 실패하였습니다. 에러: ' + rsp.error_msg);
+            }
+        });
+    });
+
+    // 토스페이먼츠 결제 버튼 클릭 이벤트
+    document.getElementById('toss-button').addEventListener('click', function () {
+        IMP.request_pay({
+            pg: 'tosspayments.iamporttest_3',  // 토스페이먼츠 PG사 코드
+            pay_method: 'card',  // 결제수단 (카드)
+            escrow: false,  // 에스크로 결제 여부
+            merchant_uid: tossMerchantId,  // 고유한 주문 번호
+            name: "테스트 주문 (토스페이먼츠)",  // 주문명 (상품명)
+            amount: amount,  // 결제 금액
+            custom_data: {
+                additional_info: '추가 데이터'  // 사용자 정의 데이터 (필요시)
+            },
+            buyer_name: '홍길동',  // 주문자명
+            buyer_tel: '010-1234-5678',  // 주문자 연락처
+            buyer_email: 'buyer@example.com',  // 주문자 이메일
+            buyer_addr: '서울특별시 강남구 삼성동',  // 주문자 주소
+            buyer_postcode: '123456',  // 주문자 우편번호
+        }, function (rsp) {
+            if (rsp.success) {
+                alert('토스페이먼츠 결제가 완료되었습니다. 결제 번호: ' + rsp.imp_uid);
+
+            } else {
+                alert('토스페이먼츠 결제에 실패하였습니다. 에러: ' + rsp.error_msg);
+            }
+        });
+    });
+</script>
+</body>
+</html>

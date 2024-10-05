@@ -3,6 +3,7 @@ package Grazie.com.Grazie_Backend.Product.controller;
 import Grazie.com.Grazie_Backend.Product.dto.ProductDTO;
 import Grazie.com.Grazie_Backend.Product.service.ProductService;
 import Grazie.com.Grazie_Backend.Product.entity.Product;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ public class ProductController {
 
     // 상품 저장 API
     @PostMapping("/create")
+    @Operation(summary = "상품을 생성합니다.", description = "새로운 상품을 생성합니다.")
     public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO productDTO) {
         Product product = productService.createProduct(productDTO);
 
@@ -42,18 +44,21 @@ public class ProductController {
 
     // 모든 상품 조회 API
     @GetMapping("/get/all")
+    @Operation(summary = "모든 상품을 조회합니다.", description = "현재 생성되어있는 모든 상품을 조회합니다.")
     public ResponseEntity<List<ProductDTO>> getAllProduct() {
         return ResponseEntity.ok(productService.getAllProduct());
     }
 
     // 특정 상품의 상세보기 API
     @GetMapping("/get/{id}")
+    @Operation(summary = "특정 상품을 조회합니다.", description = "productId를 통해 특정 상품을 조회합니다.")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable(value = "id") Long id) {
         return ResponseEntity.ok(productService.getProductById(id));
     }
 
     // product_id를 이용한 상품 수정 API
     @PutMapping("/update/{id}")
+    @Operation(summary = "특정 상품을 수정합니다.", description = "productId를 통해 특정 상품을 업데이트합니다.")
     public ResponseEntity<ProductDTO> updateProductById(@PathVariable(value = "id") Long id, @RequestBody ProductDTO productDTO) {
         Product product = productService.updateProductById(id, productDTO);
         return ResponseEntity.ok(ProductDTO.builder()
@@ -70,6 +75,7 @@ public class ProductController {
 
     // product_id를 이용한 상품 삭제 API
     @DeleteMapping("/delete/{id}")
+    @Operation(summary = "특정 상품을 삭제합니다.", description = "productId를 통해 특정 상품을 삭제합니다.")
     public ResponseEntity<Boolean> deleteProductById(@PathVariable(value = "id") Long id) {
         return ResponseEntity.ok(productService.deleteProductById(id));
     }

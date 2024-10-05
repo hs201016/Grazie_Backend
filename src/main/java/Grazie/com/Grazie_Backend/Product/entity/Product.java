@@ -45,9 +45,8 @@ public class Product {
     @NotNull
     private String explanation; // 상품 설명
 
-    @Column(name = "size", nullable = false)
+    @Column(name = "size")
     @Size(max = 10)
-    @NotNull
     private String size; // 상품 사이즈
 
     @Column(name = "information", nullable = false)
@@ -55,10 +54,13 @@ public class Product {
     @NotNull
     private ProductInformation information; // 상품 영양정보
 
-    @Column(name = "temperature", nullable = false)
+    @Column(name = "temperature")
     @Size(max = 5)
-    @NotNull
     private String temperature; // 음료온도
+
+    @Column(name = "allergy")
+    @Size(max = 100)
+    private String allergy;
 
     @Override
     public String toString() {

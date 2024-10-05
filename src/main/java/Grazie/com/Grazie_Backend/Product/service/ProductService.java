@@ -25,14 +25,16 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final StoreProductRepository storeProductRepository;
 
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+
     @Autowired
     public ProductService(ProductRepository productRepository, StoreProductRepository storeProductRepository) {
         this.productRepository = productRepository;
         this.storeProductRepository = storeProductRepository;
     }
 
-    @Value("${file.upload-dir}")
-    private String uploadDir;
+
 
     // 상품 생성
     public Product createProduct(ProductDTO productDTO) {
@@ -45,12 +47,6 @@ public class ProductService {
         if (validationInformation(productDTO.getInformation())) {
             throw new InvalidFieldValueException("상품의 영양정보는 0보다 작을 수 없습니다: " + productDTO.getInformation().toString());
         }
-        if (validationTemperature(productDTO.getTemperature())) {
-            throw new InvalidFieldValueException("상품의 온도가 정해진 문자열이 아닙니다: " + productDTO.getTemperature());
-        }
-        if (validationSize(productDTO.getSize())) {
-            throw new InvalidFieldValueException("상품의 사이즈가 정해진 문자열이 아닙니다: " + productDTO.getSize());
-        }
 
         Product product = new Product();
 
@@ -62,7 +58,7 @@ public class ProductService {
         product.setSize(productDTO.getSize());
         product.setInformation(productDTO.getInformation());
         product.setTemperature(productDTO.getTemperature());
-
+        product.setAllergy(productDTO.getAllergy());
 
         productRepository.save(product);
 
@@ -84,6 +80,7 @@ public class ProductService {
             dto.setSize(product.getSize());
             dto.setInformation(product.getInformation());
             dto.setTemperature(product.getTemperature());
+            dto.setAllergy(product.getAllergy());
 
             productDTOs.add(dto);
         }
@@ -105,6 +102,7 @@ public class ProductService {
                 .size(product.getSize())
                 .information(product.getInformation())
                 .temperature(product.getTemperature())
+                .allergy(product.getAllergy())
                 .build();
     }
 
@@ -119,12 +117,6 @@ public class ProductService {
         if (validationInformation(productDTO.getInformation())) {
             throw new InvalidFieldValueException("상품의 영양정보는 0보다 작을 수 없습니다: " + productDTO.getInformation().toString());
         }
-        if (validationTemperature(productDTO.getTemperature())) {
-            throw new InvalidFieldValueException("상품의 온도가 정해진 문자열이 아닙니다: " + productDTO.getTemperature());
-        }
-        if (validationSize(productDTO.getSize())) {
-            throw new InvalidFieldValueException("상품의 사이즈가 정해진 문자열이 아닙니다: " + productDTO.getSize());
-        }
 
         product.setName(productDTO.getName());
         product.setImage(uploadDir + "/" + productDTO.getImage() +".jpg");
@@ -133,6 +125,7 @@ public class ProductService {
         product.setSize(productDTO.getSize());
         product.setInformation(productDTO.getInformation());
         product.setTemperature(productDTO.getTemperature());
+        product.setAllergy(productDTO.getAllergy());
 
         productRepository.save(product);
 
@@ -163,15 +156,5 @@ public class ProductService {
     private boolean validationInformation(ProductInformation info) {
         return info.getCalories() < 0 || info.getSaturatedFat() < 0 || info.getProtein() < 0
                 || info.getSodium() < 0 || info.getSugar() < 0 || info.getCaffeine() < 0;
-    }
-
-    // 상품의 온도가 정해진 문자열이 아닌 경우 True
-    private boolean validationTemperature(String tempe) {
-        return !tempe.equals("both") && !tempe.equals("hot") && !tempe.equals("ice") && !tempe.equals("non");
-    }
-
-    // 상품의 온도가 정해진 문자열이 아닌 경우 True
-    private boolean validationSize(String size) {
-        return !size.equals("tall") && !size.equals("grande") && !size.equals("venti") && !size.equals("non");
     }
 }

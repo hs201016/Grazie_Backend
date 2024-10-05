@@ -5,6 +5,7 @@ import Grazie.com.Grazie_Backend.Order.dto.OrderCreateRequestDTO;
 import Grazie.com.Grazie_Backend.Order.dto.OrderGetResponseDTO;
 import Grazie.com.Grazie_Backend.Order.dto.OrderItemsCreateDTO;
 import Grazie.com.Grazie_Backend.Order.service.OrderService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +27,7 @@ public class OrderController {
     }
 
     @PostMapping("/create")
+    @Operation(summary = "주문을 생성합니다.", description = "새로운 주문을 생성합니다.")
     public ResponseEntity<OrderGetResponseDTO> createOrder(@RequestBody OrderCreateRequestDTO orderCreateRequestDTO) {
         OrderCreateDTO orderCreateDTO = orderCreateRequestDTO.getOrderCreateDTO();
         List<OrderItemsCreateDTO> orderItemsCreateDTOS = orderCreateRequestDTO.getOrderItemsCreateDTOS();
@@ -35,32 +37,38 @@ public class OrderController {
     }
 
     @GetMapping("/get/{id}")
+    @Operation(summary = "특정 주문을 조회합니다.", description = "orderId를 통해 특정 주문을 조회합니다.")
     public ResponseEntity<OrderGetResponseDTO> getOrderById(@PathVariable(value = "id") Long order_id) {
         OrderGetResponseDTO orderGetResponseDTO = orderService.getOrderById(order_id);
         return ResponseEntity.ok(orderGetResponseDTO);
     }
 
     @GetMapping("/get/all")
+    @Operation(summary = "모든 주문을 조회합니다.", description = "모든 주문을 조회합니다.")
     public ResponseEntity<List<OrderGetResponseDTO>> getAllOrder() {
         return ResponseEntity.ok(orderService.getAllOrder());
     }
 
     @GetMapping("/get/store/{id}")
+    @Operation(summary = "특정 매장의 모든 주문을 조회합니다.", description = "storeId를 통해 매장의 모든 주문을 조회합니다.")
     public ResponseEntity<List<OrderGetResponseDTO>> getOrderByStoreId(@PathVariable(value = "id") Long store_id) {
         return ResponseEntity.ok(orderService.getOrderByStoreId(store_id));
     }
 
     @GetMapping("/get/user/{id}")
+    @Operation(summary = "특정 사용자의 모든 주문을 조회합니다.", description = "userId 통해 사용자의 모든 주문을 조회합니다.")
     public ResponseEntity<List<OrderGetResponseDTO>> getOrderByUserId(@PathVariable(value = "id") Long user_id) {
         return ResponseEntity.ok(orderService.getOrderByUserId(user_id));
     }
 
     @DeleteMapping("/delete/{id}")
+    @Operation(summary = "특정 주문을 삭제합니다.", description = "orderId를 통해 특정 주문을 삭제합니다.")
     public ResponseEntity<Boolean> deleteOrderById(@PathVariable(value = "id") Long order_id) {
         return ResponseEntity.ok(orderService.deleteOrderById(order_id));
     }
 
     @PutMapping("/update/state/{id}")
+    @Operation(summary = "특정 주문을 수정합니다.", description = "orderId를 통해 특정 주문을 수정합니다.")
     public ResponseEntity<String> updateOrderAcceptById(@PathVariable(value = "id") Long order_id, @RequestParam(value = "state") String state) {
         return ResponseEntity.ok(orderService.updateOrderAcceptById(order_id, state));
     }
