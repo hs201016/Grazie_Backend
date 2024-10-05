@@ -3,16 +3,19 @@ package Grazie.com.Grazie_Backend.coupon.productcoupon;
 import Grazie.com.Grazie_Backend.Product.entity.Product;
 import Grazie.com.Grazie_Backend.Product.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
+@RequiredArgsConstructor
 public class ProductCouponService {
 
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private ProductCouponRepository productCouponRepository;
+    private final ProductRepository productRepository;
+
+    private final ProductCouponRepository productCouponRepository;
 
     public ProductCouponDTO createProductCoupon(ProductCouponDTO productCouponDTO) {
 
@@ -35,6 +38,23 @@ public class ProductCouponService {
         ProductCoupon productCoupon = checkCouponId(id);
         return new ProductCouponDTO(productCoupon);
     }
+
+    // 쿠폰 타입별로 조회하기
+    public List<ProductCouponRequest> getCouponsByProductType() {
+            List<ProductCoupon> productCoupons = productCouponRepository.findAll();
+
+            return productCoupons.stream()
+                    .map(coupon -> new ProductCouponRequest(
+                            coupon.getId(),
+                            coupon.getCouponName(),
+                            coupon.getDescription(),
+                            coupon.getProduct().getName(), // productName만 가져옴
+                            coupon.getIssueDate(),
+                            coupon.getExpirationDate()
+                    ))
+                    .collect(Collectors.toList());
+        }
+
 
     public void deleteProductCoupon(Long id) {
         ProductCoupon productCoupon = checkCouponId(id);

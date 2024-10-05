@@ -16,14 +16,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RequestMapping("/users/additional-info")
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class UserAdditionalInfoController {
 
     private final ImageStorageService imageStorageService;
     private final UserAdditionalInfoService userAdditionalInfoService;
     private final ObjectMapper objectMapper;
-
 
 
     @PostMapping("/{userId}/additionalInfoJoin")

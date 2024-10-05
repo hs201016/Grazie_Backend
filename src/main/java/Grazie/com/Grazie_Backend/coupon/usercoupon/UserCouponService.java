@@ -88,6 +88,14 @@ public class UserCouponService {
         userCoupon.setExpirationDate(coupon.getExpirationDate());
         return userCoupon;
     }
+
+    @Transactional
+    public void changeCouponUsed(User user, Coupon coupon) {
+        UserCoupon userCoupon = userCouponRepository.findByUserAndCoupon(user, coupon)
+                .orElseThrow(() -> new RuntimeException("해당 쿠폰을 찾을 수 없습니다."));
+        userCoupon.setIsUsed(true);
+        userCouponRepository.save(userCoupon);
+    }
 }
 
 
