@@ -1,17 +1,18 @@
 package Grazie.com.Grazie_Backend.coupon.productcoupon;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/coupon")
 public class ProductCouponController {
 
-
-    @Autowired
-    ProductCouponService productCouponService;
+    private final ProductCouponService productCouponService;
 
     @PostMapping("/create")
     public ResponseEntity<ProductCouponDTO> createProductCoupon(@RequestBody ProductCouponDTO productCouponDTO) {
@@ -25,6 +26,12 @@ public class ProductCouponController {
     public ResponseEntity<ProductCouponDTO> readProductCouponDTO(@PathVariable("id") Long id) {
         ProductCouponDTO productCoupon = productCouponService.readProductCoupon(id);
         return ResponseEntity.ok(productCoupon);
+    }
+
+    @GetMapping("/read")
+    public ResponseEntity<?> readProductCoupon() {
+        List<ProductCouponRequest> couponsByType = productCouponService.getCouponsByProductType();
+        return ResponseEntity.ok().body(couponsByType);
     }
 
     @DeleteMapping("/delete/{id}")

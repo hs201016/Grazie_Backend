@@ -1,16 +1,19 @@
 package Grazie.com.Grazie_Backend.coupon.discountcoupon;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/discount-coupons")
 public class DiscountCouponController {
 
-    @Autowired
-    DiscountCouponService discountCouponService;
+    private final DiscountCouponService discountCouponService;
+    private final DiscountCouponRepository discountCouponRepository;
 
     @PostMapping("/create")
     public ResponseEntity<DiscountCouponDTO> createDiscountCoupon(@RequestBody DiscountCouponDTO discountCouponDTO) {
@@ -22,6 +25,12 @@ public class DiscountCouponController {
     public ResponseEntity<DiscountCouponDTO> readDiscountCoupon(@PathVariable("id") Long id) {
         DiscountCouponDTO discountCouponDTO = discountCouponService.readDiscountCoupon(id);
         return ResponseEntity.ok(discountCouponDTO);
+    }
+
+    @GetMapping("/read")
+    public ResponseEntity<?> readDiscountCoupon() {
+        List<DiscountCouponRequest> couponsByDiscountType = discountCouponService.getCouponsByDiscountType();
+        return ResponseEntity.ok().body(couponsByDiscountType);
     }
 
     @DeleteMapping("/delete/{id}")

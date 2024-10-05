@@ -8,7 +8,6 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class ProductCouponDTO {
-    private Long couponId;
     private String couponName;
     private String description;
     private LocalDate issueDate;
@@ -16,7 +15,6 @@ public class ProductCouponDTO {
     private Long productId;
 
     public ProductCouponDTO(ProductCoupon productCoupon) {
-        this.couponId = productCoupon.getId();
         this.couponName = productCoupon.getCouponName();
         this.description = productCoupon.getDescription();
         this.issueDate = productCoupon.getIssueDate();
