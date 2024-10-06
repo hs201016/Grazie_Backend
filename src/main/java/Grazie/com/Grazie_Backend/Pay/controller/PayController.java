@@ -49,8 +49,9 @@ public class PayController {
     // 결제 진행, 검증 및 DB 저장
     @PostMapping("/progress/{imp_uid}")
     @Operation(summary = "결제 진행", description = "주어진 imp_uid에 대한 결제를 진행 및 검증합니다.")
-    public ResponseEntity<PayResponseDTO> verifyPay(@PathVariable(value = "imp_uid") String impUid) {
-        PayResponseDTO response = payService.processPay(impUid);
+    public ResponseEntity<PayResponseDTO> verifyPay(@RequestParam(value = "imp_uid") String impUid,
+                                                    @RequestParam(value = "orderId") Long orderId) {
+        PayResponseDTO response = payService.processPay(impUid, orderId);
         return ResponseEntity.ok(response);
     }
 

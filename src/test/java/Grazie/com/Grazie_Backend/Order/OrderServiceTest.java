@@ -3,6 +3,7 @@ package Grazie.com.Grazie_Backend.Order;
 import Grazie.com.Grazie_Backend.Order.dto.OrderCreateDTO;
 import Grazie.com.Grazie_Backend.Order.dto.OrderGetResponseDTO;
 import Grazie.com.Grazie_Backend.Order.dto.OrderItemsCreateDTO;
+import Grazie.com.Grazie_Backend.Order.dto.OrderSuccessDTO;
 import Grazie.com.Grazie_Backend.Order.service.OrderService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,10 +50,10 @@ class OrderServiceTest {
 
         list.add(OrderItemsCreateDTO.builder()
                 .product_id(4L)
-                .quantity(2)
+                .quantity(1)
                 .size("grande")
                 .temperature("hot")
-                .product_price(4500)
+                .product_price(2500)
                 .build());
 
         list.add(OrderItemsCreateDTO.builder()
@@ -60,7 +61,7 @@ class OrderServiceTest {
                         .quantity(3)
                         .size("tall")
                         .temperature("ice")
-                        .product_price(3000)
+                        .product_price(1000)
                 .build());
 
         list.add(OrderItemsCreateDTO.builder()
@@ -68,15 +69,16 @@ class OrderServiceTest {
                         .quantity(1)
                         .size("tall")
                         .temperature("ice")
-                        .product_price(6000)
+                        .product_price(1500)
                 .build());
 
 
 
-        OrderGetResponseDTO order = orderService.createOrder(orderCreateDTO, list);
+        OrderSuccessDTO order = orderService.createOrder(orderCreateDTO, list);
 
-        System.out.println(order.getOrderGetDTO().toString());
-        System.out.println(order.getOrderItemsGetDTOs().toString());
+        System.out.println(order.getOrderId().toString());
+        System.out.println(order.getFinalPrice());
+        System.out.println(order.getMessage());
     }
 
     @Test

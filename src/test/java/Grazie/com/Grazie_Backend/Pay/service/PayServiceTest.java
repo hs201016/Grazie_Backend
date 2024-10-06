@@ -73,9 +73,9 @@ class PayServiceTest {
 
     @Test
     public void 결제진행_성공() {
-        String imp = "imp_439868606559";
+        String imp = "imp_807113228092";
 
-        PayResponseDTO payResponseDTO = payService.processPay(imp);
+        PayResponseDTO payResponseDTO = payService.processPay(imp, 35L);
 
         System.out.println(payResponseDTO.getCode());
         System.out.println(payResponseDTO.getMessage());

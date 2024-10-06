@@ -1,6 +1,7 @@
 package Grazie.com.Grazie_Backend.Order.entity;
 
 import Grazie.com.Grazie_Backend.Order.OrderItems.entity.OrderItems;
+import Grazie.com.Grazie_Backend.Pay.entity.Pay;
 import Grazie.com.Grazie_Backend.Store.entity.Store;
 import Grazie.com.Grazie_Backend.coupon.Coupon;
 import Grazie.com.Grazie_Backend.member.entity.User;
@@ -82,9 +83,14 @@ public class Order {
     @NotNull
     private Coupon coupon_id;
 
+    @OneToOne
+    @JoinColumn(name = "pay_id")
+    private Pay payId;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @NotNull
     private List<OrderItems> orderItems;
+
 
     @Override
     public String toString() {

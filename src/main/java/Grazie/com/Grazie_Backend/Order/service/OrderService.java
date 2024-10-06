@@ -68,7 +68,7 @@ public class OrderService {
 
     // 주문 생성
     @Transactional
-    public OrderGetResponseDTO createOrder(OrderCreateDTO orderCreateDTO, List<OrderItemsCreateDTO> orderItemsCreateDTOS) {
+    public OrderSuccessDTO createOrder(OrderCreateDTO orderCreateDTO, List<OrderItemsCreateDTO> orderItemsCreateDTOS) {
         BigDecimal total = BigDecimal.ZERO;
         BigDecimal discountPrice = BigDecimal.ZERO;
 
@@ -203,13 +203,14 @@ public class OrderService {
             throw new DataIntegrityException("데이터 무결성 위반 오류 발생 ", e);
         }
 
-        OrderGetDTO orderGetDTO = OrderToOrderGetDTO(order);
-        List<OrderItemsGetDTO> orderItemsGetDTO = OrderItemsToOrderItemsGetDTO(orderItemsList);
+//        OrderGetDTO orderGetDTO = OrderToOrderGetDTO(order);
+//        List<OrderItemsGetDTO> orderItemsGetDTO = OrderItemsToOrderItemsGetDTO(orderItemsList);
 
-        return OrderGetResponseDTO
+        return OrderSuccessDTO
                 .builder()
-                .orderGetDTO(orderGetDTO)
-                .orderItemsGetDTOs(orderItemsGetDTO)
+                .orderId(order.getOrder_id())
+                .finalPrice(total.subtract(discountPrice).intValue())
+                .message("주문이 성공적으로 접수되었습니다.")
                 .build();
     }
 

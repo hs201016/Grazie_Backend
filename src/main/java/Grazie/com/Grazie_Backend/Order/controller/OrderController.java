@@ -1,9 +1,6 @@
 package Grazie.com.Grazie_Backend.Order.controller;
 
-import Grazie.com.Grazie_Backend.Order.dto.OrderCreateDTO;
-import Grazie.com.Grazie_Backend.Order.dto.OrderCreateRequestDTO;
-import Grazie.com.Grazie_Backend.Order.dto.OrderGetResponseDTO;
-import Grazie.com.Grazie_Backend.Order.dto.OrderItemsCreateDTO;
+import Grazie.com.Grazie_Backend.Order.dto.*;
 import Grazie.com.Grazie_Backend.Order.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +25,12 @@ public class OrderController {
 
     @PostMapping("/create")
     @Operation(summary = "주문을 생성합니다.", description = "새로운 주문을 생성합니다.")
-    public ResponseEntity<OrderGetResponseDTO> createOrder(@RequestBody OrderCreateRequestDTO orderCreateRequestDTO) {
+    public ResponseEntity<OrderSuccessDTO> createOrder(@RequestBody OrderCreateRequestDTO orderCreateRequestDTO) {
         OrderCreateDTO orderCreateDTO = orderCreateRequestDTO.getOrderCreateDTO();
         List<OrderItemsCreateDTO> orderItemsCreateDTOS = orderCreateRequestDTO.getOrderItemsCreateDTOS();
 
-        OrderGetResponseDTO orderGetResponseDTO = orderService.createOrder(orderCreateDTO, orderItemsCreateDTOS);
-        return ResponseEntity.ok(orderGetResponseDTO);
+        OrderSuccessDTO orderSuccessDTO = orderService.createOrder(orderCreateDTO, orderItemsCreateDTOS);
+        return ResponseEntity.ok(orderSuccessDTO);
     }
 
     @GetMapping("/get/{id}")
