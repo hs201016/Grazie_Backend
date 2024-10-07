@@ -24,7 +24,7 @@ public class OrderController {
     }
 
     @PostMapping("/create")
-    @Operation(summary = "주문을 생성합니다.", description = "새로운 주문을 생성합니다.")
+    @Operation(summary = "주문을 생성합니다.", description = "새로운 주문을 생성합니다. (결제 API 호출 이전에 사용되어야합니다")
     public ResponseEntity<OrderSuccessDTO> createOrder(@RequestBody OrderCreateRequestDTO orderCreateRequestDTO) {
         OrderCreateDTO orderCreateDTO = orderCreateRequestDTO.getOrderCreateDTO();
         List<OrderItemsCreateDTO> orderItemsCreateDTOS = orderCreateRequestDTO.getOrderItemsCreateDTOS();

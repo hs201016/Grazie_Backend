@@ -24,11 +24,11 @@ public class PayController {
         this.payService = payService;
     }
 
-    @GetMapping("/page")
-    @Operation(summary = "결제 페이지", description = "결제 페이지로 리다이렉트합니다.")
-    public String paymentPage() {
-        return "redirect:/portOnePay.html";
-    }
+//    @GetMapping("/page")
+//    @Operation(summary = "결제 페이지", description = "결제 페이지로 리다이렉트합니다.")
+//    public String paymentPage() {
+//        return "redirect:/portOnePay.html";
+//    }
 
     @PostMapping("/details/{imp_uid}")
     @Operation(summary = "결제 상세 정보 조회", description = "주어진 imp_uid에 대한 결제 상세 정보를 반환합니다.")
@@ -48,7 +48,7 @@ public class PayController {
 
     // 결제 진행, 검증 및 DB 저장
     @PostMapping("/progress/{imp_uid}")
-    @Operation(summary = "결제 진행", description = "주어진 imp_uid에 대한 결제를 진행 및 검증합니다.")
+    @Operation(summary = "결제 진행", description = "주어진 imp_uid에 대한 결제를 진행 및 검증합니다. (주문 API 호출 이후 호출해야합니다")
     public ResponseEntity<PayResponseDTO> verifyPay(@RequestParam(value = "imp_uid") String impUid,
                                                     @RequestParam(value = "orderId") Long orderId) {
         PayResponseDTO response = payService.processPay(impUid, orderId);
