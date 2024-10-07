@@ -1,13 +1,11 @@
 package Grazie.com.Grazie_Backend.member.service;
 
-import Grazie.com.Grazie_Backend.Config.JwtUtil;
 import Grazie.com.Grazie_Backend.Config.UserAdapter;
 import Grazie.com.Grazie_Backend.member.dto.PasswordDTO;
 import Grazie.com.Grazie_Backend.member.dto.UserDTO;
 import Grazie.com.Grazie_Backend.member.entity.User;
 import Grazie.com.Grazie_Backend.member.enumpackage.Role;
 import Grazie.com.Grazie_Backend.member.repository.UserRepository;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,7 +16,6 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
 
     public User joinUser(User user) {
         String password = user.getPassword();
