@@ -6,6 +6,7 @@ import Grazie.com.Grazie_Backend.member.entity.UserAdditionalInfo;
 import Grazie.com.Grazie_Backend.member.repository.UserAdditionalInfoRepository;
 import Grazie.com.Grazie_Backend.member.repository.UserRepository;
 import io.jsonwebtoken.Claims;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,9 +19,9 @@ import java.nio.file.Paths;
 @Service
 public class ImageStorageService {
 
-    private UserAdditionalInfoRepository userAdditionalInfoRepository;
-    private UserRepository userRepository;
-    private JwtUtil jwtUtil;
+    private final UserAdditionalInfoRepository userAdditionalInfoRepository;
+    private  UserRepository userRepository;
+    private  JwtUtil jwtUtil;
 
     public final String imageStorage = "storage/profile_images/";
 
@@ -65,4 +66,4 @@ public class ImageStorageService {
 
         return userAdditionalInfoRepository.save(additionalInfo);
     }
-    }
+}
