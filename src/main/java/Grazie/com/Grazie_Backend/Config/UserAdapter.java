@@ -1,6 +1,7 @@
 package Grazie.com.Grazie_Backend.Config;
 
 import Grazie.com.Grazie_Backend.member.entity.User;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
 @RequiredArgsConstructor
+@Getter
 public class UserAdapter implements UserDetails {
 
     private final User user;

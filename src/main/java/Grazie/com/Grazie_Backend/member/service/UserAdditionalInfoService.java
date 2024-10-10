@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Optional;
+
 @Service
 public class UserAdditionalInfoService {
 
@@ -50,13 +52,15 @@ public class UserAdditionalInfoService {
     public UserAdditionalInfoDTO readAdditionalInfo(UserAdapter userAdapter) {
         Long userId = userAdapter.getUser().getId();
         UserAdditionalInfo userAdditionalInfo = getUserAdditionalInfoByUserId(userId);
-
-
         return new UserAdditionalInfoDTO(
                 userAdditionalInfo.getNickname(),
                 userAdditionalInfo.getProfileImage(),
                 userAdditionalInfo.getGender()
         );
+    }
+
+    public Optional<UserAdditionalInfo> findByUserId(Long userId) {
+        return userAdditionalInfoRepository.findByUserId(userId);
     }
 
     public UserAdditionalInfo updateAdditionalInfo(UserAdapter userAdapter, UserAdditionalInfoDTO updateDTO) {
