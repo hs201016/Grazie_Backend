@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 /*
@@ -19,6 +20,7 @@ import org.hibernate.type.SqlTypes;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 public class Product {
 
     @Id
@@ -60,19 +62,10 @@ public class Product {
 
     @Column(name = "allergy")
     @Size(max = 100)
-    private String allergy;
+    private String allergy; // 상품 알러지정보
 
-    @Override
-    public String toString() {
-        return "Product{" +
-                "product_id=" + productId +
-                ", name='" + name + '\'' +
-                ", image='" + image + '\'' +
-                ", price=" + price +
-                ", explanation='" + explanation + '\'' +
-                ", size='" + size + '\'' +
-                ", information=" + information +
-                ", temperature='" + temperature + '\'' +
-                '}';
-    }
+    @Column(name = "category", nullable = false)
+    @Size(max = 50)
+    @NotNull
+    private String category; // 상품 카테고리
 }

@@ -10,6 +10,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class ProductDTO {
     private Long product_id;
     private String name;
@@ -20,19 +21,5 @@ public class ProductDTO {
     private ProductInformation information;
     private String temperature;
     private String allergy;
-
-
-    @Override
-    public String toString() {
-        return "ProductDTO{" +
-                "product_id=" + product_id +
-                ", name='" + name + '\'' +
-                ", image='" + image + '\'' +
-                ", price=" + price +
-                ", explanation='" + explanation + '\'' +
-                ", size='" + size + '\'' +
-                ", information=" + information.toString() +
-                ", temperature='" + temperature + '\'' +
-                '}';
-    }
+    private String category;
 }

@@ -1,5 +1,6 @@
 package Grazie.com.Grazie_Backend.StoreProduct;
 
+import Grazie.com.Grazie_Backend.Product.dto.ProductDistinctDTO;
 import Grazie.com.Grazie_Backend.Product.entity.Product;
 import Grazie.com.Grazie_Backend.StoreProduct.dto.StoreProductDTO;
 import Grazie.com.Grazie_Backend.StoreProduct.dto.StoreProductResponseDTO;
@@ -47,12 +48,15 @@ class StoreProductServiceTest {
     @DisplayName("매장에서 판매하는 상품 등록")
     public void createStoreProductTest() {
         StoreProductDTO storeProductDTO = new StoreProductDTO();
-        storeProductDTO.setStoreId(1L);
-        storeProductDTO.setProductId(24L);
-        storeProductDTO.setState(true);
+        storeProductDTO.setStoreId(3L);
+        for (long i = 1L; i<=300L; i++) {
+            storeProductDTO.setProductId(i);
+            storeProductDTO.setState(true);
+            storeProductService.createStoreProduct(storeProductDTO);
+        }
 
-        StoreProduct storeProduct = storeProductService.createStoreProduct(storeProductDTO);
-        System.out.println(storeProduct.toString());
+//        StoreProduct storeProduct = storeProductService.createStoreProduct(storeProductDTO);
+//        System.out.println(storeProduct.toString());
     }
 
     @Test

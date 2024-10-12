@@ -1,6 +1,8 @@
 package Grazie.com.Grazie_Backend.Product.controller;
 
 import Grazie.com.Grazie_Backend.Product.dto.ProductDTO;
+import Grazie.com.Grazie_Backend.Product.dto.ProductDistinctDTO;
+import Grazie.com.Grazie_Backend.Product.dto.ProductSizeTempDTO;
 import Grazie.com.Grazie_Backend.Product.service.ProductService;
 import Grazie.com.Grazie_Backend.Product.entity.Product;
 import io.swagger.v3.oas.annotations.Operation;
@@ -49,6 +51,22 @@ public class ProductController {
         return ResponseEntity.ok(productService.getAllProduct());
     }
 
+    @GetMapping("/get/distinct/all")
+    @Operation(summary = "이름 중복을 제거한 모든 상품을 조회합니다.", description = "현재 생성되어있는 상품을 이름 중복을 제거하여 조회합니다. 가격은 같은 이름의 상품 중 가장 저렴한 가격입니다")
+    public ResponseEntity<List<ProductDistinctDTO>> getAllProductDistinct() {
+        return ResponseEntity.ok(productService.getAllProductDistinct());
+    }
+
+    @GetMapping("/get/size-temp/{name}")
+    public ResponseEntity<List<ProductSizeTempDTO>> getProductSizeTempByName(@PathVariable(value = "name") String name) {
+        List<ProductSizeTempDTO> productSizeTempList = productService.getSizeTempByName(name);
+
+        if (productSizeTempList.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 데이터가 없을 경우 204 No Content 반환
+        }
+
+        return ResponseEntity.ok(productSizeTempList); // 성공적으로 데이터를 반환할 경우 200 OK
+    }
     // 특정 상품의 상세보기 API
     @GetMapping("/get/{id}")
     @Operation(summary = "특정 상품을 조회합니다.", description = "productId를 통해 특정 상품을 조회합니다.")

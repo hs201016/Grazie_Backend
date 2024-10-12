@@ -1,9 +1,12 @@
 package Grazie.com.Grazie_Backend.Product;
 
 import Grazie.com.Grazie_Backend.Product.dto.ProductDTO;
+import Grazie.com.Grazie_Backend.Product.dto.ProductDistinctDTO;
 import Grazie.com.Grazie_Backend.Product.dto.ProductInformation;
+import Grazie.com.Grazie_Backend.Product.dto.ProductSizeTempDTO;
 import Grazie.com.Grazie_Backend.Product.entity.Product;
 import Grazie.com.Grazie_Backend.Product.service.ProductService;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,7 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.List;
 
 @SpringBootTest
-//@Transactional
+@Transactional
 @DisplayName("상품 관련 서비스 테스트")
 class ProductServiceTest {
 
@@ -47,6 +50,14 @@ class ProductServiceTest {
             System.out.println();
         }
     }
+
+//    @Test
+//    @DisplayName("모든 상품 조회 (중복제거)")
+//    public void 상품조회_중복제거() {
+//        List<ProductDistinctDTO> dtos = productService.getAllProductDistinct();
+//
+//        System.out.println(dtos);
+//    }
 
     @Test
     @DisplayName("상품 생성 테스트")
@@ -150,9 +161,24 @@ class ProductServiceTest {
     }
 
     @Test
+    @DisplayName("모든 상품 조회_중복제거")
+    public void 모든상품조회_중복제거() {
+        List<ProductDistinctDTO> dtos = productService.getAllProductDistinct();
+
+        System.out.println(dtos);
+    }
+
+    @Test
+    @DisplayName("사이즈, 온도 조회")
+    public void 이름으로사이즈온도조회() {
+        List<ProductSizeTempDTO> dtos = productService.getSizeTempByName("바닐라 카페라떼");
+
+        System.out.println(dtos);
+    }
+    @Test
     @DisplayName("상품 상세보기 테스트")
     public void getProductByIdTest() {
-        ProductDTO dto = productService.getProductById(21L);
+        ProductDTO dto = productService.getProductById(123L);
 
         System.out.println(dto.toString());
     }
