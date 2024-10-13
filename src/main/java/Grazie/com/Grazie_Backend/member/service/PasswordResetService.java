@@ -34,10 +34,16 @@ public class PasswordResetService {
         PasswordToken passwordToken = new PasswordToken(user, token, LocalDateTime.now().plusHours(1));
         tokenRepository.save(passwordToken);
 
-        String subject = "임시 비밀번호를 발급해드렸습니다.";
-        String text = "고객님의 임시 비밀번호는 " + tempPassword + "입니다. 정확하게 입력해주세요!\n" +
-                "이걸 일단은 포스트맨에 넣어보세요! : " +
-                "localhost:8080/users/changeTempPassword?=" + token;
+        String subject = "비밀번호 찾기 안내입니다.";
+        String text = "안녕하세요, 고객님!\n\n" +
+                "요청하신 비밀번호 재발급 결과를 안내드립니다.\n\n" +
+                "고객님의 임시 비밀번호는 \n" +
+                "▶▶ **" + tempPassword + "** ◀◀\n\n" + "입니다" +
+                "정확히 입력해 주시기 바랍니다.\n" +
+                "이걸 일단은 포스트맨 주소창에 넣어보세요! : " +
+                "34.64.110.210:8080/users/changeTempPassword?=" + token +
+                "감사합니다.\n\n" +
+                "Grazie Service Team 드림.";
 
         emailService.sendEmail(user.getEmail(), subject, text);
     }

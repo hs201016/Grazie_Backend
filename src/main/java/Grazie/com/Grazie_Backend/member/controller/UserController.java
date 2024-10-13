@@ -31,14 +31,15 @@ public class UserController {
     private final UserRepository userRepository;
 
     @PostMapping("/join")
-    public ResponseEntity<User> join(@RequestBody User user) {
+    public ResponseEntity<?> join(@RequestBody User user) {
         try {
-            User savedUser = userService.joinUser(user);
-            return ResponseEntity.ok(savedUser);
+            Long userId = userService.joinUser(user);
+            return ResponseEntity.status(HttpStatus.CREATED).body(userId);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
     @GetMapping("/readProfile")
     public ResponseEntity<?> readUserProfile() {
         UserAdapter userAdapter = SecurityUtils.getCurrentUser();
