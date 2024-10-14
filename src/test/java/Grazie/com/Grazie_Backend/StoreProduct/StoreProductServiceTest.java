@@ -1,10 +1,8 @@
 package Grazie.com.Grazie_Backend.StoreProduct;
 
-import Grazie.com.Grazie_Backend.Product.dto.ProductDistinctDTO;
 import Grazie.com.Grazie_Backend.Product.entity.Product;
 import Grazie.com.Grazie_Backend.StoreProduct.dto.StoreProductDTO;
 import Grazie.com.Grazie_Backend.StoreProduct.dto.StoreProductResponseDTO;
-import Grazie.com.Grazie_Backend.StoreProduct.entity.StoreProduct;
 import Grazie.com.Grazie_Backend.StoreProduct.service.StoreProductService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;

@@ -12,14 +12,16 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 public class ProductDTO {
-    private Long product_id;
+    private Long productId;
     private String name;
     private String image;
-    private Integer price;
+    private Integer smallPrice;
+    private Integer mediumPrice;
+    private Integer largePrice;
+    private Boolean iceAble;
+    private Boolean hotAble;
     private String explanation;
-    private String size;
     private ProductInformation information;
-    private String temperature;
     private String allergy;
     private String category;
 }
