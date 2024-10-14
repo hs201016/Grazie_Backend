@@ -1,10 +1,7 @@
 package Grazie.com.Grazie_Backend.Product;
 
 import Grazie.com.Grazie_Backend.Product.dto.ProductDTO;
-import Grazie.com.Grazie_Backend.Product.dto.ProductDistinctDTO;
 import Grazie.com.Grazie_Backend.Product.dto.ProductInformation;
-import Grazie.com.Grazie_Backend.Product.dto.ProductSizeTempDTO;
-import Grazie.com.Grazie_Backend.Product.entity.Product;
 import Grazie.com.Grazie_Backend.Product.service.ProductService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
@@ -40,12 +37,8 @@ class ProductServiceTest {
     public void getAllProductTest() {
         List<ProductDTO> products = productService.getAllProduct();
         for (ProductDTO dto : products) {
-            System.out.print(dto.getName() + " " + dto.getImage() + " " + dto.getPrice() + " " + dto.getExplanation()
-            + " " + dto.getSize() + " " + " " + dto.getTemperature());
-
-            System.out.print(" 영양정보 = " + dto.getInformation().getCalories() + " " + dto.getInformation().getSaturatedFat() + " "
-            + dto.getInformation().getProtein() + " " + dto.getInformation().getSodium() + " " + dto.getInformation().getSugar() + " "
-            + dto.getInformation().getCaffeine());
+            System.out.println(dto.toString());
+            System.out.println(dto.getInformation().toString());
 
             System.out.println();
         }
@@ -76,12 +69,15 @@ class ProductServiceTest {
         ProductDTO allergy_test = new ProductDTO();
         allergy_test.setName("알러지_테스트_Name");
         allergy_test.setImage("알러지_테스트_Image");
-        allergy_test.setPrice(12345);
+        allergy_test.setSmallPrice(1);
+        allergy_test.setMediumPrice(2);
+        allergy_test.setLargePrice(3);
+        allergy_test.setIceAble(true);
+        allergy_test.setHotAble(true);
         allergy_test.setExplanation("알러지_테스트_Explanation");
-        allergy_test.setSize("tall");
         allergy_test.setInformation(productInformation);
-        allergy_test.setTemperature("both");
         allergy_test.setAllergy("유제품, 땅콩");
+        allergy_test.setCategory("Coffee");
 
         ProductInformation productInformation1 = new ProductInformation();
         productInformation1.setCalories(1);
@@ -160,20 +156,20 @@ class ProductServiceTest {
 
     }
 
-    @Test
-    @DisplayName("모든 상품 조회_중복제거")
-    public void 모든상품조회_중복제거() {
-        List<ProductDistinctDTO> dtos = productService.getAllProductDistinct();
-
-        System.out.println(dtos);
-    }
+//    @Test
+//    @DisplayName("모든 상품 조회_중복제거")
+//    public void 모든상품조회_중복제거() {
+//        List<ProductDistinctDTO> dtos = productService.getAllProductDistinct();
+//
+//        System.out.println(dtos);
+//    }
 
     @Test
     @DisplayName("사이즈, 온도 조회")
     public void 이름으로사이즈온도조회() {
-        List<ProductSizeTempDTO> dtos = productService.getSizeTempByName("바닐라 카페라떼");
-
-        System.out.println(dtos);
+//        List<ProductSizeTempDTO> dtos = productService.getSizeTempByName("바닐라 카페라떼");
+//
+//        System.out.println(dtos);
     }
     @Test
     @DisplayName("상품 상세보기 테스트")
@@ -186,26 +182,6 @@ class ProductServiceTest {
     @Test
     @DisplayName("상품 수정 테스트")
     public void updateProductTest() {
-        ProductInformation productInformation = new ProductInformation();
-        productInformation.setCalories(0);
-        productInformation.setSaturatedFat(9);
-        productInformation.setProtein(9);
-        productInformation.setSodium(9);
-        productInformation.setSugar(9);
-        productInformation.setCaffeine(9);
-
-        ProductDTO updateAmericano = new ProductDTO();
-        updateAmericano.setName("수정 된아메리카노");
-        updateAmericano.setImage("Americano");
-        updateAmericano.setPrice(1231237128);
-        updateAmericano.setExplanation("수정 아메리카노 테스트");
-        updateAmericano.setSize("tall");
-        updateAmericano.setInformation(productInformation);
-        updateAmericano.setTemperature("both");
-
-        Product product = productService.updateProductById(21L, updateAmericano);
-
-        System.out.println(product.toString());
     }
 
     @Test

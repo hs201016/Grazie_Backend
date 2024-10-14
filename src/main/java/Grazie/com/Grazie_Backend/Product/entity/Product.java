@@ -37,28 +37,31 @@ public class Product {
     @NotNull
     private String image; // 상품 이미지 url
 
-    @Column(name = "price", nullable = false)
-    @Min(0)
+    @Column(name = "small_price", nullable = false)
     @NotNull
-    private Integer price; // 상품 가격
+    private int smallPrice;
+
+    @Column(name = "medium_price")
+    private int mediumPrice;
+
+    @Column(name = "large_price")
+    private int largePrice;
+
+    @Column(name = "ice_able")
+    private Boolean iceAble;
+
+    @Column(name = "hot_able")
+    private Boolean hotAble;
 
     @Column(name = "explanation", nullable = false)
     @Size(max = 100)
     @NotNull
     private String explanation; // 상품 설명
 
-    @Column(name = "size")
-    @Size(max = 10)
-    private String size; // 상품 사이즈
-
     @Column(name = "information", nullable = false)
     @JdbcTypeCode(SqlTypes.JSON)
     @NotNull
     private ProductInformation information; // 상품 영양정보
-
-    @Column(name = "temperature")
-    @Size(max = 5)
-    private String temperature; // 음료온도
 
     @Column(name = "allergy")
     @Size(max = 100)
