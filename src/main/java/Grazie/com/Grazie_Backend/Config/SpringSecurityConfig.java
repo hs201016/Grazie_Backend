@@ -38,6 +38,7 @@ public class SpringSecurityConfig  {
 
         // React와 Flutter 로컬 환경에서의 요청을 허용
         configuration.addAllowedOrigin("http://localhost:3000"); // React 개발 서버
+        configuration.addAllowedOrigin("http://localhost:3001"); // React 개발 서버
         configuration.addAllowedOrigin("http://10.0.2.2:8000");  // Flutter 에뮬레이터
         configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
         configuration.addAllowedHeader("*"); // 모든 헤더 허용
