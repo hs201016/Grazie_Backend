@@ -38,16 +38,16 @@ public class PayController {
     }
 
     // 결제 취소 진행 및 DB 업데이트
-    @DeleteMapping("/cancel/{imp_uid}")
+    @DeleteMapping("/cancel/")
     @Operation(summary = "결제 취소", description = "주어진 imp_uid에 대한 결제를 취소합니다.")
-    public ResponseEntity<MessageDTO> cancelPay(@PathVariable(value = "imp_uid") String impUid) {
+    public ResponseEntity<MessageDTO> cancelPay(@RequestParam(value = "imp_uid") String impUid) {
 
         MessageDTO dto = payService.processCancelPay(impUid);
         return ResponseEntity.ok(dto);
     }
 
     // 결제 진행, 검증 및 DB 저장
-    @PostMapping("/progress/{imp_uid}")
+    @PostMapping("/progress/")
     @Operation(summary = "결제 진행", description = "주어진 imp_uid에 대한 결제를 진행 및 검증합니다. (주문 API 호출 이후 호출해야합니다")
     public ResponseEntity<PayResponseDTO> verifyPay(@RequestParam(value = "imp_uid") String impUid,
                                                     @RequestParam(value = "orderId") Long orderId) {

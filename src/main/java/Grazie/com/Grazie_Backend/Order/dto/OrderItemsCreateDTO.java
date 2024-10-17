@@ -14,8 +14,15 @@ import lombok.*;
 @AllArgsConstructor
 public class OrderItemsCreateDTO {
     private Long product_id;
+    private int product_price;
     private int quantity;
     private String size;
     private String temperature;
-    private int product_price;
+    // personal option
+    private int shotAddition;
+    private int personalTumbler;
+    private int pearlAddition;
+    private int syrupAddition;
+    private int whippedCreamAddition;
+    private int iceAddition;
 }

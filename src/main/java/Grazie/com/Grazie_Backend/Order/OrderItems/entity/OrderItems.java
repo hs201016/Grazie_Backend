@@ -47,23 +47,25 @@ public class OrderItems {
     @NotNull
     private String temperature;
 
+    @Column(name = "shot_addition")
+    private int shotAddition;
+    @Column(name = "personal_tumbler")
+    private int personalTumbler;
+    @Column(name = "pearl_addition")
+    private int pearlAddition;
+    @Column(name = "syrup_addition")
+    private int syrupAddition;
+    @Column(name = "whipped_cream_addition")
+    private int whippedCreamAddition;
+    @Column(name = "ice_addition")
+    private int iceAddition;
+
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
     @NotNull
     private Order order;
-
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
     @NotNull
     private Product product;
-    @Override
-    public String toString() {
-        return "OrderItems{" +
-                "order_item_id=" + order_item_id +
-                ", product=" + product +
-                ", quantity=" + quantity +
-                ", product_price=" + product_price +
-                ", total_price=" + total_price +
-                '}';
-    }
 }

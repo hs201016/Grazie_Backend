@@ -121,10 +121,19 @@ public class OrderService {
             orderItems.setProduct_price(orderItemsCreateDTO.getProduct_price());
             orderItems.setQuantity(orderItemsCreateDTO.getQuantity());
             orderItems.setTotal_price(price.intValue());
-            orderItems.setTemperature(orderItemsCreateDTO.getTemperature());
             orderItems.setSize(orderItemsCreateDTO.getSize());
-            orderItems.setProduct(product);
+            orderItems.setTemperature(orderItemsCreateDTO.getTemperature());
+            // personal option
+            orderItems.setShotAddition(orderItemsCreateDTO.getShotAddition());
+            orderItems.setPersonalTumbler(orderItemsCreateDTO.getPersonalTumbler());
+            orderItems.setPearlAddition(orderItemsCreateDTO.getPearlAddition());
+            orderItems.setSyrupAddition(orderItemsCreateDTO.getSyrupAddition());
+            orderItems.setWhippedCreamAddition(orderItemsCreateDTO.getWhippedCreamAddition());
+            orderItems.setIceAddition(orderItemsCreateDTO.getIceAddition());
+
             orderItems.setOrder(order);
+            orderItems.setProduct(product);
+
 
             total = total.add(price);
             orderItemsList.add(orderItems);
