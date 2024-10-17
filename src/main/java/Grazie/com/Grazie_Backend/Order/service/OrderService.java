@@ -198,7 +198,7 @@ public class OrderService {
             orderRepository.save(order);
             orderItemsRepository.saveAll(orderItemsList);
             // 주문이 성공적으로 끝나면 장바구니 비우기
-            cartService.deleteAllCartItems(orderCreateDTO.getUser_id());
+            cartService.deleteAllCartItems();
         } catch (DataIntegrityViolationException e) {
             throw new DataIntegrityException("데이터 무결성 위반 오류 발생 ", e);
         }

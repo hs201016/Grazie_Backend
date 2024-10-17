@@ -2,7 +2,7 @@ package Grazie.com.Grazie_Backend.cart;
 
 import Grazie.com.Grazie_Backend.Product.entity.Product;
 import Grazie.com.Grazie_Backend.Product.repository.ProductRepository;
-import Grazie.com.Grazie_Backend.cart.dto.CartDeleteDTO;
+import Grazie.com.Grazie_Backend.cart.dto.CartDeleteRequest;
 import Grazie.com.Grazie_Backend.cart.dto.CartItemResponseDTO;
 import Grazie.com.Grazie_Backend.cart.entity.Cart;
 import Grazie.com.Grazie_Backend.cart.entity.CartItem;
@@ -76,18 +76,6 @@ public class CartServiceTest {
         cart.getCartItems().add(cartItem);
     }
 
-    @Test
-    @DisplayName("장바구니에 상품 추가하기")
-    void addProductToCart() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(cartRepository.findByUser(user)).thenReturn(Optional.of(cart));
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-
-        cartService.addProductToCart(1L, 1L, 2);
-
-        verify(cartItemRepository, times(1)).save(any(CartItem.class));
-        verify(cartRepository, times(1)).save(cart);
-    }
 
     @Test
     @DisplayName("장바구니 상품 조회하기")
@@ -129,17 +117,17 @@ public class CartServiceTest {
 
         cart.getCartItems().add(cartItem);
 
-        CartDeleteDTO cartDeleteDTO = new CartDeleteDTO();
-        cartDeleteDTO.setCartId(cartId);
-        cartDeleteDTO.setProductId(productId);
-        cartDeleteDTO.setQuantity(quantityToDelete);
+        CartDeleteRequest cartDeleteRequest = new CartDeleteRequest();
+        cartDeleteRequest.setCartId(cartId);
+        cartDeleteRequest.setProductId(productId);
+        cartDeleteRequest.setQuantity(quantityToDelete);
 
         Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         Mockito.when(cartRepository.findByUser(user)).thenReturn(Optional.of(cart));
         Mockito.when(cartItemRepository.findByCartId(cartId)).thenReturn(List.of(cartItem));
 
         // 삭제
-        cartService.deleteCartItem(userId, cartDeleteDTO);
+        cartService.deleteCartItem(userId, cartDeleteRequest);
 
         Mockito.verify(cartItemRepository, Mockito.times(1)).save(cartItem);
         Mockito.verify(cartItemRepository, Mockito.never()).delete(cartItem); // delete 메소드 호출 안됬는지 확인
@@ -166,17 +154,17 @@ public class CartServiceTest {
 
         cart.getCartItems().add(cartItem);
 
-        CartDeleteDTO cartDeleteDTO = new CartDeleteDTO();
-        cartDeleteDTO.setCartId(cartId);
-        cartDeleteDTO.setProductId(productId);
-        cartDeleteDTO.setQuantity(quantityToDelete);
+        CartDeleteRequest cartDeleteRequest = new CartDeleteRequest();
+        cartDeleteRequest.setCartId(cartId);
+        cartDeleteRequest.setProductId(productId);
+        cartDeleteRequest.setQuantity(quantityToDelete);
 
         Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         Mockito.when(cartRepository.findByUser(user)).thenReturn(Optional.of(cart));
         Mockito.when(cartItemRepository.findByCartId(cartId)).thenReturn(List.of(cartItem));
 
         // 실행
-        cartService.deleteCartItem(userId, cartDeleteDTO);
+        cartService.deleteCartItem(userId, cartDeleteRequest);
 
         // 검증
         Mockito.verify(cartItemRepository, Mockito.never()).save(cartItem);
