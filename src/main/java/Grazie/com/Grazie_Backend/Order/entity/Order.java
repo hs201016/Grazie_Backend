@@ -3,7 +3,6 @@ package Grazie.com.Grazie_Backend.Order.entity;
 import Grazie.com.Grazie_Backend.Order.OrderItems.entity.OrderItems;
 import Grazie.com.Grazie_Backend.Pay.entity.Pay;
 import Grazie.com.Grazie_Backend.Store.entity.Store;
-import Grazie.com.Grazie_Backend.coupon.Coupon;
 import Grazie.com.Grazie_Backend.member.entity.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
@@ -11,6 +10,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,6 +23,7 @@ import java.util.List;
 @Table(name = "orders")
 @Getter
 @Setter
+@ToString
 public class Order {
 
     @Id
@@ -53,11 +54,6 @@ public class Order {
     @NotNull
     private String order_mode;
 
-    @Column(name = "cup_type", nullable = false)
-    @Size(max = 5)
-    @NotNull
-    private String cup_type;
-
     @Column(name = "accept")
     @Size(max = 5)
     @NotNull
@@ -78,35 +74,16 @@ public class Order {
     @NotNull
     private User user;
 
-    @OneToOne
-    @JoinColumn(name = "coupon_id")
-    @NotNull
-    private Coupon coupon_id;
+//    @OneToOne
+//    @JoinColumn(name = "coupon_id")
+//    private Coupon coupon_id;
 
     @OneToOne
     @JoinColumn(name = "pay_id")
-    private Pay payId;
+    private Pay pay;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @NotNull
     private List<OrderItems> orderItems;
 
-
-    @Override
-    public String toString() {
-        return "Order{" +
-                "order_id=" + order_id +
-                ", user_id=" + user +
-                ", store=" + store +
-                ", coupon_id=" + coupon_id +
-                ", total_price=" + total_price +
-                ", discount_price=" + discount_price +
-                ", final_price=" + final_price +
-                ", order_date=" + order_date +
-                ", order_mode='" + order_mode + '\'' +
-                ", accept='" + accept + '\'' +
-                ", requirement='" + requirement + '\'' +
-                ", cup_type='" + cup_type + '\'' +
-                '}';
-    }
 }

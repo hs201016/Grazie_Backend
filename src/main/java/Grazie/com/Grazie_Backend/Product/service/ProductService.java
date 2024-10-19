@@ -93,16 +93,6 @@ public class ProductService {
         return productDTOs;
     }
 
-//    // 모든 상품 조회 (중복 제거)
-//    public List<ProductDistinctDTO> getAllProductDistinct() {
-//        return productRepository.findDistinctProducts();
-//    }
-//
-//     특정 상품의 온도, 사이즈 어떤 것이 가능한지 조회
-//    public List<ProductSizeTempDTO> getSizeTempByName(String name) {
-//        return productRepository.findProductSizeTempByName(name);
-//    }
-
     // 상품 상세보기
     public ProductDTO getProductById(Long id) {
         Product product = productRepository.findById(id)

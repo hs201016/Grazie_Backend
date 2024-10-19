@@ -1,8 +1,5 @@
 package Grazie.com.Grazie_Backend.Pay.service;
 
-import Grazie.com.Grazie_Backend.Order.OrderItems.entity.OrderItems;
-import Grazie.com.Grazie_Backend.Order.dto.OrderCreateDTO;
-import Grazie.com.Grazie_Backend.Order.dto.OrderItemsCreateDTO;
 import Grazie.com.Grazie_Backend.Order.entity.Order;
 import Grazie.com.Grazie_Backend.Order.exception.*;
 import Grazie.com.Grazie_Backend.Order.repository.OrderRepository;
@@ -10,20 +7,6 @@ import Grazie.com.Grazie_Backend.Pay.dto.MessageDTO;
 import Grazie.com.Grazie_Backend.Pay.dto.PayResponseDTO;
 import Grazie.com.Grazie_Backend.Pay.entity.Pay;
 import Grazie.com.Grazie_Backend.Pay.repository.PayRepository;
-import Grazie.com.Grazie_Backend.Product.entity.Product;
-import Grazie.com.Grazie_Backend.Product.repository.ProductRepository;
-import Grazie.com.Grazie_Backend.Store.entity.Store;
-import Grazie.com.Grazie_Backend.Store.repository.StoreRepository;
-import Grazie.com.Grazie_Backend.StoreProduct.entity.StoreProduct;
-import Grazie.com.Grazie_Backend.StoreProduct.repository.StoreProductRepository;
-import Grazie.com.Grazie_Backend.coupon.Coupon;
-import Grazie.com.Grazie_Backend.coupon.CouponRepository;
-import Grazie.com.Grazie_Backend.coupon.discountcoupon.DiscountCoupon;
-import Grazie.com.Grazie_Backend.coupon.productcoupon.ProductCoupon;
-import Grazie.com.Grazie_Backend.coupon.usercoupon.UserCoupon;
-import Grazie.com.Grazie_Backend.coupon.usercoupon.UserCouponRepository;
-import Grazie.com.Grazie_Backend.member.entity.User;
-import Grazie.com.Grazie_Backend.member.repository.UserRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
@@ -34,15 +17,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -207,7 +182,7 @@ public class PayService {
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException("주문 정보를 찾지못했습니다."));
-        order.setPayId(pay);
+        order.setPay(pay);
         orderRepository.save(order);
     }
 

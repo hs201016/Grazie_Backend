@@ -17,10 +17,13 @@ import Grazie.com.Grazie_Backend.coupon.Coupon;
 import Grazie.com.Grazie_Backend.coupon.CouponRepository;
 import Grazie.com.Grazie_Backend.coupon.discountcoupon.DiscountCoupon;
 import Grazie.com.Grazie_Backend.coupon.productcoupon.ProductCoupon;
+import Grazie.com.Grazie_Backend.coupon.usercoupon.UserCoupon;
 import Grazie.com.Grazie_Backend.coupon.usercoupon.UserCouponRepository;
 import Grazie.com.Grazie_Backend.member.entity.User;
 import Grazie.com.Grazie_Backend.member.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
+import Grazie.com.Grazie_Backend.personaloptions.PersonalOptionRepository;
+import Grazie.com.Grazie_Backend.personaloptions.entity.PersonalOptions;
+import Grazie.com.Grazie_Backend.personaloptions.service.PersonalOptionPricingService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +31,12 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /*
@@ -52,9 +57,11 @@ public class OrderService {
 
     private final UserCouponRepository userCouponRepository;
     private final CartService cartService;
+    private final PersonalOptionRepository personalOptionRepository;
+    private final PersonalOptionPricingService personalOptionPricingService;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository, OrderItemsRepository orderItemsRepository, ProductRepository productRepository, StoreRepository storeRepository, StoreProductRepository storeProductRepository, UserRepository userRepository, CouponRepository couponRepository, UserCouponRepository userCouponRepository, CartService cartService) {
+    public OrderService(OrderRepository orderRepository, OrderItemsRepository orderItemsRepository, ProductRepository productRepository, StoreRepository storeRepository, StoreProductRepository storeProductRepository, UserRepository userRepository, CouponRepository couponRepository, UserCouponRepository userCouponRepository, CartService cartService, PersonalOptionRepository personalOptionRepository, PersonalOptionPricingService personalOptionPricingService) {
         this.orderRepository = orderRepository;
         this.orderItemsRepository = orderItemsRepository;
         this.productRepository = productRepository;
@@ -64,6 +71,8 @@ public class OrderService {
         this.couponRepository = couponRepository;
         this.userCouponRepository = userCouponRepository;
         this.cartService = cartService;
+        this.personalOptionRepository = personalOptionRepository;
+        this.personalOptionPricingService = personalOptionPricingService;
     }
 
     // 주문 생성
@@ -81,7 +90,7 @@ public class OrderService {
         Order order = new Order();
 
         List<Long> productIds = orderItemsCreateDTOS.stream()
-                .map(OrderItemsCreateDTO::getProduct_id)
+                .map(OrderItemsCreateDTO::getProductId)
                 .toList();
 
         List<Product> products = productRepository.findByProductIdIn(productIds);
@@ -95,98 +104,146 @@ public class OrderService {
                 .collect(Collectors.toMap(sp -> sp.getProduct().getProductId(), sp -> sp));
 
         List<OrderItems> orderItemsList = new ArrayList<>();
+        List<PersonalOptions> optionsList = new ArrayList<>();
 
         for (OrderItemsCreateDTO orderItemsCreateDTO : orderItemsCreateDTOS) {
-            Product product = productMap.get(orderItemsCreateDTO.getProduct_id());
-
-            BigDecimal price = BigDecimal.ZERO;
+            Product product = productMap.get(orderItemsCreateDTO.getProductId());
+            OrderItems orderItems = new OrderItems();
 
             if (product == null) {
                 throw new ProductNotFoundException("상품을 찾을 수 없습니다.");
             }
-
             StoreProduct storeProduct = storeProductMap.get(product.getProductId());
             if (storeProduct == null) {
                 throw new ProductNotSoldException("매장에서 판매하지 않는 상품입니다.");
             }
-
             if (!storeProduct.getState()) {
                 throw new ProductDiscontinuedException("판매 중지 된 상품입니다.");
             }
 
-            // 상품 개수 * 상품 가격
-            price = new BigDecimal(orderItemsCreateDTO.getQuantity()).multiply(new BigDecimal(orderItemsCreateDTO.getProduct_price()));
+            if (orderItemsCreateDTO.getCouponId() != null) {
+                Coupon coupon = couponRepository.findById(orderItemsCreateDTO.getCouponId())
+                        .orElseThrow(() -> new CouponNotFoundException("쿠폰을 찾을 수 없습니다."));
 
-            OrderItems orderItems = new OrderItems();
-            orderItems.setProduct_price(orderItemsCreateDTO.getProduct_price());
+                if (coupon instanceof ProductCoupon productCoupon) {
+                    if (productCoupon.getExpirationDate().isBefore(LocalDate.now())) {
+                        throw new CouponExpiredException("기한이 만료된 쿠폰입니다.");
+                    }
+                    if (!userCouponRepository.existsByUserAndCoupon(user, productCoupon)) {
+                        throw new CouponNotOwnedException("유저가 해당 쿠폰을 가지고 있지 않습니다.");
+                    }
+                    Optional<UserCoupon> userCoupon = userCouponRepository.findByUserAndCoupon(user, productCoupon);
+                    if (userCoupon.isPresent() && userCoupon.get().getIsUsed()) {
+                        throw new RuntimeException("이미 사용된 쿠폰입니다.");
+                    }
+                    orderItems.setCoupon(productCoupon);
+
+                    discountPrice = discountPrice.add(new BigDecimal(orderItemsCreateDTO.getProductPrice()));
+                    userCoupon.get().setIsUsed(true);
+                    userCouponRepository.save(userCoupon.get());
+                } else if (coupon instanceof DiscountCoupon discountCoupon) {
+                    if (discountCoupon.getExpirationDate().isBefore(LocalDate.now())) {
+                        throw new CouponExpiredException("기한이 만료된 쿠폰입니다.");
+                    }
+                    if (!userCouponRepository.existsByUserAndCoupon(user, discountCoupon)) {
+                        throw new CouponNotOwnedException("유저가 해당 쿠폰을 가지고 있지 않습니다.");
+                    }
+                    Optional<UserCoupon> userCoupon = userCouponRepository.findByUserAndCoupon(user, discountCoupon);
+                    if (userCoupon.isPresent() && userCoupon.get().getIsUsed()) {
+                        throw new RuntimeException("이미 사용된 쿠폰입니다.");
+                    }
+                    orderItems.setCoupon(discountCoupon);
+
+                    BigDecimal productPrice = new BigDecimal(orderItemsCreateDTO.getProductPrice());
+                    BigDecimal discountRate = discountCoupon.getDiscountRate().divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
+                    discountPrice = productPrice.multiply(discountRate);
+                    userCoupon.get().setIsUsed(true);
+                    userCouponRepository.save(userCoupon.get());
+
+                }
+            }
+
+
+            // personal options
+            PersonalOptions options = new PersonalOptions(orderItemsCreateDTO.getConcentration(),
+                    orderItemsCreateDTO.getShotAddition(), orderItemsCreateDTO.getPersonalTumbler(),
+                    orderItemsCreateDTO.getPearlAddition(), orderItemsCreateDTO.getSyrupAddition(),
+                    orderItemsCreateDTO.getSugarAddition(), orderItemsCreateDTO.getWhippedCreamAddition(),
+                    orderItemsCreateDTO.getIceAddition());
+
+            // 상품 개수 * 상품 가격
+            BigDecimal fullPrice = new BigDecimal(orderItemsCreateDTO.getQuantity()).multiply(new BigDecimal(orderItemsCreateDTO.getProductPrice()));
+
+
+            orderItems.setProduct_price(orderItemsCreateDTO.getProductPrice());
             orderItems.setQuantity(orderItemsCreateDTO.getQuantity());
-            orderItems.setTotal_price(price.intValue());
+            orderItems.setTotal_price(fullPrice.intValue() + personalOptionPricingService.calculateAdditionalPrice(options));
             orderItems.setSize(orderItemsCreateDTO.getSize());
             orderItems.setTemperature(orderItemsCreateDTO.getTemperature());
-            // personal option
-            orderItems.setShotAddition(orderItemsCreateDTO.getShotAddition());
-            orderItems.setPersonalTumbler(orderItemsCreateDTO.getPersonalTumbler());
-            orderItems.setPearlAddition(orderItemsCreateDTO.getPearlAddition());
-            orderItems.setSyrupAddition(orderItemsCreateDTO.getSyrupAddition());
-            orderItems.setWhippedCreamAddition(orderItemsCreateDTO.getWhippedCreamAddition());
-            orderItems.setIceAddition(orderItemsCreateDTO.getIceAddition());
-
+            orderItems.setOptions(options);
             orderItems.setOrder(order);
             orderItems.setProduct(product);
+            log.info("orderItems = {}", orderItems);
 
 
-            total = total.add(price);
+            total = total.add(BigDecimal.valueOf(orderItems.getTotal_price()));
+            log.info("total = " + total);
             orderItemsList.add(orderItems);
+            optionsList.add(options);
         }
 
         // 쿠폰 처리 로직
-        Coupon coupon = null;
-        if (orderCreateDTO.getCoupon_id() != null) {
-            coupon = couponRepository.findById(orderCreateDTO.getCoupon_id())
-                    .orElseThrow(() -> new CouponNotFoundException("쿠폰을 찾을 수 없습니다."));
 
-            if (coupon instanceof DiscountCoupon) {
-                DiscountCoupon discountCoupon = (DiscountCoupon) coupon;
-                for (OrderItems orderItems : orderItemsList) {
-                    if (orderItems.getProduct().equals(discountCoupon.getProduct())) {
-                        if (discountCoupon.getExpirationDate().isBefore(LocalDate.now())) {
-                            throw new CouponExpiredException("기한이 만료된 쿠폰입니다.");
-                        } else {
-                            /*
-                                 user가 가지고있는 쿠폰인지 체크 필요
-                             */
-                            if (userCouponRepository.existsByUserAndCoupon(user, discountCoupon)) {
-                                BigDecimal productPrice = new BigDecimal(orderItems.getProduct_price());
-                                BigDecimal discountRate = discountCoupon.getDiscountRate().divide(BigDecimal.valueOf(100));
-                                discountPrice = productPrice.multiply(discountRate);
-                                orderItems.setTotal_price(new BigDecimal(orderItems.getTotal_price()).subtract(discountPrice).intValue());
-                            } else {
-                                throw new CouponNotOwnedException("유저가 해당 쿠폰을 가지고 있지 않습니다.");
-                            }
-                        }
-                    }
-                }
-            } else if (coupon instanceof ProductCoupon) {
-                ProductCoupon productCoupon = (ProductCoupon) coupon;
-                for (OrderItems orderItems : orderItemsList) {
-                    if (orderItems.getProduct().equals(productCoupon.getProduct())) {
-                        if (productCoupon.getExpirationDate().isBefore(LocalDate.now())) {
-                            throw new CouponExpiredException("기한이 만료된 쿠폰입니다.");
-                        } else {
-                            /*
-                                 user가 가지고있는 쿠폰인지 체크 필요
-                             */
-                            if (userCouponRepository.existsByUserAndCoupon(user, productCoupon)) {
-                                discountPrice = discountPrice.add(new BigDecimal(orderItems.getProduct_price()));
-                                orderItems.setTotal_price(new BigDecimal(orderItems.getTotal_price()).subtract(discountPrice).intValue());
-                            } else {
-                                throw new CouponNotOwnedException("유저가 해당 쿠폰을 가지고 있지 않습니다.");
-                            }
-                        }
-                    }
-                }
-            }
-        }
+//        Coupon coupon = null;
+//        if (orderCreateDTO.getCoupon_id() != null) {
+//            coupon = couponRepository.findById(orderCreateDTO.getCoupon_id())
+//                    .orElseThrow(() -> new CouponNotFoundException("쿠폰을 찾을 수 없습니다."));
+//
+//            if (coupon instanceof DiscountCoupon) {
+//                DiscountCoupon discountCoupon = (DiscountCoupon) coupon;
+//                for (OrderItems orderItems : orderItemsList) {
+//                    if (orderItems.getProduct().equals(discountCoupon.getProduct())) {
+//                        if (discountCoupon.getExpirationDate().isBefore(LocalDate.now())) {
+//                            throw new CouponExpiredException("기한이 만료된 쿠폰입니다.");
+//                        }
+//                        if (!userCouponRepository.existsByUserAndCoupon(user, discountCoupon)) {
+//                            throw new CouponNotOwnedException("유저가 해당 쿠폰을 가지고 있지 않습니다.");
+//                        }
+//                        Optional<UserCoupon> userCoupon = userCouponRepository.findByUserAndCoupon(user, coupon);
+//                        if (userCoupon.isPresent() && !userCoupon.get().getIsUsed()) {
+//                            BigDecimal productPrice = new BigDecimal(orderItems.getProduct_price());
+//                            BigDecimal discountRate = discountCoupon.getDiscountRate().divide(BigDecimal.valueOf(100));
+//                            discountPrice = productPrice.multiply(discountRate);
+//                            log.info("discountPrice = " + discountPrice);
+//                            orderItems.setTotal_price(new BigDecimal(orderItems.getTotal_price()).subtract(discountPrice).intValue());
+//                            userCoupon.get().setIsUsed(true);
+//                            userCouponRepository.save(userCoupon.get());
+//                        }
+//
+//
+//                    }
+//                }
+//            } else if (coupon instanceof ProductCoupon) {
+//                ProductCoupon productCoupon = (ProductCoupon) coupon;
+//                for (OrderItems orderItems : orderItemsList) {
+//                    if (orderItems.getProduct().equals(productCoupon.getProduct())) {
+//                        if (productCoupon.getExpirationDate().isBefore(LocalDate.now())) {
+//                            throw new CouponExpiredException("기한이 만료된 쿠폰입니다.");
+//                        }
+//                        if (!userCouponRepository.existsByUserAndCoupon(user, productCoupon)) {
+//                            throw new CouponNotOwnedException("유저가 해당 쿠폰을 가지고 있지 않습니다.");
+//                        }
+//                        Optional<UserCoupon> userCoupon = userCouponRepository.findByUserAndCoupon(user, coupon);
+//                        if (userCoupon.isPresent() && !userCoupon.get().getIsUsed()) {
+//                            discountPrice = discountPrice.add(new BigDecimal(orderItems.getProduct_price()));
+//                            orderItems.setTotal_price(new BigDecimal(orderItems.getTotal_price()).subtract(discountPrice).intValue());
+//                            userCoupon.get().setIsUsed(true);
+//                            userCouponRepository.save(userCoupon.get());
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
         // Order 생성 및 저장
         order.setTotal_price(total.intValue());
@@ -194,18 +251,18 @@ public class OrderService {
         order.setFinal_price(total.subtract(discountPrice).intValue());
         order.setOrder_date(orderCreateDTO.getOrder_date());
         order.setOrder_mode(orderCreateDTO.getOrder_mode());
-        order.setCup_type(orderCreateDTO.getCup_type());
         order.setAccept("대기");
         order.setRequirement(orderCreateDTO.getRequirement());
         order.setStore(store);
         order.setUser(user);
-        order.setCoupon_id(coupon);
+//        order.setCoupon_id();
         order.setOrderItems(orderItemsList);
 
         // Order와 OrderItems를 함께 저장
         try {
             orderRepository.save(order);
             orderItemsRepository.saveAll(orderItemsList);
+            personalOptionRepository.saveAll(optionsList);
             // 주문이 성공적으로 끝나면 장바구니 비우기
             cartService.deleteAllCartItems();
         } catch (DataIntegrityViolationException e) {
@@ -218,7 +275,7 @@ public class OrderService {
         return OrderSuccessDTO
                 .builder()
                 .orderId(order.getOrder_id())
-                .finalPrice(total.subtract(discountPrice).intValue())
+                .finalPrice(order.getFinal_price())
                 .message("주문이 성공적으로 접수되었습니다.")
                 .build();
     }
@@ -323,7 +380,7 @@ public class OrderService {
 
         for (Order o : orders) {
             OrderGetDTO orderGetDTO = OrderToOrderGetDTO(o);
-            orderGetDTO.setUser_id(null);
+            orderGetDTO.setUser(null);
 
             List<OrderItemsGetDTO> orderItemsGetDTOs =
                     OrderItemsToOrderItemsGetDTO(orderItemsRepository.findByOrder(o));
@@ -341,17 +398,16 @@ public class OrderService {
     private OrderGetDTO OrderToOrderGetDTO(Order order) {
         OrderGetDTO orderGetDTO = new OrderGetDTO();
         orderGetDTO.setOrder_id(order.getOrder_id());
-        orderGetDTO.setUser_id(order.getUser());
-        orderGetDTO.setStore(order.getStore());
-        orderGetDTO.setCoupon_id(order.getCoupon_id());
         orderGetDTO.setTotal_price(order.getTotal_price());
         orderGetDTO.setDiscount_price(order.getDiscount_price());
         orderGetDTO.setFinal_price(order.getFinal_price());
         orderGetDTO.setOrder_date(order.getOrder_date());
         orderGetDTO.setOrder_mode(order.getOrder_mode());
         orderGetDTO.setAccept(order.getAccept());
-        orderGetDTO.setCup_type(order.getCup_type());
         orderGetDTO.setRequirement(order.getRequirement());
+        orderGetDTO.setStore(order.getStore());
+        orderGetDTO.setUser(order.getUser());
+        orderGetDTO.setPay(order.getPay());
 
         return orderGetDTO;
     }

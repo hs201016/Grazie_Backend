@@ -73,9 +73,12 @@ class PayServiceTest {
 
     @Test
     public void 결제진행_성공() {
-        String imp = "imp_807113228092";
+//        String imp = "imp_807113228092";
+//        String imp ="imp_893549056619"; // 7500원
+//        String imp = "imp_639771982597"; // 6300원
+        String imp = "imp_582927993529"; // 5700원 (쿠폰 적용)
 
-        PayResponseDTO payResponseDTO = payService.processPay(imp, 35L);
+        PayResponseDTO payResponseDTO = payService.processPay(imp, 72L);
 
         System.out.println(payResponseDTO.getCode());
         System.out.println(payResponseDTO.getMessage());

@@ -11,9 +11,10 @@ import lombok.*;
 @ToString
 public class OrderItemsGetDTO {
     private Long order_item_id;
-    private Product product;
+
+    private int product_price;
     private int quantity;
     private String size;
-    private int product_price;
+    private Product product;
     private int total_price;
 }

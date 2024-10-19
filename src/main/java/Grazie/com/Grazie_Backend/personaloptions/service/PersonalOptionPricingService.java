@@ -1,6 +1,7 @@
 package Grazie.com.Grazie_Backend.personaloptions.service;
 
 import Grazie.com.Grazie_Backend.personaloptions.entity.PersonalOptions;
+import Grazie.com.Grazie_Backend.personaloptions.enumfile.TumblerUsage;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,7 +16,7 @@ public class PersonalOptionPricingService {
         }
 
         // 개인 텀블러 사용 여부에 따른 할인 (-300원) // 프론트에서 기본값을 사용 안함으로 설정
-        if ("USE".equals(personalOptions.getPersonalTumbler())) {
+        if (TumblerUsage.USE.equals(personalOptions.getPersonalTumbler())) {
             additionalPrice -= 300;
         }
 

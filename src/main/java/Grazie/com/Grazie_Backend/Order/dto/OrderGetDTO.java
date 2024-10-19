@@ -1,7 +1,7 @@
 package Grazie.com.Grazie_Backend.Order.dto;
 
+import Grazie.com.Grazie_Backend.Pay.entity.Pay;
 import Grazie.com.Grazie_Backend.Store.entity.Store;
-import Grazie.com.Grazie_Backend.coupon.Coupon;
 import Grazie.com.Grazie_Backend.member.entity.User;
 import lombok.*;
 
@@ -15,9 +15,6 @@ import java.time.LocalDateTime;
 @ToString
 public class OrderGetDTO {
     private Long order_id;
-    private User user_id;
-    private Store store;
-    private Coupon coupon_id;
     private int total_price;
     private int discount_price;
     private int final_price;
@@ -25,7 +22,9 @@ public class OrderGetDTO {
     private String order_mode;
     private String accept;
     private String requirement;
-    private String cup_type;
+    private Store store;
+    private User user;
+    private Pay pay;
 }
 
 

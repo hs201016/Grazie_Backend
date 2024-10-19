@@ -2,6 +2,10 @@ package Grazie.com.Grazie_Backend.Order.OrderItems.entity;
 
 import Grazie.com.Grazie_Backend.Order.entity.Order;
 import Grazie.com.Grazie_Backend.Product.entity.Product;
+import Grazie.com.Grazie_Backend.coupon.Coupon;
+import Grazie.com.Grazie_Backend.personaloptions.entity.PersonalOptions;
+import Grazie.com.Grazie_Backend.personaloptions.enumfile.Concentration;
+import Grazie.com.Grazie_Backend.personaloptions.enumfile.IceAddition;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -47,25 +51,22 @@ public class OrderItems {
     @NotNull
     private String temperature;
 
-    @Column(name = "shot_addition")
-    private int shotAddition;
-    @Column(name = "personal_tumbler")
-    private int personalTumbler;
-    @Column(name = "pearl_addition")
-    private int pearlAddition;
-    @Column(name = "syrup_addition")
-    private int syrupAddition;
-    @Column(name = "whipped_cream_addition")
-    private int whippedCreamAddition;
-    @Column(name = "ice_addition")
-    private int iceAddition;
+    @ManyToOne
+    @JoinColumn(name = "product_id", nullable = false)
+    @NotNull
+    private Product product;
+
+    @OneToOne
+    @JoinColumn(name = "option_id")
+    private PersonalOptions options;
+
+    @OneToOne
+    @JoinColumn(name = "coupon_id")
+    private Coupon coupon;
 
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
     @NotNull
     private Order order;
-    @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
-    @NotNull
-    private Product product;
+
 }

@@ -1,16 +1,26 @@
 package Grazie.com.Grazie_Backend.Order;
 
+import Grazie.com.Grazie_Backend.Config.JwtUtil;
 import Grazie.com.Grazie_Backend.Order.dto.OrderCreateDTO;
 import Grazie.com.Grazie_Backend.Order.dto.OrderGetResponseDTO;
 import Grazie.com.Grazie_Backend.Order.dto.OrderItemsCreateDTO;
 import Grazie.com.Grazie_Backend.Order.dto.OrderSuccessDTO;
 import Grazie.com.Grazie_Backend.Order.service.OrderService;
+import Grazie.com.Grazie_Backend.coupon.CouponRepository;
+import Grazie.com.Grazie_Backend.coupon.usercoupon.UserCouponRepository;
+import Grazie.com.Grazie_Backend.member.entity.User;
+import Grazie.com.Grazie_Backend.member.repository.UserRepository;
+import Grazie.com.Grazie_Backend.personaloptions.enumfile.Concentration;
+import Grazie.com.Grazie_Backend.personaloptions.enumfile.IceAddition;
+import Grazie.com.Grazie_Backend.personaloptions.enumfile.TumblerUsage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,10 +33,23 @@ class OrderServiceTest {
 
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private UserCouponRepository userCouponRepository;
+    @Autowired
+    private CouponRepository couponRepository;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @BeforeEach
     public void before() {
         System.out.println("테스트 시작");
+        User user = userRepository.findById(2L).orElseThrow(() -> new RuntimeException("사용자 못찾음") );
+
+        String token = jwtUtil.generateAccessToken(2L);
+        Authentication authentication = jwtUtil.getAuthentication(token);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @AfterEach
@@ -43,35 +66,40 @@ class OrderServiceTest {
         orderCreateDTO.setOrder_date(LocalDateTime.now());
         orderCreateDTO.setOrder_mode("테이크아웃");
         orderCreateDTO.setRequirement("얼음 빼주세요");
-        orderCreateDTO.setCup_type("텀블러");
-        orderCreateDTO.setStore_id(1L);
-        orderCreateDTO.setCoupon_id(10L);
+        orderCreateDTO.setStore_id(2L);
         orderCreateDTO.setUser_id(2L);
+//        orderCreateDTO.setCoupon_id(13L); // 아메리카노 1잔 무료 쿠폰
 
         list.add(OrderItemsCreateDTO.builder()
-                .product_id(4L)
+                .productId(21L)
+                .productPrice(4000)
                 .quantity(1)
-                .size("grande")
-                .temperature("hot")
-                .product_price(2500)
+                .size("medium")
+                .temperature("ice")
+                .concentration(Concentration.NORMAL)
+                .personalTumbler(TumblerUsage.NOT_USE)
+                .shotAddition(0)
+                .pearlAddition(0)
+                .syrupAddition(0)
+                .whippedCreamAddition(1)
+                .iceAddition(IceAddition.LESS)
                 .build());
 
         list.add(OrderItemsCreateDTO.builder()
-                        .product_id(2L)
-                        .quantity(3)
-                        .size("tall")
-                        .temperature("ice")
-                        .product_price(1000)
+                .productId(2L)
+                .productPrice(2300)
+                .quantity(1)
+                .size("small")
+//                .couponId(13L)
+                .temperature("ice")
+                .concentration(Concentration.STRONG)
+                .personalTumbler(TumblerUsage.NOT_USE)
+                .shotAddition(2)
+                .pearlAddition(0)
+                .syrupAddition(0)
+                .whippedCreamAddition(0)
+                .iceAddition(IceAddition.MORE)
                 .build());
-
-        list.add(OrderItemsCreateDTO.builder()
-                        .product_id(3L)
-                        .quantity(1)
-                        .size("tall")
-                        .temperature("ice")
-                        .product_price(1500)
-                .build());
-
 
 
         OrderSuccessDTO order = orderService.createOrder(orderCreateDTO, list);

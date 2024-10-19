@@ -1,6 +1,8 @@
 package Grazie.com.Grazie_Backend.Product.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 /*
     Chaean
@@ -8,6 +10,8 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProductInformation {
     private Integer calories;
     private Integer saturatedFat;
