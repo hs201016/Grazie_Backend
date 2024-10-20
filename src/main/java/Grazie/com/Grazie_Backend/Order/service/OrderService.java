@@ -418,11 +418,14 @@ public class OrderService {
         for (OrderItems item : orderItemsList) {
             OrderItemsGetDTO dto = new OrderItemsGetDTO();
             dto.setOrder_item_id(item.getOrder_item_id());
-            dto.setProduct(item.getProduct());
-            dto.setQuantity(item.getQuantity());
-            dto.setSize(item.getSize());
             dto.setProduct_price(item.getProduct_price());
+            dto.setQuantity(item.getQuantity());
             dto.setTotal_price(item.getTotal_price());
+            dto.setSize(item.getSize());
+            dto.setTemperature(item.getTemperature());
+            dto.setProduct(item.getProduct());
+            dto.setPersonalOptions(item.getOptions());
+            dto.setCoupon(item.getCoupon());
 
             orderItemsGetDTO.add(dto);
         }
