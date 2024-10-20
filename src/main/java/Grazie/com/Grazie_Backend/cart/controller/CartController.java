@@ -34,15 +34,30 @@ public class CartController {
     }
 
 
-    @DeleteMapping("/deleteProduct")
+    @PatchMapping("/decreaseQuantity")
     @Operation(summary = "유저의 장바구니에서 상품을 삭제합니다.", description = "유저의 장바구니에서 특정 상품을 삭제합니다.")
-    public ResponseEntity<?> deleteProduct(@RequestBody CartDeleteRequest cartDeleteRequest) {
+    public ResponseEntity<?> decreaseProduct(@RequestBody CartDeleteRequest cartDeleteRequest) {
         SecurityUtils.getCurrentUser();
-        cartService.deleteCartItem(cartDeleteRequest);
+        cartService.decreaseCartItemQuantity(cartDeleteRequest);
         return ResponseEntity.ok("성공적으로 삭제되었습니다.");
     }
 
-    @DeleteMapping("deleteAll")
+    @PatchMapping("/increaseQuantity")
+    @Operation(summary = "유저의 장바구니에서 상품 수량을 증가시킵니다.", description = "유저의 장바구니에서 특정 상품의 수량을 1 증가시킵니다.")
+    public ResponseEntity<String> increaseProduct(@RequestBody CartIncreaseRequest cartIncreaseRequest) {
+        SecurityUtils.getCurrentUser();
+        cartService.increaseCartItemQuantity(cartIncreaseRequest);
+        return ResponseEntity.ok("상품 수량이 성공적으로 증가하였습니다.");
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> deleteCartItem(@RequestBody CartDeleteRequest cartDeleteRequest) {
+        SecurityUtils.getCurrentUser();
+        cartService.deleteCartItem(cartDeleteRequest);
+        return ResponseEntity.ok().build();
+}
+
+    @DeleteMapping("/deleteAll")
     @Operation(summary = "유저의 장바구니에서 모든 상품을 삭제합니다.", description = "유저의 장바구니에서 모든 상품을 삭제합니다.")
     public ResponseEntity<?> deleteAllProduct() {
         SecurityUtils.getCurrentUser();
@@ -50,13 +65,6 @@ public class CartController {
         return ResponseEntity.ok("성공적으로 삭제되었습니다.");
     }
 
-    @PostMapping("/increaseQuantity")
-    @Operation(summary = "유저의 장바구니에서 상품 수량을 증가시킵니다.", description = "유저의 장바구니에서 특정 상품의 수량을 1 증가시킵니다.")
-    public ResponseEntity<String> increaseCartItemQuantity(@RequestBody CartIncreaseRequest cartIncreaseRequest) {
-        SecurityUtils.getCurrentUser();
-        cartService.increaseCartItemQuantity(cartIncreaseRequest);
-        return ResponseEntity.ok("상품 수량이 성공적으로 증가하였습니다.");
-    }
 
 
 }
