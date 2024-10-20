@@ -98,6 +98,8 @@ public class CartService {
         for (CartItem cartItem : cartItems) {
              int totalPrice = calculateTotalPrice(cartItem.getId(), cartItem.getProduct().getProductId());
 
+            updateCartItemPrice(cartItem, totalPrice);
+
             // CartItemResponse 객체 생성
             CartItemResponse response = new CartItemResponse();
             response.setProductName(cartItem.getProduct().getName());
@@ -112,6 +114,11 @@ public class CartService {
         return responseList;
     }
 
+    private void updateCartItemPrice(CartItem cartItem, int totalPrice) {
+        cartItem.setPrice(totalPrice);
+        cartItemRepository.save(cartItem);
+    }
+
     public int calculateTotalPrice(Long cartItemId, Long productId) {
 
         CartItem cartItem = findCartItemByCartItemId(cartItemId);
@@ -119,7 +126,6 @@ public class CartService {
         if (cartItem == null) {
             throw new IllegalArgumentException("CartItem not found for ID: " + cartItemId);
         }
-
 
         String size = cartItem.getSize();
         String temperature = cartItem.getTemperature();
@@ -134,6 +140,30 @@ public class CartService {
 
     @Transactional
     public void deleteCartItem(CartDeleteRequest cartDeleteRequest) {
+        // 현재 사용자 정보 가져오기
+        UserAdapter currentUser = SecurityUtils.getCurrentUser();
+
+        // 사용자의 장바구니 찾기
+        Cart cart = findCartByUser(currentUser.getUser()).orElseThrow(
+                () -> new EntityNotFoundException("해당 사용자의 장바구니가 없습니다."));
+
+        Long cartItemId = cartDeleteRequest.getCartItemId();
+        CartItem cartItemToDelete = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 카트 아이템이 존재하지 않습니다."));
+
+        // 해당 아이템이 사용자의 장바구니에 있는지 확인
+        if (!cart.getCartItems().contains(cartItemToDelete)) {
+            throw new IllegalArgumentException("해당 아이템이 사용자의 장바구니에 없습니다.");
+        }
+
+        cart.getCartItems().remove(cartItemToDelete);
+
+        cartItemRepository.delete(cartItemToDelete);
+    }
+
+
+    @Transactional
+    public void decreaseCartItemQuantity(CartDeleteRequest cartDeleteRequest) {
         UserAdapter currentUser = SecurityUtils.getCurrentUser();
 
         // 사용자의 장바구니 찾기
@@ -181,6 +211,8 @@ public class CartService {
 
         cartRepository.save(cart);
     }
+
+
     @Transactional
     public void deleteAllCartItems() {
         UserAdapter currentUser = SecurityUtils.getCurrentUser();
