@@ -23,6 +23,11 @@ public class UserAdapter implements UserDetails {
         return null;
     }
 
+    // userId(pk가 필요한 경우 사용)
+    public Long getUserId() {
+        return user.getId();
+    }
+
     @Override
     public String getPassword() {
         return user.getPassword();

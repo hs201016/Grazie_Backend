@@ -3,6 +3,7 @@ package Grazie.com.Grazie_Backend.member.controller;
 import Grazie.com.Grazie_Backend.Config.SecurityUtils;
 import Grazie.com.Grazie_Backend.Config.UnauthorizedException;
 import Grazie.com.Grazie_Backend.Config.UserAdapter;
+import Grazie.com.Grazie_Backend.member.dto.UpdateNicknameRequest;
 import Grazie.com.Grazie_Backend.member.dto.UserAdditionalInfoDTO;
 import Grazie.com.Grazie_Backend.member.entity.UserAdditionalInfo;
 import Grazie.com.Grazie_Backend.member.service.ImageStorageService;
@@ -63,6 +64,17 @@ public class UserAdditionalInfoController {
         UserAdditionalInfo userAdditionalInfo = userAdditionalInfoService.updateAdditionalInfo(userAdapter, userAdditionalInfoDTO);
         return ResponseEntity.ok(userAdditionalInfo);
     }
+
+    @PatchMapping("/updateNickname")
+    public ResponseEntity<UserAdditionalInfo> updateNickname(@RequestBody UpdateNicknameRequest updateNicknameRequest) {
+        UserAdapter userAdapter = SecurityUtils.getCurrentUser();
+        if (userAdapter == null) {
+            throw new UnauthorizedException();
+        }
+        UserAdditionalInfo userAdditionalInfo = userAdditionalInfoService.updateNickname(updateNicknameRequest);
+        return ResponseEntity.ok(userAdditionalInfo);
+    }
+
 
     @PutMapping("/updateProfileImage")
     public ResponseEntity<?> updateProfileImage(@RequestPart("profileImage") MultipartFile profileImageFile) {
