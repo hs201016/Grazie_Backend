@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 
-@Controller // 페이지 렌더링을 위해 RestController -> Controller
+@RestController // 페이지 렌더링을 위해 RestController -> Controller
 @RequestMapping("/api/pay")
 public class PayController {
 
@@ -38,7 +38,7 @@ public class PayController {
     }
 
     // 결제 취소 진행 및 DB 업데이트
-    @DeleteMapping("/cancel/")
+    @DeleteMapping("/cancel")
     @Operation(summary = "결제 취소", description = "주어진 imp_uid에 대한 결제를 취소합니다.")
     public ResponseEntity<MessageDTO> cancelPay(@RequestParam(value = "imp_uid") String impUid) {
 
@@ -47,7 +47,7 @@ public class PayController {
     }
 
     // 결제 진행, 검증 및 DB 저장
-    @PostMapping("/progress/")
+    @PostMapping("/progress")
     @Operation(summary = "결제 진행", description = "주어진 imp_uid에 대한 결제를 진행 및 검증합니다. (주문 API 호출 이후 호출해야합니다")
     public ResponseEntity<PayResponseDTO> verifyPay(@RequestParam(value = "imp_uid") String impUid,
                                                     @RequestParam(value = "orderId") Long orderId) {
@@ -58,7 +58,7 @@ public class PayController {
     //
     @GetMapping("/get/list/{name}")
     @Operation(summary = "구매자 이름으로 결제 내역 조회", description = "주어진 구매자 이름에 대한 결제 내역을 조회합니다.")
-    private ResponseEntity<List<Pay>> getAllPayByName(@PathVariable(value = "name") String buyerName) {
+    public ResponseEntity<List<Pay>> getAllPayByName(@PathVariable(value = "name") String buyerName) {
         List<Pay> payList = payService.getAllPayByBuyerName(buyerName);
         return ResponseEntity.ok(payList);
     }
