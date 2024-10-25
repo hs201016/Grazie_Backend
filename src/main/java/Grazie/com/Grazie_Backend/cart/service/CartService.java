@@ -13,11 +13,13 @@ import Grazie.com.Grazie_Backend.cart.repository.CartRepository;
 import Grazie.com.Grazie_Backend.member.entity.User;
 import Grazie.com.Grazie_Backend.member.repository.UserRepository;
 import Grazie.com.Grazie_Backend.personaloptions.PersonalOptionRepository;
+import Grazie.com.Grazie_Backend.personaloptions.dto.PersonalOptionResponse;
 import Grazie.com.Grazie_Backend.personaloptions.entity.PersonalOptions;
 import Grazie.com.Grazie_Backend.personaloptions.service.PersonalOptionService;
 import Grazie.com.Grazie_Backend.personaloptions.service.PersonalOptionPricingService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,8 +80,6 @@ public class CartService {
         return cart.getId(); // 장바구니의 PK값 반환
     }
 
-
-
     @Transactional
     public List<CartItemResponse> readCart() {
         UserAdapter currentUser = SecurityUtils.getCurrentUser();
@@ -96,18 +96,30 @@ public class CartService {
 
         List<CartItemResponse> responseList = new ArrayList<>();
         for (CartItem cartItem : cartItems) {
-             int totalPrice = calculateTotalPrice(cartItem.getId(), cartItem.getProduct().getProductId());
+            int totalPrice = calculateTotalPrice(cartItem.getId(), cartItem.getProduct().getProductId());
 
             updateCartItemPrice(cartItem, totalPrice);
 
-            // CartItemResponse 객체 생성
             CartItemResponse response = new CartItemResponse();
             response.setProductName(cartItem.getProduct().getName());
             response.setSize(cartItem.getSize());
             response.setTemperature(cartItem.getTemperature());
             response.setPrice(totalPrice);
             response.setQuantity(cartItem.getQuantity());
-            response.setPersonalOptions(cartItem.getPersonalOptions());
+            response.setImage(cartItem.getProduct().getImage());
+
+            PersonalOptions personalOptions = cartItem.getPersonalOptions();
+            PersonalOptionResponse personalOptionResponse = new PersonalOptionResponse();
+            personalOptionResponse.setConcentration(personalOptions.getConcentration());
+            personalOptionResponse.setShotAddition(personalOptions.getShotAddition());
+            personalOptionResponse.setPersonalTumbler(personalOptions.getPersonalTumbler());
+            personalOptionResponse.setPearlAddition(personalOptions.getPearlAddition());
+            personalOptionResponse.setSyrupAddition(personalOptions.getSyrupAddition());
+            personalOptionResponse.setSugarAddition(personalOptions.getSugarAddition());
+            personalOptionResponse.setWhippedCreamAddition(personalOptions.getWhippedCreamAddition());
+            personalOptionResponse.setIceAddition(personalOptions.getIceAddition());
+
+            response.setPersonalOptions(personalOptionResponse);
 
             responseList.add(response);
         }

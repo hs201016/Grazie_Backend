@@ -1,7 +1,9 @@
 package Grazie.com.Grazie_Backend.member.service;
 
 import Grazie.com.Grazie_Backend.Config.JwtUtil;
+import Grazie.com.Grazie_Backend.Config.SecurityUtils;
 import Grazie.com.Grazie_Backend.Config.UserAdapter;
+import Grazie.com.Grazie_Backend.member.dto.UpdateNicknameRequest;
 import Grazie.com.Grazie_Backend.member.dto.UserAdditionalInfoDTO;
 import Grazie.com.Grazie_Backend.member.entity.User;
 import Grazie.com.Grazie_Backend.member.entity.UserAdditionalInfo;
@@ -10,6 +12,7 @@ import Grazie.com.Grazie_Backend.member.repository.UserAdditionalInfoRepository;
 import Grazie.com.Grazie_Backend.member.repository.UserRepository;
 import Grazie.com.Grazie_Backend.member.service.ImageStorageService;
 import io.jsonwebtoken.Claims;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -78,6 +81,18 @@ public class UserAdditionalInfoService {
         }
         return userAdditionalInfoRepository.save(userAdditionalInfo);
     }
+
+    @Transactional
+    public UserAdditionalInfo updateNickname(UpdateNicknameRequest request) {
+        UserAdapter currentUser = SecurityUtils.getCurrentUser();
+        UserAdditionalInfo userAdditionalInfo = getUserAdditionalInfoByUserId(currentUser.getUserId());
+        if (request.getNickname() != null) {
+            userAdditionalInfo.setNickname(request.getNickname());
+        }
+        return userAdditionalInfoRepository.save(userAdditionalInfo);
+    }
+
+
 
     public void deleteAdditionalInfo(UserAdapter userAdapter) {
         Long userId = userAdapter.getUser().getId();
