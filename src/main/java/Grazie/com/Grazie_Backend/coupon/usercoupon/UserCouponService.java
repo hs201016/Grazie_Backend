@@ -1,5 +1,7 @@
 package Grazie.com.Grazie_Backend.coupon.usercoupon;
 
+import Grazie.com.Grazie_Backend.Config.SecurityUtils;
+import Grazie.com.Grazie_Backend.Config.UserAdapter;
 import Grazie.com.Grazie_Backend.coupon.Coupon;
 import Grazie.com.Grazie_Backend.coupon.CouponRepository;
 import Grazie.com.Grazie_Backend.coupon.discountcoupon.DiscountCouponRepository;
@@ -29,9 +31,9 @@ public class UserCouponService {
     private final ProductCouponRepository productCouponRepository;
 
     @Transactional
-    public List<Coupon> getAvailableCoupon(Long userId) {
-        User user = getUserById(userId);
-        List<UserCoupon> userCoupons = userCouponRepository.findByUser(user);
+    public List<Coupon> getAvailableCoupon() {
+        UserAdapter currentUser = SecurityUtils.getCurrentUser();
+        List<UserCoupon> userCoupons = userCouponRepository.findByUser(currentUser.getUser());
 
         // 사용자가 발급 받은 목록
         List<Long> issuedCouponsId = userCoupons.stream()
@@ -54,6 +56,25 @@ public class UserCouponService {
         UserCoupon userCoupon = createUserCoupon(user, coupon);
         userCouponRepository.save(userCoupon);
     }
+
+    @Transactional
+    public List<UserCouponResponse> getIssueCouponList() {
+        UserAdapter currentUser = SecurityUtils.getCurrentUser();
+
+        List<UserCoupon> userCoupons = userCouponRepository.findByUser(currentUser.getUser());
+
+        return userCoupons.stream()
+                .map(userCoupon -> {
+                    Coupon coupon = userCoupon.getCoupon();
+                    return new UserCouponResponse(coupon.getCouponName(),
+                            coupon.getDescription(),
+                            coupon.getIssueDate(),
+                            coupon.getExpirationDate());
+                })
+                .collect(Collectors.toList());
+    }
+
+
 
     private Coupon getCouponByIdAndType(Long couponId, String couponType) {
         if ("DISCOUNT".equals(couponType)) {
