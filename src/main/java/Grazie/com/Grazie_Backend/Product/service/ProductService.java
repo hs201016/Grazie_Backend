@@ -11,6 +11,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +34,7 @@ public class ProductService {
 
     @Value("${file.upload-dir}")
     private String uploadDir;
+
 
     @Autowired
     public ProductService(ProductRepository productRepository, StoreProductRepository storeProductRepository) {
@@ -143,6 +151,33 @@ public class ProductService {
         return product;
     }
 
+    // 이미지 파일을 image/productImage에 저장
+    public String uploadImage(MultipartFile file, String fileName) throws IOException {
+        if (file.isEmpty()) {
+            throw new RuntimeException("파일이 업로드되지 않았습니다");
+        }
+
+        // 환경변수에서 주입된 uploadDir이 유효한지 확인
+        if (uploadDir == null || uploadDir.trim().isEmpty()) {
+            throw new IllegalArgumentException("업로드 경로가 설정되지 않았습니다.");
+        }
+
+        try {
+            // 업로드 경로가 존재하지 않으면 생성
+            File uploadDirFile = new File(uploadDir);
+            if (!uploadDirFile.exists()) {
+                uploadDirFile.mkdirs();
+            }
+
+            Path filePath = Paths.get(uploadDir, fileName);
+            Files.write(filePath, file.getBytes());
+
+            return "이미지 업로드 성공: " + fileName;
+        } catch (IOException e) {
+            log.info("이미지 업로드 실패 = {}", fileName, e);
+            throw new RuntimeException("이미지 업로드에 실패했습니다");
+        }
+    }
     /*
      product_id를 이용한 상품 삭제
      상품 삭제에 성공했다면 True

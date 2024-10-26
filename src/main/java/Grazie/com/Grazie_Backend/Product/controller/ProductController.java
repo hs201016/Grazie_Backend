@@ -1,13 +1,16 @@
 package Grazie.com.Grazie_Backend.Product.controller;
 
 import Grazie.com.Grazie_Backend.Product.dto.ProductDTO;
+import Grazie.com.Grazie_Backend.Product.dto.UploadImageDTO;
 import Grazie.com.Grazie_Backend.Product.service.ProductService;
 import Grazie.com.Grazie_Backend.Product.entity.Product;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 /*
     Chaean
@@ -58,5 +61,17 @@ public class ProductController {
     @Operation(summary = "특정 상품을 삭제합니다.", description = "productId를 통해 특정 상품을 삭제합니다.")
     public ResponseEntity<Boolean> deleteProductById(@PathVariable(value = "id") Long id) {
         return ResponseEntity.ok(productService.deleteProductById(id));
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<String> uploadProductImage(@RequestParam MultipartFile file,
+                                                     @RequestParam("fileName") String fileName) throws IOException {
+        // 파일 이름이 비어 있는 경우 기본 파일 이름 사용
+        if (fileName == null || fileName.isEmpty()) {
+            fileName = file.getOriginalFilename();
+        }
+
+        productService.uploadImage(file, fileName);
+        return ResponseEntity.ok("이미지 업로드에 성공했습니다");
     }
 }
