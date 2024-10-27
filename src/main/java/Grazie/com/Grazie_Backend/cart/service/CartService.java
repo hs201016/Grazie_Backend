@@ -109,6 +109,7 @@ public class CartService {
 
     private CartItemResponse createCartItemResponse(CartItem cartItem, int totalPrice) {
         CartItemResponse response = new CartItemResponse();
+        response.setProductId(cartItem.getProduct().getProductId());
         response.setProductName(cartItem.getProduct().getName());
         response.setSize(cartItem.getSize());
         response.setTemperature(cartItem.getTemperature());

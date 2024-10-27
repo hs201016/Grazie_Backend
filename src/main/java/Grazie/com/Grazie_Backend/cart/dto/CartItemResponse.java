@@ -11,6 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CartItemResponse {
+    private Long productId;
     private String productName;
     private String size;
     private String temperature;
