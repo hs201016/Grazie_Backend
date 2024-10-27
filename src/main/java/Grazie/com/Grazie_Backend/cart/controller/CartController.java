@@ -38,16 +38,16 @@ public class CartController {
     @Operation(summary = "유저의 장바구니에서 상품을 삭제합니다.", description = "유저의 장바구니에서 특정 상품을 삭제합니다.")
     public ResponseEntity<?> decreaseProduct(@RequestBody CartDeleteRequest cartDeleteRequest) {
         SecurityUtils.getCurrentUser();
-        cartService.decreaseCartItemQuantity(cartDeleteRequest);
-        return ResponseEntity.ok("성공적으로 삭제되었습니다.");
+        int result = cartService.decreaseCartItemQuantity(cartDeleteRequest);
+        return ResponseEntity.ok().body(result);
     }
 
     @PatchMapping("/increaseQuantity")
     @Operation(summary = "유저의 장바구니에서 상품 수량을 증가시킵니다.", description = "유저의 장바구니에서 특정 상품의 수량을 1 증가시킵니다.")
-    public ResponseEntity<String> increaseProduct(@RequestBody CartIncreaseRequest cartIncreaseRequest) {
+    public ResponseEntity<?> increaseProduct(@RequestBody CartIncreaseRequest cartIncreaseRequest) {
         SecurityUtils.getCurrentUser();
-        cartService.increaseCartItemQuantity(cartIncreaseRequest);
-        return ResponseEntity.ok("상품 수량이 성공적으로 증가하였습니다.");
+        int result = cartService.increaseCartItemQuantity(cartIncreaseRequest);
+        return ResponseEntity.ok().body(result);
     }
 
     @DeleteMapping("/delete")
