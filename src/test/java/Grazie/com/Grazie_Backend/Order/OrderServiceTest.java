@@ -68,7 +68,7 @@ class OrderServiceTest {
         orderCreateDTO.setOrder_mode("테이크아웃");
         orderCreateDTO.setRequirement("얼음 빼주세요");
         orderCreateDTO.setStore_id(2L);
-        orderCreateDTO.setUser_id(2L);
+//        orderCreateDTO.setUser_id(2L);
 //        orderCreateDTO.setCoupon_id(13L); // 아메리카노 1잔 무료 쿠폰
 
         list.add(OrderItemsCreateDTO.builder()

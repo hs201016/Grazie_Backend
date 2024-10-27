@@ -21,6 +21,6 @@ public class OrderCreateDTO {
     private String order_mode; // 주문 타입: 매장, 배달, 테이크아웃
     private String requirement; // 요구사항
     private Long store_id; // 주문한 매장 ID
-    private Long user_id; // 주문한 사용자의 ID
+//    private Long user_id; // 주문한 사용자의 ID
 //    private Long coupon_id;
 }
