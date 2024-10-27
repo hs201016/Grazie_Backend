@@ -13,11 +13,13 @@ import Grazie.com.Grazie_Backend.cart.repository.CartRepository;
 import Grazie.com.Grazie_Backend.member.entity.User;
 import Grazie.com.Grazie_Backend.member.repository.UserRepository;
 import Grazie.com.Grazie_Backend.personaloptions.PersonalOptionRepository;
+import Grazie.com.Grazie_Backend.personaloptions.dto.PersonalOptionResponse;
 import Grazie.com.Grazie_Backend.personaloptions.entity.PersonalOptions;
 import Grazie.com.Grazie_Backend.personaloptions.service.PersonalOptionService;
 import Grazie.com.Grazie_Backend.personaloptions.service.PersonalOptionPricingService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,8 +80,6 @@ public class CartService {
         return cart.getId(); // 장바구니의 PK값 반환
     }
 
-
-
     @Transactional
     public List<CartItemResponse> readCart() {
         UserAdapter currentUser = SecurityUtils.getCurrentUser();
@@ -96,20 +96,39 @@ public class CartService {
 
         List<CartItemResponse> responseList = new ArrayList<>();
         for (CartItem cartItem : cartItems) {
-             int totalPrice = calculateTotalPrice(cartItem.getId(), cartItem.getProduct().getProductId());
+            int totalPrice = calculateTotalPrice(cartItem.getId(), cartItem.getProduct().getProductId());
 
-            // CartItemResponse 객체 생성
+            updateCartItemPrice(cartItem, totalPrice);
+
             CartItemResponse response = new CartItemResponse();
             response.setProductName(cartItem.getProduct().getName());
             response.setSize(cartItem.getSize());
             response.setTemperature(cartItem.getTemperature());
             response.setPrice(totalPrice);
             response.setQuantity(cartItem.getQuantity());
-            response.setPersonalOptions(cartItem.getPersonalOptions());
+            response.setImage(cartItem.getProduct().getImage());
+
+            PersonalOptions personalOptions = cartItem.getPersonalOptions();
+            PersonalOptionResponse personalOptionResponse = new PersonalOptionResponse();
+            personalOptionResponse.setConcentration(personalOptions.getConcentration());
+            personalOptionResponse.setShotAddition(personalOptions.getShotAddition());
+            personalOptionResponse.setPersonalTumbler(personalOptions.getPersonalTumbler());
+            personalOptionResponse.setPearlAddition(personalOptions.getPearlAddition());
+            personalOptionResponse.setSyrupAddition(personalOptions.getSyrupAddition());
+            personalOptionResponse.setSugarAddition(personalOptions.getSugarAddition());
+            personalOptionResponse.setWhippedCreamAddition(personalOptions.getWhippedCreamAddition());
+            personalOptionResponse.setIceAddition(personalOptions.getIceAddition());
+
+            response.setPersonalOptions(personalOptionResponse);
 
             responseList.add(response);
         }
         return responseList;
+    }
+
+    private void updateCartItemPrice(CartItem cartItem, int totalPrice) {
+        cartItem.setPrice(totalPrice);
+        cartItemRepository.save(cartItem);
     }
 
     public int calculateTotalPrice(Long cartItemId, Long productId) {
@@ -119,7 +138,6 @@ public class CartService {
         if (cartItem == null) {
             throw new IllegalArgumentException("CartItem not found for ID: " + cartItemId);
         }
-
 
         String size = cartItem.getSize();
         String temperature = cartItem.getTemperature();
@@ -134,6 +152,30 @@ public class CartService {
 
     @Transactional
     public void deleteCartItem(CartDeleteRequest cartDeleteRequest) {
+        // 현재 사용자 정보 가져오기
+        UserAdapter currentUser = SecurityUtils.getCurrentUser();
+
+        // 사용자의 장바구니 찾기
+        Cart cart = findCartByUser(currentUser.getUser()).orElseThrow(
+                () -> new EntityNotFoundException("해당 사용자의 장바구니가 없습니다."));
+
+        Long cartItemId = cartDeleteRequest.getCartItemId();
+        CartItem cartItemToDelete = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 카트 아이템이 존재하지 않습니다."));
+
+        // 해당 아이템이 사용자의 장바구니에 있는지 확인
+        if (!cart.getCartItems().contains(cartItemToDelete)) {
+            throw new IllegalArgumentException("해당 아이템이 사용자의 장바구니에 없습니다.");
+        }
+
+        cart.getCartItems().remove(cartItemToDelete);
+
+        cartItemRepository.delete(cartItemToDelete);
+    }
+
+
+    @Transactional
+    public void decreaseCartItemQuantity(CartDeleteRequest cartDeleteRequest) {
         UserAdapter currentUser = SecurityUtils.getCurrentUser();
 
         // 사용자의 장바구니 찾기
@@ -181,6 +223,8 @@ public class CartService {
 
         cartRepository.save(cart);
     }
+
+
     @Transactional
     public void deleteAllCartItems() {
         UserAdapter currentUser = SecurityUtils.getCurrentUser();

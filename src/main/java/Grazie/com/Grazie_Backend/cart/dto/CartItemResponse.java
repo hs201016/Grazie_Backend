@@ -1,10 +1,11 @@
 package Grazie.com.Grazie_Backend.cart.dto;
 
-import Grazie.com.Grazie_Backend.personaloptions.entity.PersonalOptions;
+import Grazie.com.Grazie_Backend.personaloptions.dto.PersonalOptionResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -15,5 +16,6 @@ public class CartItemResponse {
     private String temperature;
     private int price;
     private int quantity;
-    private PersonalOptions personalOptions;
+    private PersonalOptionResponse personalOptions;
+    private String image;
 }
