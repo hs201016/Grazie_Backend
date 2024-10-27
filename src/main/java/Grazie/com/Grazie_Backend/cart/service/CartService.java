@@ -93,37 +93,44 @@ public class CartService {
             return new ArrayList<>();
         }
 
-
         List<CartItemResponse> responseList = new ArrayList<>();
         for (CartItem cartItem : cartItems) {
-            int totalPrice = calculateTotalPrice(cartItem.getId(), cartItem.getProduct().getProductId());
+            int itemTotalPrice = calculateTotalPrice(cartItem.getId(), cartItem.getProduct().getProductId());
 
-            updateCartItemPrice(cartItem, totalPrice);
+            int itemFinalPrice = itemTotalPrice * cartItem.getQuantity();
 
-            CartItemResponse response = new CartItemResponse();
-            response.setProductName(cartItem.getProduct().getName());
-            response.setSize(cartItem.getSize());
-            response.setTemperature(cartItem.getTemperature());
-            response.setPrice(totalPrice);
-            response.setQuantity(cartItem.getQuantity());
-            response.setImage(cartItem.getProduct().getImage());
+            updateCartItemPrice(cartItem, itemFinalPrice);
 
-            PersonalOptions personalOptions = cartItem.getPersonalOptions();
-            PersonalOptionResponse personalOptionResponse = new PersonalOptionResponse();
-            personalOptionResponse.setConcentration(personalOptions.getConcentration());
-            personalOptionResponse.setShotAddition(personalOptions.getShotAddition());
-            personalOptionResponse.setPersonalTumbler(personalOptions.getPersonalTumbler());
-            personalOptionResponse.setPearlAddition(personalOptions.getPearlAddition());
-            personalOptionResponse.setSyrupAddition(personalOptions.getSyrupAddition());
-            personalOptionResponse.setSugarAddition(personalOptions.getSugarAddition());
-            personalOptionResponse.setWhippedCreamAddition(personalOptions.getWhippedCreamAddition());
-            personalOptionResponse.setIceAddition(personalOptions.getIceAddition());
-
-            response.setPersonalOptions(personalOptionResponse);
-
+            CartItemResponse response = createCartItemResponse(cartItem, itemFinalPrice);
             responseList.add(response);
         }
         return responseList;
+    }
+
+    private CartItemResponse createCartItemResponse(CartItem cartItem, int totalPrice) {
+        CartItemResponse response = new CartItemResponse();
+        response.setProductId(cartItem.getProduct().getProductId());
+        response.setProductName(cartItem.getProduct().getName());
+        response.setSize(cartItem.getSize());
+        response.setTemperature(cartItem.getTemperature());
+        response.setPrice(totalPrice);
+        response.setQuantity(cartItem.getQuantity());
+        response.setImage(cartItem.getProduct().getImage());
+
+        PersonalOptions personalOptions = cartItem.getPersonalOptions();
+        PersonalOptionResponse personalOptionResponse = new PersonalOptionResponse();
+        personalOptionResponse.setConcentration(personalOptions.getConcentration());
+        personalOptionResponse.setShotAddition(personalOptions.getShotAddition());
+        personalOptionResponse.setPersonalTumbler(personalOptions.getPersonalTumbler());
+        personalOptionResponse.setPearlAddition(personalOptions.getPearlAddition());
+        personalOptionResponse.setSyrupAddition(personalOptions.getSyrupAddition());
+        personalOptionResponse.setSugarAddition(personalOptions.getSugarAddition());
+        personalOptionResponse.setWhippedCreamAddition(personalOptions.getWhippedCreamAddition());
+        personalOptionResponse.setIceAddition(personalOptions.getIceAddition());
+
+        response.setPersonalOptions(personalOptionResponse);
+
+        return response;
     }
 
     private void updateCartItemPrice(CartItem cartItem, int totalPrice) {
@@ -175,12 +182,13 @@ public class CartService {
 
 
     @Transactional
-    public void decreaseCartItemQuantity(CartDeleteRequest cartDeleteRequest) {
+    public int decreaseCartItemQuantity(CartDeleteRequest cartDeleteRequest) {
         UserAdapter currentUser = SecurityUtils.getCurrentUser();
 
         // 사용자의 장바구니 찾기
         Cart cart = findCartByUser(currentUser.getUser()).orElseThrow(
                 () -> new EntityNotFoundException("해당 사용자의 장바구니가 없습니다."));
+
 
         // 장바구니 아이템 목록에서 삭제할 아이템 찾기
         List<CartItem> cartItems = cart.getCartItems();
@@ -189,21 +197,25 @@ public class CartService {
                 .findFirst()
                 .orElseThrow(() -> new EntityNotFoundException("해당 카트에 상품이 존재하지 않습니다."));
 
+        int totalPrice = cartItemToDelete.getPrice();
+
         // 수량이 2개 이상일 때
         if (cartItemToDelete.getQuantity() > 1) {
             // 수량을 1개 줄이는 경우
-            cartItemToDelete.setQuantity(cartItemToDelete.getQuantity() - 1);
-            cartItemRepository.save(cartItemToDelete);
+            int updatedQuantity = cartItemToDelete.getQuantity() - 1;
+            totalPrice = totalPrice / cartItemToDelete.getQuantity() * updatedQuantity;
+            cartItemToDelete.setQuantity(updatedQuantity);
+            cartItemToDelete.setPrice(totalPrice);
         } else {
             // 수량이 1개인 경우 삭제
             cartItems.remove(cartItemToDelete);
             cartItemRepository.delete(cartItemToDelete);
         }
-        cartRepository.save(cart);
+        return totalPrice;
     }
 
     @Transactional
-    public void increaseCartItemQuantity(CartIncreaseRequest cartIncreaseRequest) {
+    public int increaseCartItemQuantity(CartIncreaseRequest cartIncreaseRequest) {
         UserAdapter currentUser = SecurityUtils.getCurrentUser();
 
         // 사용자의 장바구니 찾기
@@ -217,11 +229,14 @@ public class CartService {
                 .findFirst()
                 .orElseThrow(() -> new EntityNotFoundException("해당 카트에 상품이 존재하지 않습니다."));
 
-        // 수량 증가 처리
-        cartItemToUpdate.setQuantity(cartItemToUpdate.getQuantity() + 1);
-        cartItemRepository.save(cartItemToUpdate);
+        int totalPrice = cartItemToUpdate.getPrice();
 
-        cartRepository.save(cart);
+        int updatedQuantity = cartItemToUpdate.getQuantity() + 1;
+        totalPrice = totalPrice / cartItemToUpdate.getQuantity() * updatedQuantity;
+        cartItemToUpdate.setQuantity(updatedQuantity);
+        cartItemToUpdate.setPrice(totalPrice);
+
+        return totalPrice;
     }
 
 
