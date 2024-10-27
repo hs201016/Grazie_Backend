@@ -2,6 +2,7 @@ package Grazie.com.Grazie_Backend.member.service;
 
 import Grazie.com.Grazie_Backend.Config.UserAdapter;
 import Grazie.com.Grazie_Backend.member.dto.PasswordDTO;
+import Grazie.com.Grazie_Backend.member.dto.TempPasswordRequest;
 import Grazie.com.Grazie_Backend.member.dto.UserDTO;
 import Grazie.com.Grazie_Backend.member.entity.PasswordToken;
 import Grazie.com.Grazie_Backend.member.entity.User;
@@ -92,11 +93,15 @@ public class UserService {
         String text = "안녕하세요, 고객님!\n\n" +
                 "요청하신 아이디 찾기 결과를 안내드립니다.\n\n" +
                 "고객님의 아이디는\n" +
-                "▶▶ **" + user.getUserId() + "** ◀◀\n\n" +
+                "▶▶ " + user.getUserId() + " ◀◀\n\n" +
                 "정확히 입력해 주시기 바랍니다.\n" +
                 "감사합니다.\n\n" +
                 "Grazie Service Team 드림.";
 
         emailService.sendEmail(user.getEmail(), subject, text);
 }
+
+    public void sendTempPassword(TempPasswordRequest request) {
+
+    }
 }
