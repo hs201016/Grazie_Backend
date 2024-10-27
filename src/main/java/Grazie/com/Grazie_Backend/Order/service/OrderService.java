@@ -375,9 +375,15 @@ public class OrderService {
     }
 
     // 유저의 모든 주문 조회
-    public List<OrderGetResponseDTO> getOrderByUserId(Long user_id) {
-        User user = userRepository.findById(user_id)
-                .orElseThrow(() -> new UserNotFoundException("존재하지않는 유저입니다."));
+    public List<OrderGetResponseDTO> getOrderByUserId() {
+
+        User user = SecurityUtils.getCurrentUser().getUser();
+
+        if (user == null) {
+            throw new UserNotFoundException("유저를 찾을 수 없습니다.");
+        }
+//        User user = userRepository.findById(user_id)
+//                .orElseThrow(() -> new UserNotFoundException("존재하지않는 유저입니다."));
 
         List<Order> orders = orderRepository.findByUser(user);
         List<OrderGetResponseDTO> orderGetResponseDTOs = new ArrayList<>();

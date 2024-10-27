@@ -52,10 +52,10 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrderByStoreId(store_id));
     }
 
-    @GetMapping("/get/user/{id}")
+    @GetMapping("/get/user")
     @Operation(summary = "특정 사용자의 모든 주문을 조회합니다.", description = "userId 통해 사용자의 모든 주문을 조회합니다.")
-    public ResponseEntity<List<OrderGetResponseDTO>> getOrderByUserId(@PathVariable(value = "id") Long user_id) {
-        return ResponseEntity.ok(orderService.getOrderByUserId(user_id));
+    public ResponseEntity<List<OrderGetResponseDTO>> getOrderByUserId() {
+        return ResponseEntity.ok(orderService.getOrderByUserId());
     }
 
     @DeleteMapping("/delete/{id}")

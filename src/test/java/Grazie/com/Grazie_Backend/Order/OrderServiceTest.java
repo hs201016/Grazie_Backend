@@ -152,6 +152,18 @@ class OrderServiceTest {
     }
 
     @Test
+    public void 유저모든주문조회() {
+        List<OrderGetResponseDTO> dtos = orderService.getOrderByUserId();
+
+        for (OrderGetResponseDTO dto : dtos) {
+            System.out.println(dto.getOrderGetDTO().toString());
+            System.out.println(dto.getOrderItemsGetDTOs().toString());
+        }
+
+
+    }
+
+    @Test
     @DisplayName("OrderId를 통한 주문 상태 변경")
     public void updateOrderAcceptTest() {
         System.out.println(orderService.updateOrderAcceptById(16L, "완료"));
