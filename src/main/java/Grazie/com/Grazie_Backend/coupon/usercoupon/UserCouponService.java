@@ -66,7 +66,9 @@ public class UserCouponService {
         return userCoupons.stream()
                 .map(userCoupon -> {
                     Coupon coupon = userCoupon.getCoupon();
-                    return new UserCouponResponse(coupon.getCouponName(),
+                    return new UserCouponResponse(
+                            coupon.getId(),
+                            coupon.getCouponName(),
                             coupon.getDescription(),
                             coupon.getIssueDate(),
                             coupon.getExpirationDate());

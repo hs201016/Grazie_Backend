@@ -66,14 +66,14 @@ public class CartService {
         if (existingCartItem != null) {
             // 기존 아이템이 있으면 수량만 업데이트 하도록
             existingCartItem.setQuantity(existingCartItem.getQuantity() + cartRequest.getQuantity());
-            existingCartItem.setPrice(0); // 가격은 일단 0으로 설정
+            existingCartItem.setPrice(0);
             cartItemRepository.save(existingCartItem);
         } else {
             // 없을 경우에는 새로 추가
             CartItem cartItem = createCartItem(cart, product, cartRequest.getQuantity(), savedOptions);
-            cartItem.setSize(cartRequest.getSize()); // 사이즈 설정
-            cartItem.setTemperature(cartRequest.getTemperature()); // 온도 설정
-            cartItem.setPrice(0); // 가격은 0이라고 설정
+            cartItem.setSize(cartRequest.getSize());
+            cartItem.setTemperature(cartRequest.getTemperature());
+            cartItem.setPrice(0);
             cart.getCartItems().add(cartItem);
             cartItemRepository.save(cartItem);
         }
