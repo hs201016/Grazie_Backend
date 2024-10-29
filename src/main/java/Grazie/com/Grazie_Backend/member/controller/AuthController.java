@@ -1,12 +1,11 @@
 package Grazie.com.Grazie_Backend.member.controller;
 
 import Grazie.com.Grazie_Backend.member.service.AuthService;
-import Grazie.com.Grazie_Backend.member.dto.LoginRequestDTO;
-import Grazie.com.Grazie_Backend.member.dto.LoginResponseDTO;
+import Grazie.com.Grazie_Backend.member.dto.LoginRequest;
+import Grazie.com.Grazie_Backend.member.dto.LoginResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +23,7 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request) {
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request.getUserid(), request.getPassword()));
     }
 

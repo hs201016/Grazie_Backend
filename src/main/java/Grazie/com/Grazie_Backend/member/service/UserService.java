@@ -1,10 +1,11 @@
 package Grazie.com.Grazie_Backend.member.service;
 
+import Grazie.com.Grazie_Backend.Config.SecurityUtils;
 import Grazie.com.Grazie_Backend.Config.UserAdapter;
+import Grazie.com.Grazie_Backend.global.exception.AppException;
 import Grazie.com.Grazie_Backend.member.dto.PasswordDTO;
-import Grazie.com.Grazie_Backend.member.dto.TempPasswordRequest;
 import Grazie.com.Grazie_Backend.member.dto.UserDTO;
-import Grazie.com.Grazie_Backend.member.entity.PasswordToken;
+import Grazie.com.Grazie_Backend.member.dto.UserJoinRequest;
 import Grazie.com.Grazie_Backend.member.entity.User;
 import Grazie.com.Grazie_Backend.member.enumpackage.Role;
 import Grazie.com.Grazie_Backend.member.repository.UserRepository;
@@ -12,8 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
+import static Grazie.com.Grazie_Backend.global.util.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -23,35 +23,53 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
-    public Long joinUser(User user) {
-        String password = user.getPassword();
-        String encodePassword = passwordEncoder.encode(password);
+    public Long joinUser(UserJoinRequest request) {
+        User user = new User();
+        user.setUserId(request.getUserId());
+        user.setEmail(request.getEmail());
+        user.setName(request.getName());
+        user.setPhone(request.getPhone());
+
+        // 사용자 존재 여부 확인
+        if (userRepository.existsByUserId(request.getUserId())) {
+            throw new AppException(USERNAME_ALREADY_EXISTS.withArgs(request.getUserId()));
+        }
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new AppException(EMAIL_ALREADY_EXISTS.withArgs(request.getEmail()));
+        }
+        if (userRepository.existsByPhone(request.getPhone())) {
+            throw new AppException(PHONE_ALREADY_EXISTS.withArgs(request.getPhone()));
+        }
+
+        String encodePassword = passwordEncoder.encode(request.getPassword());
         user.setPassword(encodePassword);
+
         user.setRole(Role.CUSTOMER);
         userRepository.save(user);
+
         return user.getId();
     }
+
 
     private User getUserFromAdapter(UserAdapter userAdapter) {
         return userAdapter.getUser();
     }
 
-    public User updatePassword(UserAdapter userAdapter, PasswordDTO passwordDTO) {
-        User user = getUserFromAdapter(userAdapter);
+
+    public User updatePassword(PasswordDTO passwordDTO) {
+        UserAdapter currentUser = SecurityUtils.getCurrentUser();
 
         if (passwordDTO.getCurrentPassword() == null || passwordDTO.getNewPassword() == null) {
-            System.out.println(passwordDTO.getCurrentPassword());
-            System.out.println(passwordDTO.getNewPassword());
-            throw new IllegalArgumentException("비밀번호는 null일 수 없습니다.");
+            throw new AppException(PASSWORD_NOT_NULL);
         }
 
         // 현재 비밀번호가 올바른지 확인
-        if (!passwordEncoder.matches(passwordDTO.getCurrentPassword(), user.getPassword())) {
-            throw new RuntimeException("현재 비밀번호가 올바르지 않습니다!");
+        if (!passwordEncoder.matches(passwordDTO.getCurrentPassword(), currentUser.getPassword())) {
+            throw new AppException(INVALID_CURRENT_PASSWORD);
         }
 
-        user.setPassword(passwordEncoder.encode(passwordDTO.getNewPassword()));
-        return userRepository.save(user);
+        currentUser.getUser().setPassword(passwordEncoder.encode(passwordDTO.getNewPassword()));
+        return currentUser.getUser();
     }
 
     public User updateUser(UserAdapter userAdapter, UserDTO updateDTO) {
@@ -70,8 +88,8 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public UserDTO readUser(UserAdapter userAdapter) {
-        User user = getUserFromAdapter(userAdapter);
+    public UserDTO readUser() {
+        User user = SecurityUtils.getCurrentUser().getUser();
         return new UserDTO(
                 user.getEmail(),
                 user.getName(),
@@ -79,15 +97,15 @@ public class UserService {
         );
     }
 
-    public void deleteUser(UserAdapter userAdapter) {
-        User user = getUserFromAdapter(userAdapter);
+    public void deleteUser() {
+        User user = SecurityUtils.getCurrentUser().getUser();
         userRepository.delete(user);
     }
 
     // 아이디 찾기
     public void findId(String email) {
-    User user  = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("이메일 인증을 하는데 이런 이메일을 가진 유저가 없어요"));
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(EMAIL_NOT_FOUND));
 
         String subject = "아이디 찾기 안내입니다.";
         String text = "안녕하세요, 고객님!\n\n" +
@@ -99,9 +117,5 @@ public class UserService {
                 "Grazie Service Team 드림.";
 
         emailService.sendEmail(user.getEmail(), subject, text);
-}
-
-    public void sendTempPassword(TempPasswordRequest request) {
-
     }
 }
