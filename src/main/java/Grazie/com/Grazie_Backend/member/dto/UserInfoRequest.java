@@ -24,7 +24,6 @@ public class UserInfoRequest {
     @Pattern(regexp = "^[0-9]*$", message = "전화번호는 숫자만 포함해야 합니다.")
     private String phone;
 
-    @NotEmpty(message = "닉네임은 필수입니다.")
     private String nickname;
 
     private Gender gender;

@@ -17,7 +17,7 @@ public class UserAdditionalInfo {
     @Column(name = "profile_image")
     private String profileImage;
 
-    @Column(name = "nickname", unique = true)
+    @Column(name = "nickname")
     private String nickname;
 
     @Enumerated(EnumType.STRING)
