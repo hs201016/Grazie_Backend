@@ -1,39 +1,27 @@
 package Grazie.com.Grazie_Backend.Config;
 
+import Grazie.com.Grazie_Backend.global.exception.AppException;
+import Grazie.com.Grazie_Backend.global.util.ErrorCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.nio.file.AccessDeniedException;
 
 
-@ControllerAdvice
-
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleException(Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("오류가 발생했습니다: " + e.getMessage());
-    }
+    // AppException 처리
+    @ExceptionHandler(AppException.class)
+    public ResponseEntity<String> handleAppException(AppException e) {
+        // 에러 코드에 따라 상태 코드와 메시지 설정하기
+        HttpStatus status = e.getErrorCode().getHttpStatus();
+        String message = e.getErrorCode().getMessage();
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> handleRuntimeException(RuntimeException e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ErrorMessage.BAD_REQUEST.getMessage() + ": " + e.getMessage());
-    }
-
-    @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<String> handleUnauthorizedException(UnauthorizedException e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(e.getMessage());
-    }
-
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<String> handleAccessDeniedException(AccessDeniedException e) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("접근이 거부되었습니다: " + e.getMessage());
+        // 에러 응답을 생성하여 반환하기
+        return ResponseEntity.status(status).body(message);
     }
 }

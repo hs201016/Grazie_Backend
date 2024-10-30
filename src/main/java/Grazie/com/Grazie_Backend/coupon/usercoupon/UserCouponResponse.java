@@ -10,6 +10,7 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 public class UserCouponResponse {
+    private Long id;
     private String couponName;
     private String description;
     private LocalDate expirationDate;

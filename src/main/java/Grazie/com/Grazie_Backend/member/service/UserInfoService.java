@@ -1,16 +1,12 @@
 package Grazie.com.Grazie_Backend.member.service;
 
 import Grazie.com.Grazie_Backend.Config.UserAdapter;
-import Grazie.com.Grazie_Backend.member.dto.UserDTO;
 import Grazie.com.Grazie_Backend.member.dto.UserInfoRequest;
 import Grazie.com.Grazie_Backend.member.dto.UserInfoResponse;
 import Grazie.com.Grazie_Backend.member.entity.User;
 import Grazie.com.Grazie_Backend.member.entity.UserAdditionalInfo;
 import Grazie.com.Grazie_Backend.member.enumpackage.Gender;
-import Grazie.com.Grazie_Backend.member.service.UserAdditionalInfoService;
 import lombok.RequiredArgsConstructor;
-import org.junit.runners.Parameterized;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service

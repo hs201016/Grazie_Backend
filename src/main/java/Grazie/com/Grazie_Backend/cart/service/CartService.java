@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.spi.ToolProvider.findFirst;
+
 
 /**
  * 희수 : 지금은 findByUser 로 유저를 찾지만 곧 security 설정 후 jwt 로 찾을 예정
@@ -56,28 +58,41 @@ public class CartService {
         //영속화를 위해 추가옵션 먼저 저장
         PersonalOptions savedOptions = personalOptionRepository.save(options);
 
-        // 이미 장바구니에 있는지 확인, 옵션도 고려
-        CartItem existingCartItem = cart.getCartItems().stream()
-                .filter(item -> item.getProduct().getProductId().equals(cartRequest.getProductId()) &&
-                        item.getPersonalOptions().equals(options)) // 퍼스널 옵션 비교
-                .findFirst()
-                .orElse(null);
+        // 중복되는 상품 필터링
+        CartItem existingCartItem = findExistingCartItem(cart, cartRequest);
 
         if (existingCartItem != null) {
             // 기존 아이템이 있으면 수량만 업데이트 하도록
             existingCartItem.setQuantity(existingCartItem.getQuantity() + cartRequest.getQuantity());
-            existingCartItem.setPrice(0); // 가격은 일단 0으로 설정
+            existingCartItem.setPrice(0);
             cartItemRepository.save(existingCartItem);
         } else {
             // 없을 경우에는 새로 추가
             CartItem cartItem = createCartItem(cart, product, cartRequest.getQuantity(), savedOptions);
-            cartItem.setSize(cartRequest.getSize()); // 사이즈 설정
-            cartItem.setTemperature(cartRequest.getTemperature()); // 온도 설정
-            cartItem.setPrice(0); // 가격은 0이라고 설정
+            cartItem.setSize(cartRequest.getSize());
+            cartItem.setTemperature(cartRequest.getTemperature());
+            cartItem.setPrice(0);
             cart.getCartItems().add(cartItem);
             cartItemRepository.save(cartItem);
         }
         return cart.getId(); // 장바구니의 PK값 반환
+    }
+
+    private CartItem findExistingCartItem(Cart cart, CartItemRequest cartRequest) {
+        return cart.getCartItems().stream()
+                .filter(item -> item.getProduct().getProductId().equals(cartRequest.getProductId()) &&
+                        item.getSize().equals(cartRequest.getSize()) &&  // 사이즈 비교
+                        item.getTemperature().equals(cartRequest.getTemperature()) && // 온도 비교
+                        item.getPersonalOptions().getConcentration().equals(cartRequest.getPersonalOptions().getConcentration()) &&
+                        item.getPersonalOptions().getShotAddition() == cartRequest.getPersonalOptions().getShotAddition() &&
+                        item.getPersonalOptions().getPersonalTumbler().equals(cartRequest.getPersonalOptions().getPersonalTumbler()) &&
+                        item.getPersonalOptions().getPearlAddition() == cartRequest.getPersonalOptions().getPearlAddition() &&
+                        item.getPersonalOptions().getSyrupAddition() == cartRequest.getPersonalOptions().getSyrupAddition() &&
+                        item.getPersonalOptions().getSugarAddition() == cartRequest.getPersonalOptions().getSugarAddition() &&
+                        item.getPersonalOptions().getWhippedCreamAddition() == cartRequest.getPersonalOptions().getWhippedCreamAddition() &&
+                        item.getPersonalOptions().getIceAddition().equals(cartRequest.getPersonalOptions().getIceAddition())) // 모든 필드 비교
+                .findFirst()
+                .orElse(null);
     }
 
     @Transactional
@@ -149,11 +164,10 @@ public class CartService {
         String size = cartItem.getSize();
         String temperature = cartItem.getTemperature();
         PersonalOptions personalOptions = cartItem.getPersonalOptions();
-        int quantity = cartItem.getQuantity();
 
         int productPrice = productCalcService.calculateTotalPrice(size, temperature, productId);
         int additionalPrice = personalOptionPricingService.calculateAdditionalPrice(personalOptions);
-        return (productPrice + additionalPrice) * quantity;
+        return (productPrice + additionalPrice);
     }
 
 
@@ -255,16 +269,6 @@ public class CartService {
         cartRepository.save(cart);
     }
 
-//    @Transactional(readOnly = true)
-//    public boolean isCartEmpty(Long userId) {
-//        User user = findUser(userId);
-//        Cart cart = findCartByUser(user).orElseThrow(
-//                () -> new EntityNotFoundException("해당 사용자의 장바구니가 없습니다."));
-//        List<CartItem> cartItem = findCartItemByCartId(cart.getId());
-//
-//        return cartItem.isEmpty();
-//    }
-
 
     private CartItem createCartItem(Cart cart, Product product, int quantity, PersonalOptions options) {
         CartItem cartItem = new CartItem();
@@ -301,9 +305,5 @@ public class CartService {
                 .orElseThrow(() -> new EntityNotFoundException("CartItem not found for ID: " + cartItemId));
     }
 
-
-    private CartItem findCartItemByCartId(Long cartId) {
-        return cartItemRepository.findByCartId(cartId);
-    }
 
 }

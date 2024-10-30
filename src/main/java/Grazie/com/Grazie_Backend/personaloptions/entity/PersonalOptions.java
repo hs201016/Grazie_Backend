@@ -5,6 +5,7 @@ import Grazie.com.Grazie_Backend.personaloptions.enumfile.Concentration;
 import Grazie.com.Grazie_Backend.personaloptions.enumfile.IceAddition;
 import Grazie.com.Grazie_Backend.personaloptions.enumfile.TumblerUsage;
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(name = "personal_options")
 @NoArgsConstructor
+@EqualsAndHashCode
 public class PersonalOptions {
 
     @Id

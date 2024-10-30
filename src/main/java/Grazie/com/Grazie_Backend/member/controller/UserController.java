@@ -5,6 +5,7 @@ import Grazie.com.Grazie_Backend.Config.UnauthorizedException;
 import Grazie.com.Grazie_Backend.Config.UserAdapter;
 import Grazie.com.Grazie_Backend.member.dto.PasswordDTO;
 import Grazie.com.Grazie_Backend.member.dto.UserDTO;
+import Grazie.com.Grazie_Backend.member.dto.UserJoinRequest;
 import Grazie.com.Grazie_Backend.member.service.UserService;
 import Grazie.com.Grazie_Backend.member.entity.PasswordToken;
 import Grazie.com.Grazie_Backend.member.entity.User;
@@ -31,13 +32,9 @@ public class UserController {
     private final UserRepository userRepository;
 
     @PostMapping("/join")
-    public ResponseEntity<?> join(@RequestBody User user) {
-        try {
-            Long userId = userService.joinUser(user);
+    public ResponseEntity<?> join(@RequestBody UserJoinRequest request) {
+            Long userId = userService.joinUser(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(userId);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
     }
 
     @GetMapping("/readProfile")
@@ -47,7 +44,7 @@ public class UserController {
             throw new UnauthorizedException();
         }
 
-        UserDTO userDTO = userService.readUser(userAdapter);
+        UserDTO userDTO = userService.readUser();
         return ResponseEntity.ok(userDTO);
     }
 
@@ -66,12 +63,8 @@ public class UserController {
 
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteUser() {
-        UserAdapter userAdapter = SecurityUtils.getCurrentUser();
-        if (userAdapter == null) {
-            throw new UnauthorizedException();
-        }
-
-        userService.deleteUser(userAdapter);
+        SecurityUtils.getCurrentUser();
+        userService.deleteUser();
         return ResponseEntity.ok().build();
     }
 
@@ -101,7 +94,7 @@ public class UserController {
             throw new UnauthorizedException();
         }
 
-        userService.updatePassword(userAdapter, passwordDTO);
+        userService.updatePassword(passwordDTO);
         return ResponseEntity.ok("비밀번호가 변경되었습니다.");
     }
 }

@@ -1,7 +1,7 @@
 package Grazie.com.Grazie_Backend.member;
 
 import Grazie.com.Grazie_Backend.Config.JwtUtil;
-import Grazie.com.Grazie_Backend.member.dto.LoginResponseDTO;
+import Grazie.com.Grazie_Backend.member.dto.LoginResponse;
 import Grazie.com.Grazie_Backend.member.entity.User;
 import Grazie.com.Grazie_Backend.member.repository.RefreshTokenRepository;
 import Grazie.com.Grazie_Backend.member.repository.UserRepository;
@@ -63,7 +63,7 @@ public class LoginTest {
         when(jwtUtil.generateRefreshToken(id)).thenReturn(refreshToken);
 
         // When
-        LoginResponseDTO response = authService.login(userId, password);
+        LoginResponse response = authService.login(userId, password);
 
         // Then
         assertEquals(accessToken, response.getAccessToken());
