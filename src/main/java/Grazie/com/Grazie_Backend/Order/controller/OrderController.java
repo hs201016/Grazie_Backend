@@ -58,6 +58,13 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrderByUserId());
     }
 
+    // 관리자용 사용자 주문 전체 조회
+    @GetMapping("/get/user/{id}")
+    @Operation(summary = "특정 사용자의 모든 주문을 조회합니다. (관리자용)", description = "userId 통해 사용자의 모든 주문을 조회합니다. (관리자용)")
+    public ResponseEntity<List<OrderGetResponseDTO>> getOrderByUserIdForAdmin(@PathVariable(value = "id") Long userId) {
+        return ResponseEntity.ok(orderService.getOrderByUserIdForAdmin(userId));
+    }
+
     @DeleteMapping("/delete/{id}")
     @Operation(summary = "특정 주문을 삭제합니다.", description = "orderId를 통해 특정 주문을 삭제합니다.")
     public ResponseEntity<Boolean> deleteOrderById(@PathVariable(value = "id") Long order_id) {

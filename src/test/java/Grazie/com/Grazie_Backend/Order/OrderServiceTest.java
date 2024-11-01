@@ -159,8 +159,16 @@ class OrderServiceTest {
             System.out.println(dto.getOrderGetDTO().toString());
             System.out.println(dto.getOrderItemsGetDTOs().toString());
         }
+    }
 
+    @Test
+    public void 유저모든주문조회_관리자() {
+        List<OrderGetResponseDTO> dtos = orderService.getOrderByUserIdForAdmin(2L);
 
+        for (OrderGetResponseDTO dto : dtos) {
+            System.out.println(dto.getOrderGetDTO().toString());
+            System.out.println(dto.getOrderItemsGetDTOs().toString());
+        }
     }
 
     @Test

@@ -405,6 +405,36 @@ public class OrderService {
         return orderGetResponseDTOs;
     }
 
+    public List<OrderGetResponseDTO> getOrderByUserIdForAdmin(Long userId) {
+
+//        User user = SecurityUtils.getCurrentUser().getUser();
+//
+//        if (user == null) {
+//            throw new UserNotFoundException("유저를 찾을 수 없습니다.");
+//        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("존재하지않는 유저입니다."));
+
+        List<Order> orders = orderRepository.findByUser(user);
+        List<OrderGetResponseDTO> orderGetResponseDTOs = new ArrayList<>();
+
+        for (Order o : orders) {
+            OrderGetDTO orderGetDTO = OrderToOrderGetDTO(o);
+            orderGetDTO.setUser(null);
+
+            List<OrderItemsGetDTO> orderItemsGetDTOs =
+                    OrderItemsToOrderItemsGetDTO(orderItemsRepository.findByOrder(o));
+
+            orderGetResponseDTOs.add(OrderGetResponseDTO
+                    .builder()
+                    .orderGetDTO(orderGetDTO)
+                    .orderItemsGetDTOs(orderItemsGetDTOs)
+                    .build());
+        }
+
+        return orderGetResponseDTOs;
+    }
+
     private OrderGetDTO OrderToOrderGetDTO(Order order) {
         OrderGetDTO orderGetDTO = new OrderGetDTO();
         orderGetDTO.setOrder_id(order.getOrder_id());
