@@ -2,6 +2,8 @@ package Grazie.com.Grazie_Backend.member.service;
 
 import Grazie.com.Grazie_Backend.Config.JwtUtil;
 import Grazie.com.Grazie_Backend.Config.UserAdapter;
+import Grazie.com.Grazie_Backend.global.exception.AppException;
+import Grazie.com.Grazie_Backend.global.util.ErrorCode;
 import Grazie.com.Grazie_Backend.member.entity.UserAdditionalInfo;
 import Grazie.com.Grazie_Backend.member.repository.UserAdditionalInfoRepository;
 import Grazie.com.Grazie_Backend.member.repository.UserRepository;
@@ -47,16 +49,15 @@ public class ImageStorageService {
 
             return uniqueFileName;
         } catch (IOException e) {
-            throw new RuntimeException(e + "저장에 실패하였습니다.");
+            throw new AppException(ErrorCode.IMAGE_SAVE_FAILED);
         }
     }
 
     public UserAdditionalInfo updateImage(UserAdapter userAdapter, MultipartFile profileImageFile) {
-
         Long userId = userAdapter.getUser().getId();
 
         UserAdditionalInfo additionalInfo = userAdditionalInfoRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("사용자 추가정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new AppException(ErrorCode.ADDITIONAL_INFO_NOT_FOUND));
 
         // 프로필 이미지 업데이트
         if (profileImageFile != null && !profileImageFile.isEmpty()) {

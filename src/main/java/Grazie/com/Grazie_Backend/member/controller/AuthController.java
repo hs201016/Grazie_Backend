@@ -29,14 +29,11 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@RequestBody Map<String, String> payload) {
-        String refreshToken = payload.get("refreshToken");
-        if (refreshToken == null || refreshToken.isEmpty()) {
-            return ResponseEntity.badRequest().build(); // 잘못된 요청 처리
-        }
+        String refreshToken = payload.getOrDefault("refreshToken", "").trim();
         authService.logOut(refreshToken);
-        System.out.println("님 로그아웃됨");
         return ResponseEntity.noContent().build();
     }
 }
+
 
 

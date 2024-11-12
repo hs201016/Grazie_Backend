@@ -25,31 +25,22 @@ public class EmailController {
     private final PasswordResetService passwordResetService;
     private final UserService userService;
 
-
     @PostMapping("/request-temp-password")
-    public ResponseEntity<?> requestTempPassword(@RequestBody TempPasswordRequest request) {
-        try {
-            passwordResetService.generateTempPassword(request);
-            return ResponseEntity.ok("임시 비밀번호를 이메일로 발송했습니다.");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("임시 비밀번호 발급 실패");
-        }
+    public ResponseEntity<Void> requestTempPassword(@RequestBody TempPasswordRequest request) {
+        passwordResetService.generateTempPassword(request);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
+    public ResponseEntity<Void> resetPassword(@RequestBody ResetPasswordRequest request) {
         passwordResetService.resetPasswordUsingTempPassword(request);
-        return ResponseEntity.ok("비밀번호 변경 완료!");
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/find-id")
-    public ResponseEntity<String> findId(@RequestBody FindIdRequest request) {
-        try {
-            userService.findId(request.getEmail());
-            return ResponseEntity.ok("아이디가 해당 이메일로 발송되었습니다.");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+    public ResponseEntity<Void> findId(@RequestBody FindIdRequest request) {
+        userService.findId(request.getEmail());
+        return ResponseEntity.ok().build();
     }
+
 }

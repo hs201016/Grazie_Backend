@@ -1,5 +1,7 @@
 package Grazie.com.Grazie_Backend.member.service;
 
+import Grazie.com.Grazie_Backend.global.exception.AppException;
+import Grazie.com.Grazie_Backend.global.util.ErrorCode;
 import Grazie.com.Grazie_Backend.member.dto.ResetPasswordRequest;
 import Grazie.com.Grazie_Backend.member.dto.TempPasswordRequest;
 import Grazie.com.Grazie_Backend.member.entity.PasswordToken;
@@ -14,6 +16,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
+
+import static Grazie.com.Grazie_Backend.global.util.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -51,57 +55,52 @@ public class PasswordResetService {
 
     public void resetPasswordUsingTempPassword(ResetPasswordRequest request) {
         // 검증 로직을 호출
-        PasswordToken passwordToken = validateTokenAndTempPassword(request.getToken(), request.getTempPassword());
+        PasswordToken passwordToken = validateToken(request.getToken());
 
         User user = passwordToken.getUser();
         if (!user.getPassword().equals(passwordEncoder.encode(request.getTempPassword()))) {
-            throw new EntityNotFoundException("임시 비밀번호가 올바르지 않습니다.");
+            throw new AppException(TEMP_PASSWORD_NOT_MATCH);
         }
 
         // 새로운 비번 설정
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
 
-
         // 사용 후 토큰 삭제!
         tokenRepository.delete(passwordToken);
     }
 
 
-    private PasswordToken validateTokenAndTempPassword(String token, String tempPassword) {
+    private PasswordToken validateToken(String token) {
         PasswordToken passwordToken = tokenRepository.findByToken(token)
-                .orElseThrow(() -> new EntityNotFoundException("유효하지 않은 토큰입니다."));
+                .orElseThrow(() -> new AppException(INVALID_REFRESH_TOKEN));
 
         // 토큰 만료 확인
         if (passwordToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-            throw new EntityNotFoundException("토큰이 만료되었습니다.");
+            throw new AppException(REFRESH_TOKEN_EXPIRE);
         }
-
-        // 사용자가 입력한 임시 비밀번호 검증
 
         return passwordToken;
     }
 
     public User validateUserIdAndEmail(String userId, String email) {
-        // 1. 사용자 ID 체크
-        Optional<User> userById = userRepository.findByUserId(userId);
-        if (userById.isEmpty()) {
-            throw new EntityNotFoundException("해당 사용자 ID가 존재하지 않습니다.");
+        // 1. 사용자 ID 존재 여부 확인
+        if (!userRepository.existsByUserId(userId)) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND.withArgs(userId));
         }
 
-        // 2. 이메일 체크
-        Optional<User> userByEmail = userRepository.findByEmail(email);
-        if (userByEmail.isEmpty()) {
-            throw new EntityNotFoundException("해당 이메일이 존재하지 않습니다.");
+        // 2. 이메일 존재 여부 확인
+        if (!userRepository.existsByEmail(email)) {
+            throw new AppException(ErrorCode.EMAIL_NOT_FOUND.withArgs(email));
         }
 
         // 3. ID와 이메일 일치 여부 확인
-        User user = userById.get();
-        if (!user.getEmail().equals(email)) {
-            throw new EntityNotFoundException("사용자 ID와 이메일이 일치하지 않습니다.");
-        }
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND.withArgs(userId)));
 
+        if (!user.getEmail().equals(email)) {
+            throw new AppException(ID_EMAIL_NOT_MATCH);
+        }
         return user;
     }
-
 }

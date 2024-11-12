@@ -1,6 +1,7 @@
 package Grazie.com.Grazie_Backend.member.service;
 
 import Grazie.com.Grazie_Backend.Config.JwtUtil;
+import Grazie.com.Grazie_Backend.global.exception.AppException;
 import Grazie.com.Grazie_Backend.member.entity.RefreshToken;
 import Grazie.com.Grazie_Backend.member.entity.User;
 import Grazie.com.Grazie_Backend.member.repository.RefreshTokenRepository;
@@ -10,6 +11,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+
+import static Grazie.com.Grazie_Backend.global.util.ErrorCode.REFRESH_TOKEN_EXPIRE;
+import static Grazie.com.Grazie_Backend.global.util.ErrorCode.REFRESH_TOKEN_NOT_FOUND;
 
 
 @Service
@@ -40,7 +44,6 @@ public class RefreshTokenService {
 
         if (existingToken != null) {
             if (existingToken.isRevoked() || existingToken.getExpiresAt().isBefore(LocalDateTime.now())) {
-                System.out.println("기존 리프레시 토큰이 무효화되었거나 만료되었으므로 재발급합니다.");
 
                 refreshTokenRepository.delete(existingToken);
 
@@ -48,7 +51,6 @@ public class RefreshTokenService {
                 saveRefreshToken(user);
                 return newRefreshToken;
             }
-            System.out.println("기존 리프레시 토큰이 유효하므로 재발급하지 않습니다.");
             return existingToken.getToken();
         }
         // 리프레시 토큰이 없는 경우 새로 발급
@@ -59,16 +61,15 @@ public class RefreshTokenService {
 
     public RefreshToken findRefreshToken(String refreshToken) {
         Optional<RefreshToken> token = refreshTokenRepository.findByToken(refreshToken);
-
         if (token.isPresent()) {
             return token.get();
         } else {
-            throw new RuntimeException("리프레시 토큰을 찾을 수 없습니다: " + refreshToken);
+            throw new AppException(REFRESH_TOKEN_NOT_FOUND);
         }
     }
         public void checkRevokedToken (RefreshToken token){
             if (token.isRevoked()) {
-                throw new RuntimeException("리프레시 토큰은 이미 무효화되었습니다.");
+                throw new AppException(REFRESH_TOKEN_EXPIRE);
             }
         }
 

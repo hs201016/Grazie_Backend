@@ -17,11 +17,16 @@ public class GlobalExceptionHandler {
     // AppException 처리
     @ExceptionHandler(AppException.class)
     public ResponseEntity<String> handleAppException(AppException e) {
-        // 에러 코드에 따라 상태 코드와 메시지 설정하기
         HttpStatus status = e.getErrorCode().getHttpStatus();
         String message = e.getErrorCode().getMessage();
 
-        // 에러 응답을 생성하여 반환하기
         return ResponseEntity.status(status).body(message);
     }
+
+    // UnauthorizedException 처리
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<String> handleUnauthorizedException(UnauthorizedException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증받지 못한 사용자입니다.");
+    }
+
 }

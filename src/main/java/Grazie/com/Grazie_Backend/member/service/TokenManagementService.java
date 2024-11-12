@@ -1,6 +1,8 @@
 package Grazie.com.Grazie_Backend.member.service;
 
 import Grazie.com.Grazie_Backend.Config.JwtUtil;
+import Grazie.com.Grazie_Backend.global.exception.AppException;
+import Grazie.com.Grazie_Backend.global.util.ErrorCode;
 import Grazie.com.Grazie_Backend.member.entity.RefreshToken;
 import Grazie.com.Grazie_Backend.member.repository.RefreshTokenRepository;
 import io.jsonwebtoken.Claims;
@@ -12,6 +14,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
+
+import static Grazie.com.Grazie_Backend.global.util.ErrorCode.*;
 
 
 @Service
@@ -32,12 +36,12 @@ public class TokenManagementService {
         LocalDateTime expiresAt = LocalDateTime.ofInstant(expiresAtInstant, ZoneOffset.UTC);
 
         if (expiresAt.isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Refresh Token이 만료되었습니다!");
+            throw new AppException(REFRESH_TOKEN_EXPIRE);
         }
 
         Optional<RefreshToken> token = refreshTokenRepository.findByToken(refreshToken);
         if (token.isEmpty() || token.get().isRevoked()) {
-            throw new RuntimeException("유효하지 않거나 무효화 된 토큰입니다.");
+            throw new AppException(ERROR_TOKEN);
         }
 
         return jwtUtil.generateRefreshToken(Long.parseLong(userId));

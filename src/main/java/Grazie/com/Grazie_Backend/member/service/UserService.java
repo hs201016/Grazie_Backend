@@ -6,12 +6,16 @@ import Grazie.com.Grazie_Backend.global.exception.AppException;
 import Grazie.com.Grazie_Backend.member.dto.PasswordDTO;
 import Grazie.com.Grazie_Backend.member.dto.UserDTO;
 import Grazie.com.Grazie_Backend.member.dto.UserJoinRequest;
+import Grazie.com.Grazie_Backend.member.entity.PasswordToken;
 import Grazie.com.Grazie_Backend.member.entity.User;
 import Grazie.com.Grazie_Backend.member.enumpackage.Role;
+import Grazie.com.Grazie_Backend.member.repository.PasswordTokenRepository;
 import Grazie.com.Grazie_Backend.member.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 import static Grazie.com.Grazie_Backend.global.util.ErrorCode.*;
 
@@ -22,6 +26,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final PasswordTokenRepository tokenRepository;
 
     public Long joinUser(UserJoinRequest request) {
         User user = new User();
@@ -55,6 +60,20 @@ public class UserService {
         return userAdapter.getUser();
     }
 
+    public void changeTempPassword(String token, PasswordDTO passwordDTO) {
+        PasswordToken passwordToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new AppException(INVALID_TOKEN));
+
+        if (passwordToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new AppException(TOKEN_EXPIRE);
+        }
+
+        User user = passwordToken.getUser();
+        String newPassword = passwordDTO.getNewPassword();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        tokenRepository.delete(passwordToken);
+    }
 
     public User updatePassword(PasswordDTO passwordDTO) {
         UserAdapter currentUser = SecurityUtils.getCurrentUser();

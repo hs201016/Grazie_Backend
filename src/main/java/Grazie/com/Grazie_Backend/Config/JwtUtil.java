@@ -1,5 +1,7 @@
 package Grazie.com.Grazie_Backend.Config;
 
+import Grazie.com.Grazie_Backend.global.exception.AppException;
+import Grazie.com.Grazie_Backend.global.util.ErrorCode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -13,11 +15,15 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+
+import static Grazie.com.Grazie_Backend.global.util.ErrorCode.*;
 
 @Component
 @RequiredArgsConstructor
@@ -77,16 +83,28 @@ public class JwtUtil {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (io.jsonwebtoken.SignatureException e) {
-            throw new RuntimeException("서명 검증에 실패했습니다. 토큰이 변조되었을 수 있습니다.", e);
+            throw new AppException(TOKEN_SIGNATURE_INVALID);
         } catch (Exception e) {
-            throw new RuntimeException("유효하지 않은 토큰입니다.", e);
+            throw new AppException(INVALID_TOKEN);
         }
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
+
+    public Map<String, Object> extractClaims(String token) {
+        Claims claims = extractAllClaims(token);
+        String userId = claims.getSubject();
+        Date expirationDate = claims.getExpiration();
+        LocalDateTime expiresAt = LocalDateTime.ofInstant(expirationDate.toInstant(), ZoneId.systemDefault());
+
+        if (expiresAt.isBefore(LocalDateTime.now())) {
+            throw new AppException(TOKEN_EXPIRE);
+        }
+        return Map.of(
+                "userId", userId,
+                "expiresAt", expiresAt.toString()
+        );
     }
+
 
     public long getRefreshExpiration() {
         return refreshExpiration;

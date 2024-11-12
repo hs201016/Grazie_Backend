@@ -3,6 +3,8 @@ package Grazie.com.Grazie_Backend.member.service;
 import Grazie.com.Grazie_Backend.Config.JwtUtil;
 import Grazie.com.Grazie_Backend.Config.SecurityUtils;
 import Grazie.com.Grazie_Backend.Config.UserAdapter;
+import Grazie.com.Grazie_Backend.global.exception.AppException;
+import Grazie.com.Grazie_Backend.global.util.ErrorCode;
 import Grazie.com.Grazie_Backend.member.dto.UpdateNicknameRequest;
 import Grazie.com.Grazie_Backend.member.dto.UserAdditionalInfoDTO;
 import Grazie.com.Grazie_Backend.member.entity.User;
@@ -18,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
+
+import static Grazie.com.Grazie_Backend.global.util.ErrorCode.*;
 
 @Service
 public class UserAdditionalInfoService {
@@ -39,7 +43,7 @@ public class UserAdditionalInfoService {
 
     public UserAdditionalInfo saveAdditionalInfo(Long userId, UserAdditionalInfo userAdditionalInfo, MultipartFile profileImageFile) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new AppException(USER_NOT_FOUND));
         userAdditionalInfo.setUser(user);
 
         if(profileImageFile != null && !profileImageFile.isEmpty()) {
@@ -73,7 +77,7 @@ public class UserAdditionalInfoService {
             try {
                 userAdditionalInfo.setGender(Gender.valueOf(String.valueOf(updateDTO.getGender())));
             } catch (IllegalArgumentException e) {
-                throw new RuntimeException("유효하지 않은 성별 값입니다.");
+                throw new AppException(INVALID_GENDER);
             }
         }
         if (updateDTO.getNickname() != null) {
@@ -92,16 +96,8 @@ public class UserAdditionalInfoService {
         return userAdditionalInfoRepository.save(userAdditionalInfo);
     }
 
-
-
-    public void deleteAdditionalInfo(UserAdapter userAdapter) {
-        Long userId = userAdapter.getUser().getId();
-        UserAdditionalInfo userAdditionalInfo = getUserAdditionalInfoByUserId(userId);
-        userAdditionalInfoRepository.delete(userAdditionalInfo);
-    }
-
     private UserAdditionalInfo getUserAdditionalInfoByUserId(Long userId) {
         return userAdditionalInfoRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("유저 추가정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new AppException(ADDITIONAL_INFO_NOT_FOUND));
     }
 }

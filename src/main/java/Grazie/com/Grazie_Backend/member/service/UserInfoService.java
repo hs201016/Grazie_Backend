@@ -1,6 +1,8 @@
 package Grazie.com.Grazie_Backend.member.service;
 
 import Grazie.com.Grazie_Backend.Config.UserAdapter;
+import Grazie.com.Grazie_Backend.global.exception.AppException;
+import Grazie.com.Grazie_Backend.global.util.ErrorCode;
 import Grazie.com.Grazie_Backend.member.dto.UserInfoRequest;
 import Grazie.com.Grazie_Backend.member.dto.UserInfoResponse;
 import Grazie.com.Grazie_Backend.member.entity.User;
@@ -8,6 +10,9 @@ import Grazie.com.Grazie_Backend.member.entity.UserAdditionalInfo;
 import Grazie.com.Grazie_Backend.member.enumpackage.Gender;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import static Grazie.com.Grazie_Backend.global.util.ErrorCode.ADDITIONAL_INFO_NOT_FOUND;
+import static Grazie.com.Grazie_Backend.global.util.ErrorCode.INVALID_USER_ID;
 
 @Service
 @RequiredArgsConstructor
@@ -19,14 +24,14 @@ public class UserInfoService {
         User user = userAdapter.getUser();
         System.out.println(user);
         UserAdditionalInfo userAdditionalInfo = userAdditionalInfoService.findByUserId(user.getId())
-                .orElseThrow(() -> new RuntimeException("추가 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new AppException(ADDITIONAL_INFO_NOT_FOUND));
         return new UserInfoResponse(user, userAdditionalInfo);
     }
 
     public UserInfoRequest updateUser(UserAdapter userAdapter, UserInfoRequest request) {
         User user = userAdapter.getUser();
         UserAdditionalInfo userAdditionalInfo = userAdditionalInfoService.findByUserId(user.getId())
-                .orElseThrow(() -> new RuntimeException("추가 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new AppException(ADDITIONAL_INFO_NOT_FOUND));
 
         if (request.getPhone() != null) user.setPhone(request.getPhone());
         if (request.getEmail() != null) user.setEmail(request.getEmail());
@@ -38,7 +43,7 @@ public class UserInfoService {
             try {
                 userAdditionalInfo.setGender(Gender.valueOf(String.valueOf(request.getGender())));
             } catch (IllegalArgumentException e) {
-                throw new RuntimeException("유효하지 않은 성별 값입니다.");
+                throw new AppException(INVALID_USER_ID);
             }
         }
         return request;
